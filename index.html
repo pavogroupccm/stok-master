@@ -77,6 +77,7 @@
         .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
+        .stat-card h2 { margin: 5px 0 0 0; font-size: 1.5rem; font-weight: 700; }
         
         /* TO-DO LIST (YENİ) */
         .todo-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px dashed var(--border); transition: 0.2s; cursor: pointer; }
@@ -94,6 +95,7 @@
         .asset-name { font-size: 0.85rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
         /* BÜTÇE BAR */
+        .budget-container { margin-bottom: 20px; }
         .progress-bg { width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
         .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s ease; }
         .progress-fill.warning { background: var(--warning); }
@@ -102,6 +104,7 @@
         /* MODALS & UPLOAD */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
         .modal-content { background: var(--card-bg); width: 90%; max-width: 700px; border-radius: 16px; padding: 25px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
         .image-upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; background: var(--input-bg); }
         .image-upload-area:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
         .preview-file { max-width: 100%; max-height: 150px; margin-top: 10px; display: none; border-radius: 6px; }
@@ -113,6 +116,10 @@
         .hidden { display: none !important; }
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; background: var(--bg); position: fixed; width: 100%; z-index: 3000; }
         
+        /* CALENDAR STYLE OVERRIDE */
+        #calendar { max-height: 600px; }
+        .fc-toolbar-title { font-size: 1.2rem !important; }
+        .fc-button { background-color: var(--primary) !important; border: none !important; font-size: 0.8rem !important; }
         .filter-group { display: flex; gap: 5px; }
         .filter-btn { padding: 6px 12px; border-radius: 15px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-size: 0.75rem; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -424,7 +431,7 @@
     function saveContent() { const id=document.getElementById('cEditId').value||Date.now().toString(); const obj={id, title:document.getElementById('cTitle').value, date:document.getElementById('cDate').value, plat:document.getElementById('cPlatform').value, format:document.getElementById('cFormat').value, status:document.getElementById('cStatus').value, caption:document.getElementById('cCaption').value, image:tempImageBase64}; if(obj.title){ db.ref('content/'+id).update(obj); showToast('Kaydedildi','success'); closeModal('contentModal'); } }
     function updateContentUI(){ const b=document.getElementById('contentBody'); b.innerHTML=''; data.content.forEach(c=>{ const i=c.image?`<img src="${c.image}" class="content-thumbnail">`:'📄'; b.innerHTML+=`<tr><td>${i}</td><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td><span class="status-badge status-${c.status}">${c.status}</span></td><td style="text-align:right"><button class="btn-icon" style="background:var(--warning)" onclick="openContentModal('${c.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('content','${c.id}')">🗑️</button></td></tr>`; }); }
     function openContentModal(id){ document.getElementById('cEditId').value=''; document.getElementById('cTitle').value=''; tempImageBase64=""; document.getElementById('preview-image').style.display='none'; if(id){const c=data.content.find(x=>x.id==id); document.getElementById('cEditId').value=c.id; document.getElementById('cTitle').value=c.title; document.getElementById('cDate').value=c.date; document.getElementById('cPlatform').value=c.plat; document.getElementById('cFormat').value=c.format; document.getElementById('cStatus').value=c.status; document.getElementById('cCaption').value=c.caption; if(c.image){document.getElementById('preview-image').src=c.image; document.getElementById('preview-image').style.display='block'; tempImageBase64=c.image;}} openModal('contentModal'); }
-    function handleImage(i){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{const img=new Image(); img.src=e.target.result; img.onload=()=>{const c=document.createElement('canvas'); const s=500/img.width; c.width=500; c.height=img.height*s; c.getContext('2d').drawImage(img,0,0,c.width,c.height); tempImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('preview-image').src=tempImageBase64; document.getElementById('preview-image').style.display='block';}}; r.readAsDataURL(i.files[0]);}}
+    function handleImage(i){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{const img=new Image(); img.src=e.target.result; img.onload=()=>{const c=document.createElement('canvas'); const s=500/img.width; c.width=500; c.height=img.height*s; const x=c.getContext('2d'); x.drawImage(img,0,0,c.width,c.height); tempImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('preview-image').src=tempImageBase64; document.getElementById('preview-image').style.display='block';}}; r.readAsDataURL(i.files[0]);}}
 
     function addPress(){ const t=document.getElementById('prTitle').value; if(t){ db.ref('press/'+Date.now()).set({id:Date.now(), title:t, link:document.getElementById('prLink').value, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); } }
     function updatePressUI(){ const b=document.getElementById('pressBody'); b.innerHTML=''; data.press.forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('press','${p.id}')">🗑️</button></td></tr>`; }); }
