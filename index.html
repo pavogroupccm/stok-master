@@ -59,8 +59,15 @@
         .tag-istanbul { background: #e0f2fe; color: #075985; }
         
         .money { color: var(--success); font-weight: bold; display: block; margin-top: 2px;}
-        .cost-detail { font-size: 0.75rem; color: var(--secondary); display: block; margin-bottom: 2px; }
+        .cost-detail { font-size: 0.75rem; color: var(--secondary); display: block; margin-bottom: 2px; border-bottom: 1px dashed var(--border); padding-bottom: 2px;}
         .fair-warning { background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); }
+
+        /* MODAL STYLES */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .expense-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .expense-list { margin-top: 15px; background: var(--input-bg); padding: 15px; border-radius: 8px; }
     </style>
 </head>
 <body data-theme="light">
@@ -140,22 +147,15 @@
                         <div class="form-group"><label>Fuar Adı</label><input type="text" id="fName"></div>
                         <div class="form-group"><label>Ülke / Şehir</label><input type="text" id="fCountry"></div>
                         <div class="form-group"><label>Tarih</label><input type="date" id="fDate"></div>
-                        <div class="form-group"><label>Tedarikçi</label><input type="text" id="fSupp"></div>
                     </div>
                     <div>
+                         <div class="form-group"><label>Tedarikçi</label><input type="text" id="fSupp"></div>
                          <div class="form-group"><label>Alan (m²)</label><input type="number" id="fM2"></div>
-                         <div class="form-group"><label>Alan Kira Bedeli ($)</label><input type="number" id="fRent"></div>
-                         <div class="form-group"><label>Stant Yapım Bedeli ($)</label><input type="number" id="fConst"></div>
-                         
-                         <div class="form-group">
-                             <label>Diğer Giderler ($)</label>
-                             <div style="display: flex; gap: 5px;">
-                                 <input type="text" id="fOtherDesc" placeholder="Açıklama (Örn: Uçak)" style="flex:1">
-                                 <input type="number" id="fOther" placeholder="Tutar" style="width: 100px;">
-                             </div>
+                         <div style="display:flex; gap:10px;">
+                             <div class="form-group" style="flex:1"><label>Kira ($)</label><input type="number" id="fRent"></div>
+                             <div class="form-group" style="flex:1"><label>Stant ($)</label><input type="number" id="fConst"></div>
                          </div>
-                         
-                         <button class="btn btn-primary" onclick="addNewFair()" style="margin-top: 10px;">Fuarı Listeye Ekle</button>
+                         <button class="btn btn-primary" onclick="addNewFair()" style="margin-top: 10px;">Fuarı Oluştur</button>
                     </div>
                 </div>
             </div>
@@ -178,6 +178,38 @@
                         <tbody id="logBody"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Fuar Düzenle & Gider Yönetimi</h3>
+                <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✖</button>
+            </div>
+            <input type="hidden" id="editId">
+            
+            <div class="form-grid">
+                <div>
+                    <label>Fuar Adı</label><input type="text" id="eName">
+                    <label style="margin-top:5px">Ülke</label><input type="text" id="eCountry">
+                    <label style="margin-top:5px">Tarih</label><input type="date" id="eDate">
+                    <label style="margin-top:5px">m²</label><input type="number" id="eM2">
+                </div>
+                <div>
+                    <label>Tedarikçi</label><input type="text" id="eSupp">
+                    <label style="margin-top:5px">Kira ($)</label><input type="number" id="eRent">
+                    <label style="margin-top:5px">Stant ($)</label><input type="number" id="eConst">
+                </div>
+            </div>
+
+            <h4 style="margin-top:20px; border-bottom:1px solid var(--border); padding-bottom:5px;">Ekstra Giderler</h4>
+            <div id="expenseList" class="expense-list"></div>
+            <button class="btn btn-sm" onclick="addExpenseRow()" style="background:var(--secondary); color:white; margin-top:10px;">+ Gider Kalemi Ekle</button>
+
+            <div style="margin-top:20px; text-align:right;">
+                <button class="btn btn-primary" onclick="saveFairChanges()">Değişiklikleri Kaydet</button>
             </div>
         </div>
     </div>
@@ -219,7 +251,7 @@
     db.ref('fairs').on('value', snap => { fairs = snap.val() ? Object.values(snap.val()) : []; updateFuarUI(); });
     db.ref('logs').limitToLast(100).on('value', snap => { logs = snap.val() ? Object.values(snap.val()) : []; updateLogUI(); });
 
-    // STOK MANTIĞI
+    // STOK FONKSİYONLARI
     function updateStokUI() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const body = document.getElementById('inventoryBody');
@@ -298,7 +330,7 @@
         document.getElementById('newName').value = '';
     }
 
-    // FUAR MANTIĞI
+    // --- FUAR UI ---
     function updateFuarUI() {
         const body = document.getElementById('fairBody');
         let totalCost = 0, totalOther = 0, totalM2 = 0;
@@ -312,12 +344,20 @@
             
             const rent = parseFloat(f.rent || 0);
             const cons = parseFloat(f.const || 0);
-            const other = parseFloat(f.other || 0);
-            const sum = rent + cons + other;
-            const otherDesc = f.otherDesc ? `(${f.otherDesc})` : '';
+            
+            // Ekstra Giderleri Topla
+            let otherSum = 0;
+            let otherHtml = '';
+            if(f.expenses) {
+                f.expenses.forEach(ex => {
+                    otherSum += parseFloat(ex.cost || 0);
+                    otherHtml += `<span class="cost-detail">• ${ex.desc}: $${ex.cost}</span>`;
+                });
+            }
 
+            const sum = rent + cons + otherSum;
             totalCost += sum;
-            totalOther += other;
+            totalOther += otherSum;
             totalM2 += parseFloat(f.m2 || 0);
 
             body.innerHTML += `<tr class="${isSoon ? 'fair-warning' : ''}">
@@ -334,11 +374,11 @@
                 <td>
                     <span class="cost-detail">Kira: $${rent.toLocaleString()}</span>
                     <span class="cost-detail">Stant: $${cons.toLocaleString()}</span>
-                    <span class="cost-detail">Diğer ${otherDesc}: $${other.toLocaleString()}</span>
-                    <span class="money">Toplam: $${sum.toLocaleString()}</span>
+                    ${otherHtml}
+                    <span class="money" style="border-top:1px solid #ddd; padding-top:2px;">Toplam: $${sum.toLocaleString()}</span>
                 </td>
                 <td style="text-align:right">
-                    <button class="btn-action" style="background:#eab308" onclick="editFairFinancials('${f.id}')" title="Tutarları Düzenle">✏️</button>
+                    <button class="btn-action" style="background:#eab308" onclick="openEditModal('${f.id}')" title="Düzenle">✏️</button>
                     <button class="btn-action" style="background:var(--danger)" onclick="deleteItem('fairs/', '${f.id}')">Sil</button>
                 </td>
             </tr>`;
@@ -356,38 +396,70 @@
             date: document.getElementById('fDate').value,
             m2: document.getElementById('fM2').value,
             supplier: document.getElementById('fSupp').value,
-            rent: document.getElementById('fRent').value,
-            const: document.getElementById('fConst').value,
-            other: document.getElementById('fOther').value,
-            otherDesc: document.getElementById('fOtherDesc').value
+            rent: parseFloat(document.getElementById('fRent').value) || 0,
+            const: parseFloat(document.getElementById('fConst').value) || 0
         });
-        ['fName','fCountry','fM2','fSupp','fRent','fConst','fOther','fOtherDesc'].forEach(i => document.getElementById(i).value = '');
+        ['fName','fCountry','fM2','fSupp','fRent','fConst'].forEach(i => document.getElementById(i).value = '');
     }
 
-    function editFairFinancials(id) {
+    // --- MODAL & GİDER YÖNETİMİ ---
+    function openEditModal(id) {
         const f = fairs.find(i => i.id === id);
+        document.getElementById('editId').value = f.id;
+        document.getElementById('eName').value = f.name;
+        document.getElementById('eCountry').value = f.country;
+        document.getElementById('eDate').value = f.date;
+        document.getElementById('eM2').value = f.m2;
+        document.getElementById('eSupp').value = f.supplier;
+        document.getElementById('eRent').value = f.rent;
+        document.getElementById('eConst').value = f.const;
         
-        const newRent = prompt("Yeni Kira Bedeli ($):", f.rent);
-        if(newRent === null) return;
+        // Gider Listesini Oluştur
+        const container = document.getElementById('expenseList');
+        container.innerHTML = '';
+        if(f.expenses) {
+            f.expenses.forEach(ex => addExpenseRow(ex.desc, ex.cost));
+        }
         
-        const newConst = prompt("Yeni Stant Bedeli ($):", f.const);
-        if(newConst === null) return;
-        
-        const newOtherDesc = prompt("Diğer Gider Açıklaması (Örn: Uçak):", f.otherDesc || "");
-        if(newOtherDesc === null) return;
+        document.getElementById('editModal').style.display = 'flex';
+    }
 
-        const newOther = prompt("Diğer Gider Tutarı ($):", f.other || 0);
-        if(newOther === null) return;
+    function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+    function addExpenseRow(desc = '', cost = '') {
+        const div = document.createElement('div');
+        div.className = 'expense-row';
+        div.innerHTML = `
+            <input type="text" placeholder="Gider Adı (Örn: Uçak)" value="${desc}" class="ex-desc">
+            <input type="number" placeholder="Tutar ($)" value="${cost}" class="ex-cost" style="width:100px">
+            <button onclick="this.parentElement.remove()" style="background:var(--danger); color:white; border:none; border-radius:4px; padding:5px 10px; cursor:pointer;">X</button>
+        `;
+        document.getElementById('expenseList').appendChild(div);
+    }
+
+    function saveFairChanges() {
+        const id = document.getElementById('editId').value;
+        const expenses = [];
+        document.querySelectorAll('.expense-row').forEach(row => {
+            const d = row.querySelector('.ex-desc').value;
+            const c = row.querySelector('.ex-cost').value;
+            if(d && c) expenses.push({ desc: d, cost: parseFloat(c) });
+        });
 
         db.ref('fairs/' + id).update({
-            rent: parseFloat(newRent),
-            const: parseFloat(newConst),
-            other: parseFloat(newOther),
-            otherDesc: newOtherDesc
+            name: document.getElementById('eName').value,
+            country: document.getElementById('eCountry').value,
+            date: document.getElementById('eDate').value,
+            m2: document.getElementById('eM2').value,
+            supplier: document.getElementById('eSupp').value,
+            rent: parseFloat(document.getElementById('eRent').value) || 0,
+            const: parseFloat(document.getElementById('eConst').value) || 0,
+            expenses: expenses
         });
+        closeModal();
     }
 
-    // LOG
+    // LOG & GENEL
     function updateLogUI() {
         const body = document.getElementById('logBody');
         body.innerHTML = '';
