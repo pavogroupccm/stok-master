@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pavo Group | Enterprise ERP Ultimate</title>
+    <title>Pavo Group | Enterprise ERP</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
@@ -51,78 +50,39 @@
 
         /* CARDS & UI */
         .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.8rem; color: var(--secondary); margin-bottom: 6px; font-weight: 600; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
         input, select, textarea { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; width: 100%; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
+        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         
-        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; transition: 0.2s; font-weight: bold; font-size: 1rem; }
-        .action-group { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
-        .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 5px; color: #fff; }
+        .btn-primary { background: var(--primary); }
+        .btn-danger { background: var(--danger); }
+        .btn-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; }
 
-        .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .tag-Ankara { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
-        .tag-İstanbul { background: #f0f9ff; color: #0369a1; border: 1px solid #e0f2fe; }
-        .money { color: var(--success); font-weight: bold; }
-
-        /* DASHBOARD ÖZEL */
-        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
-        .stat-card h2 { margin: 5px 0 0 0; font-size: 1.5rem; font-weight: 700; }
-        
-        /* TO-DO LIST (YENİ) */
-        .todo-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px dashed var(--border); transition: 0.2s; cursor: pointer; }
-        .todo-item:hover { background: var(--input-bg); }
-        .todo-item.done span { text-decoration: line-through; color: var(--secondary); }
-        .todo-check { width: 18px; height: 18px; border: 2px solid var(--primary); border-radius: 4px; margin-right: 10px; display: flex; align-items: center; justify-content: center; }
-        .todo-item.done .todo-check { background: var(--primary); }
-        .todo-item.done .todo-check::after { content: '✓'; color: white; font-size: 12px; }
-
-        /* ASSET GRID (YENİ) */
-        .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
-        .asset-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; background: var(--input-bg); transition: 0.2s; }
-        .asset-card:hover { transform: translateY(-3px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .asset-preview { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 10px; }
-        .asset-name { font-size: 0.85rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-        /* BÜTÇE BAR */
-        .budget-container { margin-bottom: 20px; }
-        .progress-bg { width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s ease; }
-        .progress-fill.warning { background: var(--warning); }
-        .progress-fill.danger { background: var(--danger); }
-
-        /* MODALS & UPLOAD */
+        /* MODALS & UTILS */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); width: 90%; max-width: 700px; border-radius: 16px; padding: 25px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        .image-upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; background: var(--input-bg); }
-        .image-upload-area:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
-        .preview-file { max-width: 100%; max-height: 150px; margin-top: 10px; display: none; border-radius: 6px; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 600px; border-radius: 16px; padding: 25px; max-height: 90vh; overflow-y: auto; position:relative;}
+        .close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--secondary); }
 
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .tag-Ankara { background: #e0f2fe; color: #0369a1; }
+        .tag-İstanbul { background: #fef3c7; color: #92400e; }
+        
+        .robot-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--input-bg); margin-bottom: 5px; border-radius: 8px; border: 1px solid var(--border); }
+        
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
         .hidden { display: none !important; }
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; background: var(--bg); position: fixed; width: 100%; z-index: 3000; }
         
-        /* CALENDAR STYLE OVERRIDE */
-        #calendar { max-height: 600px; }
-        .fc-toolbar-title { font-size: 1.2rem !important; }
-        .fc-button { background-color: var(--primary) !important; border: none !important; font-size: 0.8rem !important; }
-        .filter-group { display: flex; gap: 5px; }
-        .filter-btn { padding: 6px 12px; border-radius: 15px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-size: 0.75rem; }
-        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        /* Dashboard Charts/Bars */
+        .progress-container { background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .progress-bar { height: 100%; background: var(--primary); transition: width 0.5s ease; }
     </style>
 </head>
 <body data-theme="light">
@@ -132,8 +92,8 @@
     <div id="login-screen">
         <div class="card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px;">
             <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo" style="filter: invert(0); margin-bottom: 20px;">
-            <h2 style="margin-bottom: 10px;">Yönetim Paneli</h2>
-            <p style="color: var(--secondary); margin-bottom: 30px;">Yetkili personel girişi</p>
+            <h2>Yönetim Paneli</h2>
+            <p style="color:var(--secondary); margin-bottom:20px">Lütfen giriş yapınız</p>
             <input type="email" id="email" placeholder="E-Posta" style="margin-bottom: 15px;">
             <input type="password" id="password" placeholder="Şifre" style="margin-bottom: 25px;">
             <button class="btn btn-primary" style="width: 100%;" onclick="login()">Giriş Yap</button>
@@ -147,23 +107,20 @@
                 
                 <div class="nav-label">GENEL</div>
                 <button class="nav-btn active" onclick="showPage('dashboard-page', this)">📊 Dashboard</button>
-                <button class="nav-btn" onclick="showPage('calendar-page', this)">📅 Görsel Takvim</button>
-                <button class="nav-btn" onclick="showPage('brand-page', this)">🎨 Kurumsal Kimlik</button> <div class="nav-label">OPERASYON</div>
+                <button class="nav-btn" onclick="showPage('calendar-page', this)">📅 Takvim</button>
+                
+                <div class="nav-label">OPERASYON</div>
                 <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Stok Yönetimi</button>
-                <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuar Planlama</button>
-
+                <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuarlar</button>
+                
                 <div class="nav-label">İLETİŞİM</div>
                 <button class="nav-btn" onclick="showPage('media-page', this)">👥 Medya CRM</button>
-                <button class="nav-btn" onclick="showPage('press-page', this)">📰 Basın Yansımaları</button>
-                <button class="nav-btn" onclick="showPage('competitor-page', this)">🕵️‍♂️ Rakip Analizi</button> <button class="nav-btn" onclick="showPage('content-page', this)">📱 İçerik Takvimi</button>
-                <button class="nav-btn" onclick="showPage('supplier-page', this)">🤝 Tedarikçiler</button>
-
-                <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid #334155;">
-                    <div class="nav-label" style="margin-top:0">SİSTEM</div>
-                    <button class="nav-btn" onclick="showPage('log-page', this)">🕒 İşlem Logları</button>
-                    <div id="user-display" style="font-size: 0.8rem; color: #94a3b8; margin: 10px 0;"></div>
-                    <button class="nav-btn" onclick="toggleTheme()" style="font-size: 0.8rem;">🌓 Tema</button>
-                    <button class="nav-btn" onclick="logout()" style="color: #f87171; font-size: 0.8rem;">🚪 Çıkış</button>
+                <button class="nav-btn" onclick="showPage('press-page', this)">📰 Haber Takip</button>
+                <button class="nav-btn" onclick="showPage('content-page', this)">📱 İçerik Planı</button>
+                
+                <div style="margin-top: auto; border-top: 1px solid #334155; padding-top: 10px;">
+                    <button class="nav-btn" onclick="toggleTheme()">🌓 Tema Değiştir</button>
+                    <button class="nav-btn" onclick="logout()" style="color: #f87171;">🚪 Çıkış Yap</button>
                 </div>
             </div>
 
@@ -171,284 +128,590 @@
                 
                 <div id="dashboard-page" class="page active">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2 style="margin:0">Genel Bakış</h2>
-                        <button class="btn btn-primary" onclick="generatePDF()">🖨️ Rapor İndir</button>
+                        <h2>Genel Bakış</h2>
+                        <button class="btn btn-primary" onclick="generatePDF()">🖨️ Rapor Al</button>
                     </div>
 
-                    <div class="dash-container">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                         <div>
-                            <div class="card budget-container">
-                                <div style="display:flex; justify-content:space-between;"><h3>💰 Bütçe Durumu</h3><button class="btn btn-sm" style="background:#eee" onclick="setBudget()">Hedef</button></div>
-                                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-top:10px;"><span>Harcanan: <b id="bdg-spent">$0</b></span><span>Hedef: <b id="bdg-total">$0</b></span></div>
-                                <div class="progress-bg"><div class="progress-fill" id="bdg-bar" style="width:0%"></div></div>
-                            </div>
-                            <div class="card" style="background: #fffbeb; border-color: #fcd34d;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                                    <h3 style="color:#92400e; margin:0">📌 Yapılacaklar</h3>
-                                    <button onclick="addTodo()" class="btn-sm" style="background:#fcd34d; color:#92400e; border:none; border-radius:4px;">+ Ekle</button>
-                                </div>
-                                <div id="todo-list"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="stats-grid">
-                                <div class="stat-card"><small>Toplam Stok</small><h2 id="d-stock">0</h2></div>
-                                <div class="stat-card"><small>Medya</small><h2 id="d-media">0</h2></div>
-                            </div>
                             <div class="card">
-                                <h3>🚨 Yaklaşan Fuarlar</h3>
-                                <div id="dash-upcoming-list" class="scroll-list" style="max-height:200px;"><p style="color:#666">Yükleniyor...</p></div>
+                                <h3>💰 Bütçe Durumu</h3>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>Harcanan: <b id="bdg-spent">$0</b></span>
+                                    <span>Hedef: <b id="bdg-total">$0</b></span>
+                                </div>
+                                <div class="progress-container">
+                                    <div id="bdg-bar" class="progress-bar" style="width:0%"></div>
+                                </div>
+                                <button class="btn btn-primary" style="margin-top:15px; font-size:0.8rem" onclick="setBudget()">Hedef Güncelle</button>
+                            </div>
+
+                            <div class="card">
+                                <h3>📌 Yapılacaklar Listesi</h3>
+                                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                    <input id="todoInput" placeholder="Yeni görev..." style="flex:1">
+                                    <button class="btn btn-primary" onclick="addTodo()">+</button>
+                                </div>
+                                <div id="todo-list" style="max-height: 200px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
+                                <div class="card" style="text-align:center">
+                                    <small>Toplam Stok</small>
+                                    <h2 id="d-stock" style="margin:5px 0; color:var(--primary)">0</h2>
+                                </div>
+                                <div class="card" style="text-align:center">
+                                    <small>Medya Kaydı</small>
+                                    <h2 id="d-media" style="margin:5px 0; color:var(--info)">0</h2>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <h3>🚨 Yaklaşan Fuarlar (İlk 3)</h3>
+                                <div id="dash-upcoming-list">Yükleniyor...</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="calendar-page" class="page"><div class="card"><h3>Etkinlik Takvimi</h3><div id="calendar"></div></div></div>
-
-                <div id="brand-page" class="page">
+                <div id="calendar-page" class="page">
                     <div class="card">
-                        <h3>Kurumsal Kimlik Bankası</h3>
-                        <div class="image-upload-area" onclick="document.getElementById('bFileInput').click()">
-                            <span>📂 Yeni Dosya / Logo Yükle</span>
-                            <input type="file" id="bFileInput" style="display:none" onchange="handleBrandUpload(this)">
-                        </div>
-                        <div id="brand-grid" class="asset-grid"></div>
+                        <h3>Etkinlik Takvimi</h3>
+                        <div id="calendar"></div>
                     </div>
-                </div>
-
-                <div id="competitor-page" class="page">
-                    <div class="card" style="border-left:4px solid var(--danger)">
-                        <h3>🕵️‍♂️ Rakip İstihbarat</h3>
-                        <div style="display:flex; gap:10px"><input id="compKeyword" placeholder="Rakip Adı (Örn: Aselsan)" style="flex:1"><button class="btn btn-primary" onclick="fetchCompNews()">🔍 Tara</button></div>
-                        <div id="compResults" style="margin-top:10px"></div>
-                    </div>
-                    <div class="card"><h3>Rakip Arşivi</h3><table><thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th>Sil</th></tr></thead><tbody id="compBody"></tbody></table></div>
                 </div>
 
                 <div id="stok-page" class="page">
-                    <div class="card"><h3>Hızlı Ürün Girişi</h3><div class="form-grid"><input id="pName" placeholder="Ürün Adı"><select id="pCat"><option>Promosyon</option><option>Basılı</option></select><select id="pWh"><option>Ankara</option><option>İstanbul</option></select><input type="number" id="pQty" placeholder="Adet"><button class="btn btn-primary" onclick="addProduct()">Kaydet</button></div></div>
-                    <div class="card"><div style="display:flex; gap:10px; margin-bottom:10px"><input id="searchStock" onkeyup="updateStockUI()" placeholder="Ara..." style="flex:1"><button class="btn" onclick="setWhFilter('all')">Tümü</button></div><table><thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="stockBody"></tbody></table></div>
+                    <div class="card">
+                        <h3>Hızlı Ürün Girişi</h3>
+                        <div class="form-grid">
+                            <input id="pName" placeholder="Ürün Adı">
+                            <select id="pCat"><option>Promosyon</option><option>Basılı Materyal</option><option>Elektronik</option></select>
+                            <select id="pWh"><option>Ankara</option><option>İstanbul</option></select>
+                            <input type="number" id="pQty" placeholder="Adet">
+                            <button class="btn btn-primary" onclick="addProduct()">Kaydet</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div style="margin-bottom:10px">
+                            <input id="searchStock" onkeyup="updateStockUI()" placeholder="Ürün ara..." style="max-width:300px">
+                        </div>
+                        <table>
+                            <thead><tr><th>Ürün</th><th>Kategori</th><th>Depo</th><th>Adet</th><th style="text-align:right">İşlem</th></tr></thead>
+                            <tbody id="stockBody"></tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div id="fuar-page" class="page"><div class="card"><div style="display:flex; justify-content:space-between"><h3>Fuar Yönetimi</h3><button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button></div><table><thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="fairBody"></tbody></table></div></div>
+                <div id="fuar-page" class="page">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3>Fuar Listesi</h3>
+                            <button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>Fuar Adı</th><th>Tarih</th><th>Toplam Maliyet</th><th style="text-align:right">İşlem</th></tr></thead>
+                            <tbody id="fairBody"></tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <div id="media-page" class="page"><div class="card"><div style="display:flex; justify-content:space-between"><h3>Medya Listesi</h3><button class="btn btn-success" onclick="copyEmails()">📋 E-postaları Kopyala</button></div><div class="form-grid" style="margin-top:10px;"><input id="mName" placeholder="Ad Soyad"><input id="mOutlet" placeholder="Kurum"><input id="mRole" placeholder="Görev"><input id="mEmail" placeholder="Email"><input id="mPhone" placeholder="Telefon"><button class="btn btn-primary" onclick="addMedia()">Ekle</button></div><table><thead><tr><th>İsim</th><th>Kurum</th><th>İletişim</th><th>Sil</th></tr></thead><tbody id="mediaBody"></tbody></table></div></div>
+                <div id="media-page" class="page">
+                    <div class="card">
+                        <h3>Yeni Kişi Ekle</h3>
+                        <div class="form-grid">
+                            <input id="mName" placeholder="Ad Soyad">
+                            <input id="mOutlet" placeholder="Kurum (Örn: AA)">
+                            <input id="mEmail" placeholder="E-Posta">
+                            <input id="mPhone" placeholder="Telefon">
+                            <button class="btn btn-primary" onclick="addMedia()">Kaydet</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Medya Listesi</h3>
+                        <table>
+                            <thead><tr><th>İsim</th><th>Kurum</th><th>İletişim</th><th style="text-align:right">Sil</th></tr></thead>
+                            <tbody id="mediaBody"></tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <div id="press-page" class="page"><div class="card" style="border-left:4px solid var(--info)"><h3>🤖 Haber Tarama</h3><div style="display:flex; gap:10px"><input id="robotKeyword" value="Pavo Group" style="flex:1"><button class="btn btn-primary" onclick="fetchNews()">🔍 Tara</button></div><div id="robotResults" style="margin-top:10px"></div></div><div class="card"><h3>Haber Arşivi</h3><table><thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th>Sil</th></tr></thead><tbody id="pressBody"></tbody></table></div></div>
+                <div id="press-page" class="page">
+                    <div class="card" style="border-left:4px solid var(--info)">
+                        <h3>🤖 Otomatik Haber Tarama</h3>
+                        <div style="display:flex; gap:10px">
+                            <input id="robotKeyword" value="Pavo Group" style="flex:1">
+                            <button class="btn btn-primary" onclick="fetchNews()">🔍 Tara ve Getir</button>
+                        </div>
+                        <div id="robotResults" style="margin-top:15px"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Haber Arşivi</h3>
+                        <table>
+                            <thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th style="text-align:right">Sil</th></tr></thead>
+                            <tbody id="pressBody"></tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <div id="content-page" class="page"><div class="card"><div style="display:flex;justify-content:space-between"><h3>İçerik Takvimi</h3><button class="btn btn-primary" onclick="openContentModal()">+ İçerik</button></div><table style="margin-top:10px"><thead><tr><th style="width:50px">Görsel</th><th>Tarih</th><th>Platform</th><th>Başlık</th><th>Durum</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="contentBody"></tbody></table></div></div>
-
-                <div id="supplier-page" class="page"><div class="card"><h3>Tedarikçiler</h3><div class="form-grid"><input id="sName" placeholder="Firma"><input id="sType" placeholder="Hizmet"><input id="sPerson" placeholder="Yetkili"><input id="sContact" placeholder="İletişim"><button class="btn btn-primary" onclick="addSupplier()">Ekle</button></div><table><thead><tr><th>Firma</th><th>Tür</th><th>İletişim</th><th>Sil</th></tr></thead><tbody id="supplierBody"></tbody></table></div></div>
-
-                <div id="log-page" class="page"><div class="card"><h3>İşlem Kayıtları</h3><div style="max-height:500px; overflow:auto"><table><thead><tr><th>Zaman</th><th>Kullanıcı</th><th>İşlem</th></tr></thead><tbody id="logBody"></tbody></table></div></div></div>
+                <div id="content-page" class="page">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between">
+                            <h3>Sosyal Medya Planı</h3>
+                            <button class="btn btn-primary" onclick="openModal('contentModal')">+ Planla</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>Görsel</th><th>Tarih</th><th>Platform</th><th>Başlık</th><th style="text-align:right">İşlem</th></tr></thead>
+                            <tbody id="contentBody"></tbody>
+                        </table>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
 
-    <div id="fairModal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h3>Fuar Planlama</h3><button onclick="closeModal('fairModal')" class="btn-icon" style="color:#333">×</button></div><input type="hidden" id="fEditId"><div class="form-grid"><div><label>Fuar Adı</label><input type="text" id="fName"></div><div><label>Ülke</label><input type="text" id="fCountry"></div><div><label>Tarih</label><input type="date" id="fDate"></div><div><label>Alan (m²)</label><input type="number" id="fM2"></div><div><label>Kira ($)</label><input type="number" id="fRent"></div><div><label>Stant ($)</label><input type="number" id="fConst"></div><div><label>Tedarikçi</label><input type="text" id="fSupp"></div></div><div style="margin-top:15px; border:1px solid var(--border); padding:10px; border-radius:8px;"><label style="font-weight:600; display:block; margin-bottom:5px;">📂 Dosya / Sözleşme</label><input type="file" id="fFileInput" onchange="handleFile(this, 'fFilePreview')"><div id="fFilePreview"></div></div><div style="margin-top:15px"><h4>Giderler</h4><div id="expenseList"></div><button class="btn btn-sm" onclick="addExpenseRow()">+ Gider</button></div><div style="margin-top:20px; text-align:right"><button class="btn btn-primary" onclick="saveFair()">Kaydet</button></div></div></div>
+    <div id="fairModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('fairModal')">×</button>
+            <h3>Fuar Planlama</h3>
+            <input type="hidden" id="fEditId">
+            <div class="form-grid">
+                <div><label>Fuar Adı</label><input id="fName"></div>
+                <div><label>Tarih</label><input type="date" id="fDate"></div>
+                <div><label>Kira Bedeli ($)</label><input type="number" id="fRent" value="0"></div>
+                <div><label>Stant Yapımı ($)</label><input type="number" id="fConst" value="0"></div>
+            </div>
+            <div style="text-align:right; margin-top:20px;">
+                <button class="btn btn-primary" onclick="saveFair()">Kaydet</button>
+            </div>
+        </div>
+    </div>
 
-    <div id="viewModal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h3>Fuar Kartı</h3><button onclick="closeModal('viewModal')" class="btn-icon" style="color:#333">×</button></div><div id="viewContent"></div><div style="margin-top:20px; text-align:right"><button class="btn" style="background:#eee" onclick="closeModal('viewModal')">Kapat</button></div></div></div>
+    <div id="contentModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('contentModal')">×</button>
+            <h3>İçerik Detayları</h3>
+            <input type="hidden" id="cEditId">
+            <div class="form-grid">
+                <div><label>Başlık</label><input id="cTitle"></div>
+                <div><label>Tarih</label><input type="date" id="cDate"></div>
+                <div><label>Platform</label><select id="cPlat"><option>LinkedIn</option><option>Instagram</option><option>Twitter</option></select></div>
+            </div>
+            <div style="margin-top:10px">
+                <label>Görsel (Opsiyonel)</label>
+                <input type="file" onchange="handleImage(this)">
+                <img id="preview-image" style="max-height:100px; display:none; margin-top:10px; border-radius:6px;">
+            </div>
+            <div style="text-align:right; margin-top:20px;">
+                <button class="btn btn-primary" onclick="saveContent()">Kaydet</button>
+            </div>
+        </div>
+    </div>
 
-    <div id="contentModal" class="modal-overlay"><div class="modal-content" style="max-width:800px"><div class="modal-header"><h3>İçerik Planla</h3><button onclick="closeModal('contentModal')" class="btn-icon" style="color:#333">×</button></div><input type="hidden" id="cEditId"><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px"><div><input type="text" id="cTitle" placeholder="Başlık" style="margin-bottom:10px"><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px"><input type="date" id="cDate"><select id="cPlatform"><option>LinkedIn</option><option>Twitter</option><option>Instagram</option></select></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px"><select id="cFormat"><option>Post</option><option>Video</option><option>Story</option></select><select id="cStatus"><option value="Draft">Taslak</option><option value="Pending">Onay</option><option value="Published">Yayında</option></select></div><textarea id="cCaption" rows="5" placeholder="Metin..." style="width:100%"></textarea></div><div><div class="image-upload-area" onclick="document.getElementById('cImageInput').click()"><span>📷 Görsel Seç</span><input type="file" id="cImageInput" accept="image/*" style="display:none" onchange="handleImage(this)"><img id="preview-image" class="preview-file"></div></div></div><div style="margin-top:20px; text-align:right"><button class="btn btn-primary" onclick="saveContent()">Kaydet</button></div></div></div>
-
-<script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
-      authDomain: "stokmasterbulut.firebaseapp.com",
-      databaseURL: "https://stokmasterbulut-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "stokmasterbulut",
-      storageBucket: "stokmasterbulut.firebasestorage.app",
-      messagingSenderId: "623117556073",
-      appId: "1:623117556073:web:b082fb0567879ac71d45f8"
-    };
-    try { firebase.initializeApp(firebaseConfig); } catch(e){}
-    const db = firebase.database();
-    const auth = firebase.auth();
-
-    let data = { inventory:[], fairs:[], media:[], press:[], competitors:[], brandAssets:[], content:[], suppliers:[], logs:[], todos:[] };
-    let whFilter = 'all';
-    let currentUser = null;
-    let tempImageBase64 = "", tempFileBase64 = "";
-    let budgetGoal = localStorage.getItem('budgetGoal') || 0;
-
-    auth.onAuthStateChanged(u => {
-        if(u) {
-            currentUser = u;
-            document.getElementById('user-display').innerText = u.email;
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            initListeners();
-            initCalendar(); updateBudgetUI(); updateTodoUI();
-            showToast('Giriş Başarılı', 'success');
-        } else {
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('app-screen').classList.add('hidden');
+    <script>
+        // 1. FIREBASE BAŞLATMA
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
+            authDomain: "stokmasterbulut.firebaseapp.com",
+            databaseURL: "https://stokmasterbulut-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "stokmasterbulut",
+            storageBucket: "stokmasterbulut.firebasestorage.app",
+            messagingSenderId: "623117556073",
+            appId: "1:623117556073:web:b082fb0567879ac71d45f8"
+        };
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch(e) {
+            console.error("Firebase Hatası:", e);
+            alert("Firebase bağlantı hatası. Konsolu kontrol edin.");
         }
-    });
 
-    function login() { const e = document.getElementById('email').value; const p = document.getElementById('password').value; if(e && p) auth.signInWithEmailAndPassword(e,p).catch(err=>showToast(err.message, 'error')); }
-    function logout(){ auth.signOut(); }
+        const db = firebase.database();
+        const auth = firebase.auth();
 
-    function initListeners() {
-        Object.keys(data).forEach(k => {
-            db.ref(k).on('value', s => {
-                data[k] = s.val() ? Object.values(s.val()) : [];
-                if(k==='inventory') { updateStockUI(); updateDashboard(); }
-                if(k==='fairs') { updateFairUI(); updateDashboard(); initCalendar(); updateBudgetUI(); }
-                if(k==='media') updateMediaUI();
-                if(k==='press') updatePressUI();
-                if(k==='competitors') updateCompUI(); // Yeni
-                if(k==='brandAssets') updateBrandUI(); // Yeni
-                if(k==='content') { updateContentUI(); initCalendar(); }
-                if(k==='suppliers') updateSupplierUI();
-                if(k==='todos') updateTodoUI(); // Yeni
-                if(k==='logs') updateLogUI();
-            });
-        });
-    }
+        // Veri Modeli
+        let data = { inventory:[], fairs:[], media:[], press:[], content:[], todos:[] };
+        let currentUser = null;
+        let tempImageBase64 = "";
+        let budgetGoal = localStorage.getItem('budgetGoal') || 50000;
+        let calendarInstance = null;
 
-    // --- YENİ ÖZELLİKLER ---
-    // 1. RAKİP ANALİZİ
-    async function fetchCompNews() {
-        const q=document.getElementById('compKeyword').value;
-        try{ const r=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=tr-TR&gl=TR&ceid=TR:tr`)}`); const j=await r.json(); const c=document.getElementById('compResults'); c.innerHTML=''; j.items.slice(0,5).forEach(n=>{ c.innerHTML+=`<div class="robot-item"><div class="robot-info"><h4>${n.title}</h4></div><button class="btn-icon" style="background:var(--danger)" onclick="saveComp('${encodeURIComponent(n.title)}','${n.link}')">+</button></div>`; }); }catch(e){}
-    }
-    function saveComp(t,l){ db.ref('competitors/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), link:l, date:new Date().toISOString().split('T')[0]}); showToast('Rakip haberi eklendi','success'); }
-    function updateCompUI(){ const b=document.getElementById('compBody'); b.innerHTML=''; data.competitors.forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('competitors','${p.id}')">🗑️</button></td></tr>`; }); }
-
-    // 2. KURUMSAL KİMLİK
-    function handleBrandUpload(input) {
-        if(input.files[0]) {
-            const n = prompt("Dosya adı ne olsun?");
-            if(!n) return;
-            const r = new FileReader();
-            r.onload=e=>{ db.ref('brandAssets/'+Date.now()).set({id:Date.now(), name:n, file:e.target.result}); showToast('Yüklendi','success'); };
-            r.readAsDataURL(input.files[0]);
-        }
-    }
-    function updateBrandUI() {
-        const g = document.getElementById('brand-grid'); g.innerHTML='';
-        data.brandAssets.forEach(a => {
-            const isImg = a.file.startsWith('data:image');
-            g.innerHTML += `<div class="asset-card"><div class="asset-preview">${isImg ? `<img src="${a.file}" style="max-height:100%;max-width:100%">` : '📄'}</div><div class="asset-name">${a.name}</div><a href="${a.file}" download="${a.name}" class="btn-sm" style="display:block;margin-top:5px;text-decoration:none;background:var(--primary);color:white">İndir</a></div>`;
-        });
-    }
-
-    // 3. TO-DO LIST
-    function addTodo() { const t = prompt("Yapılacak iş:"); if(t) db.ref('todos/'+Date.now()).set({id:Date.now(), text:t, done:false}); }
-    function toggleTodo(id) { const t = data.todos.find(x=>x.id==id); db.ref('todos/'+id).update({done:!t.done}); }
-    function delTodo(e, id) { e.stopPropagation(); if(confirm('Sil?')) db.ref('todos/'+id).remove(); }
-    function updateTodoUI() {
-        const l = document.getElementById('todo-list'); l.innerHTML='';
-        data.todos.forEach(t => {
-            l.innerHTML += `<div class="todo-item ${t.done?'done':''}" onclick="toggleTodo('${t.id}')"><div class="todo-check"></div><span>${t.text}</span><span onclick="delTodo(event, '${t.id}')" style="margin-left:auto;color:red">✕</span></div>`;
-        });
-    }
-
-    // --- MEVCUT ÖZELLİKLER (TAKİM, BÜTÇE, RAPOR, STOK...) ---
-    function initCalendar() {
-        const el = document.getElementById('calendar'); if(!el)return;
-        let evs = [];
-        data.fairs.forEach(f=>evs.push({title:"🏟️ "+f.name, start:f.date, color:'#ef4444'}));
-        data.content.forEach(c=>evs.push({title:"📱 "+c.title, start:c.date, color:'#4f46e5'}));
-        new FullCalendar.Calendar(el, {initialView:'dayGridMonth', locale:'tr', events:evs, headerToolbar:{left:'prev,next today', center:'title', right:'dayGridMonth,listWeek'}}).render();
-    }
-
-    function setBudget() { const v=prompt("Yıllık Bütçe Hedefi ($):",budgetGoal); if(v){budgetGoal=parseFloat(v); localStorage.setItem('budgetGoal',budgetGoal); updateBudgetUI();} }
-    function updateBudgetUI() {
-        let s=0; data.fairs.forEach(f=>{ s+=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>s+=parseFloat(e.cost||0)); });
-        const p=budgetGoal>0?(s/budgetGoal)*100:0;
-        document.getElementById('bdg-spent').innerText="$ "+s.toLocaleString(); document.getElementById('bdg-total').innerText="$ "+parseFloat(budgetGoal).toLocaleString();
-        const bar=document.getElementById('bdg-bar'); bar.style.width=p+"%"; bar.className='progress-fill '+(p>90?'danger':p>70?'warning':'');
-    }
-
-    function generatePDF() {
-        const {jsPDF}=window.jspdf; const doc=new jsPDF();
-        doc.setFont("helvetica","bold"); doc.text("Pavo Group Raporu",14,20);
-        doc.setFontSize(10); doc.setFont("helvetica","normal");
-        doc.autoTable({startY:30, head:[['Metrik','Değer']], body:[['Stok',data.inventory.reduce((a,b)=>a+parseInt(b.qty),0)],['Fuar',data.fairs.length],['Medya',data.media.length],['Harcama',document.getElementById('bdg-spent').innerText]]});
-        doc.text("Fuarlar",14,doc.lastAutoTable.finalY+10);
-        const rows=data.fairs.map(f=>{ let t=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>t+=parseFloat(e.cost)); return [f.name,f.date,f.country,`$ ${t.toLocaleString()}`]; });
-        doc.autoTable({startY:doc.lastAutoTable.finalY+15, head:[['Ad','Tarih','Yer','Maliyet']], body:rows});
-        doc.save("Rapor.pdf");
-    }
-
-    function copyEmails() { navigator.clipboard.writeText(data.media.map(m=>m.email).join('; ')).then(()=>alert("Kopyalandı!")); }
-
-    // --- DASHBOARD DATA ---
-    function updateDashboard() {
-        const ul = document.getElementById('dash-upcoming-list'); ul.innerHTML = '';
-        const sl = document.getElementById('dash-stock-list'); sl.innerHTML = '';
-        const now = new Date();
-        data.fairs.forEach(f => {
-            const d = Math.ceil((new Date(f.date)-now)/86400000);
-            if(d>=0 && d<=30) ul.innerHTML+=`<div class="alert-item"><div>${f.name}</div><div style="color:#c2410c">${d} Gün</div></div>`;
-        });
-        data.inventory.slice(0,5).forEach(i => sl.innerHTML+=`<tr><td>${i.name}</td><td>${i.wh}</td><td align="right">${i.qty}</td></tr>`);
-        document.getElementById('d-stock').innerText=data.inventory.reduce((a,b)=>a+parseInt(b.qty),0);
-        document.getElementById('d-fair').innerText=document.getElementById('bdg-spent').innerText;
-        document.getElementById('d-media').innerText=data.media.length;
-        document.getElementById('d-press').innerText=data.press.length;
-        updateBudgetUI();
-    }
-
-    // --- STOK & TRANSFER ---
-    function updateStockUI() {
-        const t=document.getElementById('searchStock').value.toLowerCase(); const b=document.getElementById('stockBody'); b.innerHTML='';
-        data.inventory.forEach(i=>{
-            if((i.name.toLowerCase().includes(t)||i.cat.toLowerCase().includes(t))&&(whFilter=='all'||i.wh==whFilter)){
-                b.innerHTML+=`<tr><td><b>${i.name}</b><br><small>${i.cat}</small></td><td><span class="tag tag-${i.wh}">${i.wh}</span></td><td><b>${i.qty}</b></td><td style="text-align:right"><div class="action-group"><input type="number" id="q-${i.id}" value="1" style="width:40px"><button class="btn-icon" style="background:var(--success)" onclick="modStock('${i.id}',1)">+</button><button class="btn-icon" style="background:var(--danger)" onclick="modStock('${i.id}',-1)">-</button><button class="btn-icon" style="background:#8b5cf6" onclick="transStock('${i.id}')">⇄</button><button class="btn-icon" style="background:#64748b" onclick="delItem('inventory','${i.id}')">🗑️</button></div></td></tr>`;
+        // 2. OTURUM KONTROLÜ
+        auth.onAuthStateChanged(u => {
+            if(u) {
+                currentUser = u;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                showToast("Giriş Başarılı", "success");
+                initListeners();
+                initCalendar();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
             }
         });
-    }
-    function modStock(id,d){ const i=data.inventory.find(x=>x.id==id); const v=parseInt(document.getElementById('q-'+id).value)||1; let r="Giriş"; if(d===-1){if(i.qty<v)return showToast('Yetersiz','error'); r=prompt("Sebep?")||""; } db.ref('inventory/'+id).update({qty:parseInt(i.qty)+(v*d)}); logAction(d>0?'Giriş':'Çıkış',`${i.name} (${v}) ${r}`); }
-    function transStock(id){ const i=data.inventory.find(x=>x.id==id); const v=parseInt(document.getElementById('q-'+id).value)||1; const tWh=i.wh=='Ankara'?'İstanbul':'Ankara'; if(i.qty<v)return showToast('Yetersiz','error'); db.ref('inventory/'+id).update({qty:i.qty-v}); const ti=data.inventory.find(x=>x.name==i.name&&x.wh==tWh); if(ti)db.ref('inventory/'+ti.id).update({qty:ti.qty+v}); else db.ref('inventory/'+Date.now()).set({id:Date.now(), name:i.name, cat:i.cat, wh:tWh, qty:v}); logAction('Transfer',`${i.name} ${v} -> ${tWh}`); }
-    function addProduct(){ const n=document.getElementById('pName').value; if(n){ db.ref('inventory/'+Date.now()).set({id:Date.now(), name:n, cat:document.getElementById('pCat').value, wh:document.getElementById('pWh').value, qty:parseInt(document.getElementById('pQty').value)||0}); showToast('Eklendi','success'); } }
-    function setWhFilter(v){whFilter=v; updateStockUI();}
 
-    // --- DİĞER MODÜLLER ---
-    function updateFairUI(){ const b=document.getElementById('fairBody'); b.innerHTML=''; data.fairs.forEach(f=>{ let t=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>t+=parseFloat(e.cost)); b.innerHTML+=`<tr><td>${f.name}</td><td>${f.date}</td><td>$ ${t.toLocaleString()}</td><td style="text-align:right"><button class="btn-icon" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button><button class="btn-icon" style="background:var(--warning)" onclick="editFair('${f.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs','${f.id}')">🗑️</button></td></tr>`; }); }
-    function saveFair() {
-        const id=document.getElementById('fEditId').value||Date.now().toString();
-        const ex=[]; document.querySelectorAll('.expense-row').forEach(r=>ex.push({desc:r.querySelector('.ex-desc').value, cost:r.querySelector('.ex-cost').value}));
-        const obj={id, name:document.getElementById('fName').value, country:document.getElementById('fCountry').value, date:document.getElementById('fDate').value, m2:document.getElementById('fM2').value, rent:document.getElementById('fRent').value, const:document.getElementById('fConst').value, supplier:document.getElementById('fSupp').value, expenses:ex, file:tempFileBase64};
-        if(obj.name){ db.ref('fairs/'+id).update(obj); showToast('Kaydedildi','success'); closeModal('fairModal'); }
-    }
-    function viewFair(id){
-        const f=data.fairs.find(x=>x.id==id); let t=parseFloat(f.rent||0)+parseFloat(f.const||0); let h=''; if(f.expenses)f.expenses.forEach(e=>{t+=parseFloat(e.cost); h+=`<div class="detail-row"><span>${e.desc}</span><span>$ ${e.cost}</span></div>`});
-        const fl=f.file?`<div style="margin-top:10px;padding:10px;background:#f0f9ff"><a href="${f.file}" download="Dosya">📎 Dosyayı İndir</a></div>`:'';
-        document.getElementById('viewContent').innerHTML=`<h3>${f.name}</h3><p>${f.country}</p><div class="detail-row"><span>Kira</span><span>$ ${f.rent}</span></div>${h}<div class="detail-row total"><span>TOPLAM</span><span>$ ${t.toLocaleString()}</span></div>${fl}`; openModal('viewModal');
-    }
-    function editFair(id){ const f=data.fairs.find(x=>x.id==id); document.getElementById('fEditId').value=f.id; document.getElementById('fName').value=f.name; document.getElementById('fCountry').value=f.country; document.getElementById('fDate').value=f.date; document.getElementById('fM2').value=f.m2; document.getElementById('fRent').value=f.rent; document.getElementById('fConst').value=f.const; document.getElementById('fSupp').value=f.supplier; document.getElementById('expenseList').innerHTML=''; if(f.expenses)f.expenses.forEach(e=>addExpenseRow(e.desc,e.cost)); openModal('fairModal'); }
-    function handleFile(i,p){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{tempFileBase64=e.target.result; document.getElementById(p).innerText="Dosya Hazır";}; r.readAsDataURL(i.files[0]);}}
-    function addExpenseRow(d='',c=''){ const x=document.createElement('div'); x.className='expense-row'; x.innerHTML=`<input class="ex-desc" value="${d}"><input class="ex-cost" value="${c}"><button onclick="this.parentElement.remove()">x</button>`; document.getElementById('expenseList').appendChild(x); }
+        function login() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            if(!e || !p) return showToast("E-posta ve şifre giriniz", "error");
+            
+            auth.signInWithEmailAndPassword(e, p).catch(err => {
+                showToast("Hata: " + err.message, "error");
+            });
+        }
 
-    function addMedia(){ const n=document.getElementById('mName').value; if(n){ db.ref('media/'+Date.now()).set({id:Date.now(), name:n, outlet:document.getElementById('mOutlet').value, role:document.getElementById('mRole').value, email:document.getElementById('mEmail').value, phone:document.getElementById('mPhone').value}); showToast('Eklendi','success'); } }
-    function updateMediaUI(){ const b=document.getElementById('mediaBody'); b.innerHTML=''; data.media.forEach(m=>{ b.innerHTML+=`<tr><td>${m.name}</td><td>${m.outlet}</td><td>${m.email}<br>${m.phone||''}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('media','${m.id}')">🗑️</button></td></tr>`; }); }
-    
-    function saveContent() { const id=document.getElementById('cEditId').value||Date.now().toString(); const obj={id, title:document.getElementById('cTitle').value, date:document.getElementById('cDate').value, plat:document.getElementById('cPlatform').value, format:document.getElementById('cFormat').value, status:document.getElementById('cStatus').value, caption:document.getElementById('cCaption').value, image:tempImageBase64}; if(obj.title){ db.ref('content/'+id).update(obj); showToast('Kaydedildi','success'); closeModal('contentModal'); } }
-    function updateContentUI(){ const b=document.getElementById('contentBody'); b.innerHTML=''; data.content.forEach(c=>{ const i=c.image?`<img src="${c.image}" class="content-thumbnail">`:'📄'; b.innerHTML+=`<tr><td>${i}</td><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td><span class="status-badge status-${c.status}">${c.status}</span></td><td style="text-align:right"><button class="btn-icon" style="background:var(--warning)" onclick="openContentModal('${c.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('content','${c.id}')">🗑️</button></td></tr>`; }); }
-    function openContentModal(id){ document.getElementById('cEditId').value=''; document.getElementById('cTitle').value=''; tempImageBase64=""; document.getElementById('preview-image').style.display='none'; if(id){const c=data.content.find(x=>x.id==id); document.getElementById('cEditId').value=c.id; document.getElementById('cTitle').value=c.title; document.getElementById('cDate').value=c.date; document.getElementById('cPlatform').value=c.plat; document.getElementById('cFormat').value=c.format; document.getElementById('cStatus').value=c.status; document.getElementById('cCaption').value=c.caption; if(c.image){document.getElementById('preview-image').src=c.image; document.getElementById('preview-image').style.display='block'; tempImageBase64=c.image;}} openModal('contentModal'); }
-    function handleImage(i){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{const img=new Image(); img.src=e.target.result; img.onload=()=>{const c=document.createElement('canvas'); const s=500/img.width; c.width=500; c.height=img.height*s; const x=c.getContext('2d'); x.drawImage(img,0,0,c.width,c.height); tempImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('preview-image').src=tempImageBase64; document.getElementById('preview-image').style.display='block';}}; r.readAsDataURL(i.files[0]);}}
+        function logout() { auth.signOut(); }
 
-    function addPress(){ const t=document.getElementById('prTitle').value; if(t){ db.ref('press/'+Date.now()).set({id:Date.now(), title:t, link:document.getElementById('prLink').value, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); } }
-    function updatePressUI(){ const b=document.getElementById('pressBody'); b.innerHTML=''; data.press.forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('press','${p.id}')">🗑️</button></td></tr>`; }); }
-    async function fetchNews(){ const q=document.getElementById('robotKeyword').value; try{ const r=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=tr-TR&gl=TR&ceid=TR:tr`)}`); const j=await r.json(); const c=document.getElementById('robotResults'); c.innerHTML=''; j.items.slice(0,5).forEach(n=>{ c.innerHTML+=`<div class="robot-item"><div class="robot-info"><h4>${n.title}</h4><a href="${n.link}" target="_blank">Git</a></div><button class="btn-icon" style="background:var(--success)" onclick="saveNews('${encodeURIComponent(n.title)}','${n.link}')">+</button></div>`; }); }catch(e){} }
-    function saveNews(t,l){ db.ref('press/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), link:l, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); }
-    
-    function addSupplier(){ const n=document.getElementById('sName').value; if(n){ db.ref('suppliers/'+Date.now()).set({id:Date.now(), name:n, type:document.getElementById('sType').value, person:document.getElementById('sPerson').value, contact:document.getElementById('sContact').value}); showToast('Eklendi','success'); } }
-    function updateSupplierUI(){ const b=document.getElementById('supplierBody'); b.innerHTML=''; data.suppliers.forEach(s=>{ b.innerHTML+=`<tr><td><b>${s.name}</b><br><small>${s.person||''}</small></td><td>${s.type}</td><td>${s.contact}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('suppliers','${s.id}')">🗑️</button></td></tr>`; }); }
-    function updateLogUI(){ const b=document.getElementById('logBody'); b.innerHTML=''; [...data.logs].reverse().slice(0,50).forEach(l=>{ b.innerHTML+=`<tr><td><small>${l.time}</small></td><td>${l.user}</td><td>${l.action}</td></tr>`; }); }
+        // 3. VERİ DİNLEYİCİLERİ
+        function initListeners() {
+            const modules = ['inventory', 'fairs', 'media', 'press', 'content', 'todos'];
+            
+            modules.forEach(key => {
+                db.ref(key).on('value', snapshot => {
+                    const val = snapshot.val();
+                    data[key] = val ? Object.values(val) : [];
+                    updateUI(key);
+                    updateDashboard();
+                    if(key === 'fairs' || key === 'content') updateCalendarEvents();
+                });
+            });
+        }
 
-    function showPage(p,b){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); document.getElementById(p).classList.add('active'); b.classList.add('active'); if(p==='calendar-page') setTimeout(()=>window.dispatchEvent(new Event('resize')), 100); }
-    function openModal(id){ document.getElementById(id).style.display='flex'; }
-    function closeModal(id){ document.getElementById(id).style.display='none'; }
-    function delItem(p,id){ if(confirm('Sil?')) { db.ref(p+'/'+id).remove(); showToast('Silindi','success'); logAction('Silme', p); } }
-    function logAction(a,d){ db.ref('logs/'+Date.now()).set({time:new Date().toLocaleString('tr-TR'), user:currentUser.email, action:a+' '+d}); }
-    function showToast(m,t){ const d=document.createElement('div'); d.className=`toast ${t}`; d.innerHTML=m; document.getElementById('toast-container').appendChild(d); setTimeout(()=>d.remove(),3000); }
-    function toggleTheme(){ const b=document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')=='dark'?'light':'dark'); }
-</script>
+        // 4. ARAYÜZ GÜNCELLEMELERİ
+        function updateUI(key) {
+            if(key === 'inventory') {
+                const b = document.getElementById('stockBody');
+                const filter = document.getElementById('searchStock').value.toLowerCase();
+                b.innerHTML = '';
+                data.inventory.forEach(i => {
+                    if(i.name.toLowerCase().includes(filter)) {
+                        b.innerHTML += `
+                            <tr>
+                                <td><b>${i.name}</b></td>
+                                <td>${i.cat}</td>
+                                <td><span class="tag tag-${i.wh}">${i.wh}</span></td>
+                                <td>${i.qty}</td>
+                                <td align="right"><button class="btn-icon btn-danger" onclick="delItem('inventory','${i.id}')">🗑️</button></td>
+                            </tr>`;
+                    }
+                });
+            }
+            else if(key === 'fairs') {
+                const b = document.getElementById('fairBody');
+                b.innerHTML = '';
+                data.fairs.forEach(f => {
+                    const cost = parseFloat(f.rent||0) + parseFloat(f.const||0);
+                    b.innerHTML += `<tr><td>${f.name}</td><td>${f.date}</td><td>$${cost.toLocaleString()}</td><td align="right"><button class="btn-icon btn-danger" onclick="delItem('fairs','${f.id}')">🗑️</button></td></tr>`;
+                });
+            }
+            else if(key === 'media') {
+                const b = document.getElementById('mediaBody');
+                b.innerHTML = '';
+                data.media.forEach(m => {
+                    b.innerHTML += `<tr><td>${m.name}</td><td>${m.outlet}</td><td>${m.email}<br>${m.phone}</td><td align="right"><button class="btn-icon btn-danger" onclick="delItem('media','${m.id}')">🗑️</button></td></tr>`;
+                });
+            }
+            else if(key === 'press') {
+                const b = document.getElementById('pressBody');
+                b.innerHTML = '';
+                data.press.forEach(p => {
+                    b.innerHTML += `<tr><td>${p.date}</td><td><a href="${p.link}" target="_blank">${p.title}</a></td><td><a href="${p.link}" target="_blank">🔗</a></td><td align="right"><button class="btn-icon btn-danger" onclick="delItem('press','${p.id}')">🗑️</button></td></tr>`;
+                });
+            }
+            else if(key === 'content') {
+                const b = document.getElementById('contentBody');
+                b.innerHTML = '';
+                data.content.forEach(c => {
+                    const img = c.image ? `<img src="${c.image}" style="width:40px;height:40px;object-fit:cover;border-radius:4px">` : '📄';
+                    b.innerHTML += `<tr><td>${img}</td><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td align="right"><button class="btn-icon btn-danger" onclick="delItem('content','${c.id}')">🗑️</button></td></tr>`;
+                });
+            }
+            else if(key === 'todos') {
+                const l = document.getElementById('todo-list');
+                l.innerHTML = '';
+                data.todos.forEach(t => {
+                    l.innerHTML += `
+                        <div class="robot-item" style="justify-content:flex-start; gap:10px; cursor:pointer" onclick="delItem('todos','${t.id}')">
+                            <div style="width:15px;height:15px;border:2px solid var(--primary);border-radius:3px"></div>
+                            <span>${t.text}</span>
+                        </div>`;
+                });
+            }
+        }
+
+        function updateDashboard() {
+            // Stok Sayısı
+            document.getElementById('d-stock').innerText = data.inventory.reduce((a,b) => a + Number(b.qty), 0);
+            
+            // Medya Sayısı
+            document.getElementById('d-media').innerText = data.media.length;
+
+            // Bütçe
+            let spent = 0;
+            data.fairs.forEach(f => spent += (parseFloat(f.rent)||0) + (parseFloat(f.const)||0));
+            
+            const percentage = (spent / budgetGoal) * 100;
+            document.getElementById('bdg-spent').innerText = `$${spent.toLocaleString()}`;
+            document.getElementById('bdg-total').innerText = `$${parseFloat(budgetGoal).toLocaleString()}`;
+            document.getElementById('bdg-bar').style.width = Math.min(percentage, 100) + '%';
+            document.getElementById('bdg-bar').style.backgroundColor = percentage > 100 ? 'var(--danger)' : 'var(--primary)';
+
+            // Yaklaşanlar
+            const list = document.getElementById('dash-upcoming-list');
+            list.innerHTML = '';
+            if(data.fairs.length === 0) list.innerHTML = '<small style="color:#888">Planlanmış fuar yok.</small>';
+            
+            const sortedFairs = [...data.fairs].sort((a,b) => new Date(a.date) - new Date(b.date));
+            sortedFairs.slice(0,3).forEach(f => {
+                list.innerHTML += `
+                    <div class="robot-item">
+                        <span style="font-weight:600">${f.name}</span>
+                        <span class="tag tag-Ankara">${f.date}</span>
+                    </div>`;
+            });
+        }
+
+        // 5. İŞLEM FONKSİYONLARI (EKLE/SİL)
+        function addProduct() {
+            const obj = {
+                id: Date.now(),
+                name: document.getElementById('pName').value,
+                cat: document.getElementById('pCat').value,
+                wh: document.getElementById('pWh').value,
+                qty: parseInt(document.getElementById('pQty').value) || 0
+            };
+            if(!obj.name) return showToast('Ürün adı giriniz', 'error');
+            db.ref('inventory/' + obj.id).set(obj).then(() => {
+                showToast('Ürün eklendi', 'success');
+                document.getElementById('pName').value = '';
+                document.getElementById('pQty').value = '';
+            });
+        }
+
+        function saveFair() {
+            const id = Date.now();
+            const obj = {
+                id: id,
+                name: document.getElementById('fName').value,
+                date: document.getElementById('fDate').value,
+                rent: document.getElementById('fRent').value,
+                const: document.getElementById('fConst').value
+            };
+            if(!obj.name) return showToast('Fuar adı giriniz', 'error');
+            db.ref('fairs/' + id).set(obj);
+            closeModal('fairModal');
+            showToast('Fuar kaydedildi', 'success');
+        }
+
+        function addMedia() {
+            const id = Date.now();
+            const obj = {
+                id: id,
+                name: document.getElementById('mName').value,
+                outlet: document.getElementById('mOutlet').value,
+                email: document.getElementById('mEmail').value,
+                phone: document.getElementById('mPhone').value
+            };
+            if(!obj.name) return;
+            db.ref('media/' + id).set(obj);
+            showToast('Kişi eklendi', 'success');
+            document.getElementById('mName').value = '';
+        }
+
+        function addTodo() {
+            const val = document.getElementById('todoInput').value;
+            if(!val) return;
+            db.ref('todos/' + Date.now()).set({ id: Date.now(), text: val });
+            document.getElementById('todoInput').value = '';
+        }
+
+        function saveContent() {
+            const id = Date.now();
+            const obj = {
+                id: id,
+                title: document.getElementById('cTitle').value,
+                date: document.getElementById('cDate').value,
+                plat: document.getElementById('cPlat').value,
+                image: tempImageBase64
+            };
+            if(!obj.title) return showToast('Başlık giriniz', 'error');
+            db.ref('content/' + id).set(obj);
+            closeModal('contentModal');
+            tempImageBase64 = "";
+            document.getElementById('preview-image').style.display = 'none';
+        }
+
+        function delItem(path, id) {
+            if(confirm('Bu kaydı silmek istediğinize emin misiniz?')) {
+                db.ref(path + '/' + id).remove();
+            }
+        }
+
+        // 6. YARDIMCI FONKSİYONLAR
+        function showPage(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            btn.classList.add('active');
+
+            // Takvim Fix
+            if(pageId === 'calendar-page' && calendarInstance) {
+                setTimeout(() => calendarInstance.render(), 100);
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function showToast(msg, type) {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerText = msg;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function setBudget() {
+            const val = prompt("Yeni bütçe hedefi ($):", budgetGoal);
+            if(val) {
+                budgetGoal = val;
+                localStorage.setItem('budgetGoal', val);
+                updateDashboard();
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const current = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        }
+
+        // 7. HABER BOTU
+        async function fetchNews() {
+            const key = document.getElementById('robotKeyword').value;
+            const res = document.getElementById('robotResults');
+            res.innerHTML = 'Aranıyor...';
+            
+            try {
+                const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${encodeURIComponent(key)}&hl=tr-TR&gl=TR&ceid=TR:tr`)}`;
+                const response = await fetch(api);
+                const json = await response.json();
+                
+                res.innerHTML = '';
+                json.items.slice(0, 3).forEach(item => {
+                    res.innerHTML += `
+                        <div class="robot-item">
+                            <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">
+                                <small>${item.pubDate.split(' ')[0]}</small><br>
+                                <b>${item.title}</b>
+                            </div>
+                            <button class="btn-icon btn-primary" onclick="addPressItem('${encodeURIComponent(item.title)}', '${item.link}')">+</button>
+                        </div>`;
+                });
+            } catch(e) {
+                res.innerHTML = 'Haber bulunamadı.';
+            }
+        }
+
+        function addPressItem(title, link) {
+            db.ref('press/' + Date.now()).set({
+                id: Date.now(),
+                title: decodeURIComponent(title),
+                link: link,
+                date: new Date().toISOString().split('T')[0]
+            });
+            showToast('Haber arşive eklendi', 'success');
+        }
+
+        // 8. RESİM İŞLEME (Base64)
+        function handleImage(input) {
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempImageBase64 = e.target.result;
+                    const img = document.getElementById('preview-image');
+                    img.src = tempImageBase64;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 9. TAKVİM YAPILANDIRMASI
+        function initCalendar() {
+            const el = document.getElementById('calendar');
+            calendarInstance = new FullCalendar.Calendar(el, {
+                initialView: 'dayGridMonth',
+                locale: 'tr',
+                height: 500,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,listWeek'
+                },
+                events: []
+            });
+            calendarInstance.render();
+        }
+
+        function updateCalendarEvents() {
+            if(!calendarInstance) return;
+            
+            const events = [];
+            data.fairs.forEach(f => {
+                events.push({ title: '🏟️ ' + f.name, start: f.date, color: '#ef4444' });
+            });
+            data.content.forEach(c => {
+                events.push({ title: '📱 ' + c.title, start: c.date, color: '#4f46e5' });
+            });
+            
+            calendarInstance.removeAllEvents();
+            calendarInstance.addEventSource(events);
+        }
+
+        // 10. PDF RAPOR
+        function generatePDF() {
+            if(!window.jspdf) return alert("PDF kütüphanesi yüklenemedi.");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Pavo Group - Yonetici Raporu", 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text("Tarih: " + new Date().toLocaleDateString(), 14, 28);
+            
+            // Özet Tablo
+            doc.autoTable({
+                startY: 35,
+                head: [['Kategori', 'Deger']],
+                body: [
+                    ['Toplam Stok Adedi', document.getElementById('d-stock').innerText],
+                    ['Medya Kisisi', document.getElementById('d-media').innerText],
+                    ['Butce Harcamasi', document.getElementById('bdg-spent').innerText],
+                    ['Butce Hedefi', document.getElementById('bdg-total').innerText]
+                ]
+            });
+
+            // Fuarlar
+            doc.text("Planlanan Fuarlar", 14, doc.lastAutoTable.finalY + 10);
+            const fairRows = data.fairs.map(f => [f.name, f.date, "$"+(parseFloat(f.rent)+parseFloat(f.const))]);
+            
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 15,
+                head: [['Fuar Adi', 'Tarih', 'Maliyet']],
+                body: fairRows
+            });
+
+            doc.save("Pavo_Report.pdf");
+        }
+    </script>
 </body>
 </html>
