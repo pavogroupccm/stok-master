@@ -3,49 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StokMaster Pro | Akıllı Filtreleme</title>
+    <title>StokMaster Pro | Pavo Group</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #4f46e5; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --border: #e2e8f0; --input-bg: #f1f5f9; }
+        :root { 
+            --primary: #4f46e5; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; 
+            --bg: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --border: #e2e8f0; --input-bg: #f1f5f9; 
+        }
+        
+        [data-theme="dark"] {
+            --bg: #0f172a; --card-bg: #1e293b; --text-main: #f1f5f9;
+            --border: #334155; --input-bg: #334155; --secondary: #94a3b8;
+        }
+
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; display: flex; flex-direction: column; transition: 0.3s; }
+        
         .sidebar { width: 260px; background: #1e293b; height: 100vh; color: white; padding: 20px; position: fixed; box-sizing: border-box; overflow-y: auto; z-index: 100; }
         .main-content { margin-left: 260px; padding: 20px; width: calc(100% - 260px); box-sizing: border-box; min-height: 100vh; }
+
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
             .main-content { margin-left: 0; width: 100%; }
             .grid-container { grid-template-columns: 1fr !important; }
         }
-        .sidebar h1 { font-size: 1.4rem; margin-bottom: 20px; color: #818cf8; }
+
+        /* Logo Ayarı */
+        .brand-logo { width: 100%; max-width: 180px; margin-bottom: 30px; display: block; filter: brightness(0) invert(1); }
+        
         .sidebar-btn { width: 100%; background: #334155; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; border: none; text-align: left; font-size: 0.85rem; }
+        .sidebar-btn:hover { background: #475569; }
+
         .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); transition: 0.3s; }
+        
         .grid-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
+        
         .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 15px; }
         input, select { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; }
         
-        /* Filtre Butonları Stili */
         .filter-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--secondary); cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
+        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--secondary); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .btn-add { background: var(--primary); color: white; cursor: pointer; border:none; border-radius:8px; padding:10px; font-weight:600;}
         .btn-action { color: white; cursor: pointer; border:none; border-radius:6px; padding:8px 12px; font-size: 0.9rem; margin: 2px; }
+        
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 12px 8px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.75rem; }
-        td { padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        td { padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-main); }
+        
         .tag { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
         .tag-ankara { background: #ffedd5; color: #9a3412; }
         .tag-istanbul { background: #e0f2fe; color: #075985; }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <div class="sidebar">
-    <h1>📦 StokMaster Pro</h1>
+    <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" alt="Pavo Group" class="brand-logo">
     <button class="sidebar-btn" onclick="exportInventoryCSV()">📊 Stok Durumu (CSV)</button>
     <button class="sidebar-btn" onclick="clearLogsWithAuth()" style="background:#7f1d1d;">🕒 Geçmişi Temizle (Admin)</button>
     <button class="sidebar-btn" onclick="toggleTheme()">🌓 Gece/Gündüz Modu</button>
@@ -77,12 +96,12 @@
                 <button class="btn-add" onclick="addNewProduct()">Kaydet</button>
             </div>
             
-            <input type="text" id="searchInput" placeholder="🔍 Ürün veya Kategori Ara..." onkeyup="updateUI()" style="width:100%; margin-bottom:10px; padding:10px; border-radius:8px; border:1px solid var(--border);">
+            <input type="text" id="searchInput" placeholder="🔍 Filtrele..." onkeyup="updateUI()" style="width:100%; margin-bottom:10px; padding:10px; border-radius:8px; border:1px solid var(--border);">
             
             <div class="filter-group">
                 <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">Hepsi</button>
-                <button class="filter-btn" id="filter-Ankara" onclick="setFilter('Ankara')">Ankara Depo</button>
-                <button class="filter-btn" id="filter-İstanbul" onclick="setFilter('İstanbul')">İstanbul Depo</button>
+                <button class="filter-btn" id="filter-Ankara" onclick="setFilter('Ankara')">Ankara</button>
+                <button class="filter-btn" id="filter-İstanbul" onclick="setFilter('İstanbul')">İstanbul</button>
             </div>
 
             <table>
@@ -95,23 +114,13 @@
 
         <div>
             <div class="card" style="border-left: 5px solid var(--danger);">
-                <h3 style="color:var(--danger); margin:0;">⚠️ Kritik Stok Listesi</h3>
+                <h3 style="color:var(--danger); margin:0;">⚠️ Kritik Stoklar</h3>
                 <table id="criticalTable" style="font-size: 0.8rem; margin-top:10px;">
                     <thead><tr><th>Ürün</th><th>Depo</th><th>Adet</th></tr></thead>
                     <tbody id="criticalBody"></tbody>
                 </table>
             </div>
             <div class="card"><canvas id="inventoryChart"></canvas></div>
-        </div>
-
-        <div class="card full-width">
-            <h3>🕒 İşlem Günlüğü</h3>
-            <div style="max-height: 250px; overflow-y: auto;">
-                <table>
-                    <thead><tr><th>Tarih</th><th>Ürün</th><th>Depo</th><th>İşlem</th><th>Miktar</th><th>Detay</th></tr></thead>
-                    <tbody id="logBody"></tbody>
-                </table>
-            </div>
         </div>
     </div>
 </div>
@@ -131,42 +140,35 @@
     const db = firebase.database();
 
     let inventory = [];
-    let logs = [];
     let myChart;
     let currentFilter = 'all';
+
+    // Tema Değiştirme (Düzeltildi)
+    function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        if(myChart) updateChartColors(newTheme);
+    }
+
+    function setFilter(val) {
+        currentFilter = val;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('filter-' + val).classList.add('active');
+        updateUI();
+    }
 
     db.ref('inventory').on('value', snap => {
         inventory = snap.val() ? Object.values(snap.val()) : [];
         updateUI();
     });
 
-    db.ref('logs').limitToLast(100).on('value', snap => {
-        logs = snap.val() ? Object.values(snap.val()) : [];
-        updateUI();
-    });
-
-    function initChart() {
-        const ctx = document.getElementById('inventoryChart').getContext('2d');
-        myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: { labels: ['Ankara', 'İstanbul'], datasets: [{ data: [0, 0], backgroundColor: ['#f97316', '#0ea5e9'], borderWidth: 0 }] },
-            options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
-        });
-    }
-
-    function setFilter(val) {
-        currentFilter = val;
-        // Buton renklerini güncelle
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('filter-' + val).classList.add('active');
-        updateUI();
-    }
-
     function updateUI() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const body = document.getElementById('inventoryBody');
         const critBody = document.getElementById('criticalBody');
-        const logBody = document.getElementById('logBody');
         let ank = 0, ist = 0, critCount = 0;
 
         body.innerHTML = ''; critBody.innerHTML = '';
@@ -176,8 +178,7 @@
             const isCrit = item.qty <= limitVal;
             if(item.warehouse === "Ankara") ank += item.qty; else ist += item.qty;
 
-            // Filtreleme Mantığı: Hem arama kutusu hem de buton filtresi beraber çalışır
-            const matchSearch = item.name.toLowerCase().includes(search) || item.category.toLowerCase().includes(search);
+            const matchSearch = item.name.toLowerCase().includes(search);
             const matchFilter = currentFilter === 'all' || item.warehouse === currentFilter;
 
             if(matchSearch && matchFilter) {
@@ -186,23 +187,18 @@
                     <td><span class="tag tag-${item.warehouse.toLowerCase()}">${item.warehouse}</span></td>
                     <td style="color:${isCrit ? 'red' : 'inherit'}"><b>${item.qty}</b></td>
                     <td style="text-align:right">
-                        <input type="number" id="bulk-amt-${item.id}" value="1" style="width:40px; margin-right:5px; padding:5px; border:1px solid var(--border); border-radius:4px;">
-                        <button class="btn-action" style="background:var(--success)" onclick="changeStock('${item.id}', 'add')" title="Ekle">+</button>
-                        <button class="btn-action" style="background:var(--danger)" onclick="changeStock('${item.id}', 'sub')" title="Düş">-</button>
-                        <button class="btn-action" style="background:#8b5cf6" onclick="transferStock('${item.id}')" title="Transfer">⇄</button>
-                        <button class="btn-action" style="background:#64748b" onclick="deleteProduct('${item.id}')" title="Ürünü Sil">🗑️</button>
+                        <input type="number" id="bulk-amt-${item.id}" value="1" style="width:45px; margin-right:5px; padding:5px;">
+                        <button class="btn-action" style="background:var(--success)" onclick="changeStock('${item.id}', 1)">+</button>
+                        <button class="btn-action" style="background:var(--danger)" onclick="changeStock('${item.id}', -1)">-</button>
+                        <button class="btn-action" style="background:#8b5cf6" onclick="transferStock('${item.id}')">⇄</button>
+                        <button class="btn-action" style="background:#64748b" onclick="deleteProduct('${item.id}')">🗑️</button>
                     </td>
                 </tr>`;
             }
             if(isCrit) {
                 critCount++;
-                critBody.innerHTML += `<tr><td>${item.name}</td><td>${item.warehouse}</td><td><span class="tag tag-danger" style="background:red; color:white;">${item.qty}</span></td></tr>`;
+                critBody.innerHTML += `<tr><td>${item.name}</td><td>${item.warehouse}</td><td><b style="color:red">${item.qty}</b></td></tr>`;
             }
-        });
-
-        logBody.innerHTML = '';
-        [...logs].reverse().forEach(l => {
-            logBody.innerHTML += `<tr><td><small>${l.time}</small></td><td>${l.name}</td><td><small>${l.wh}</small></td><td style="color:${l.type.includes('Çıkış') ? 'red' : 'green'}">${l.type}</td><td>${l.amount}</td><td><small>${l.info}</small></td></tr>`;
         });
 
         document.getElementById('ankaraTotal').innerText = ank;
@@ -211,45 +207,20 @@
         if(myChart) { myChart.data.datasets[0].data = [ank, ist]; myChart.update(); }
     }
 
-    function addNewProduct() {
-        const nameInput = document.getElementById('newName');
-        const name = nameInput.value;
-        if(!name) return;
-        const id = Date.now().toString();
-        db.ref('inventory/' + id).set({
-            id, name,
-            category: document.getElementById('newCat').value,
-            warehouse: document.getElementById('newWarehouse').value,
-            supplier: document.getElementById('newSupplier').value || "Genel",
-            qty: parseInt(document.getElementById('newQty').value) || 0,
-            limit: parseInt(document.getElementById('newLimit').value) || 5
-        });
-        addLog(name, document.getElementById('newWarehouse').value, "Yeni Ürün", document.getElementById('newQty').value || 0, "Kayıt");
-        nameInput.value = '';
-    }
-
     function changeStock(id, type) {
         const item = inventory.find(i => i.id === id);
-        const inputAmt = parseInt(document.getElementById(`bulk-amt-${id}`).value) || 1;
-        const newQty = type === 'add' ? item.qty + inputAmt : item.qty - inputAmt;
-
-        if(newQty < 0) return alert("Hata: Stok eksiye düşemez!");
-        
-        let detail = type === 'sub' ? prompt(`${inputAmt} adet çıkış için hedef/neden girin:`) : "Giriş";
-        if(type === 'sub' && !detail) return;
-
+        const amt = parseInt(document.getElementById(`bulk-amt-${id}`).value) || 1;
+        const newQty = type > 0 ? item.qty + amt : item.qty - amt;
+        if(newQty < 0) return alert("Stok eksiye düşemez!");
         db.ref('inventory/' + id).update({ qty: newQty });
-        addLog(item.name, item.warehouse, type === 'add' ? "Giriş" : "Çıkış", inputAmt, detail);
+        addLog(item.name, item.warehouse, type > 0 ? "Giriş" : "Çıkış", amt, type > 0 ? "Ekleme" : "Düşüş");
     }
 
     function transferStock(id) {
         const item = inventory.find(i => i.id === id);
         const targetWh = item.warehouse === "Ankara" ? "İstanbul" : "Ankara";
         const amt = parseInt(document.getElementById(`bulk-amt-${id}`).value) || 1;
-        
         if(item.qty < amt) return alert("Yetersiz stok!");
-        if(!confirm(`${amt} adet ${item.name} transfer edilsin mi?`)) return;
-
         db.ref('inventory/' + id).update({ qty: item.qty - amt });
         let targetItem = inventory.find(i => i.name === item.name && i.warehouse === targetWh);
         if(targetItem) {
@@ -261,18 +232,27 @@
         addLog(item.name, item.warehouse, "Transfer", amt, `${targetWh} deposuna`);
     }
 
+    function addNewProduct() {
+        const name = document.getElementById('newName').value;
+        if(!name) return;
+        const id = Date.now().toString();
+        db.ref('inventory/' + id).set({
+            id, name,
+            category: document.getElementById('newCat').value,
+            warehouse: document.getElementById('newWarehouse').value,
+            supplier: document.getElementById('newSupplier').value || "Genel",
+            qty: parseInt(document.getElementById('newQty').value) || 0,
+            limit: parseInt(document.getElementById('newLimit').value) || 5
+        });
+        document.getElementById('newName').value = '';
+    }
+
     function deleteProduct(id) {
-        const item = inventory.find(i => i.id === id);
-        if(confirm(`${item.name} ürününü silmek istediğinize emin misiniz?`)) {
-            db.ref('inventory/' + id).remove();
-            addLog(item.name, item.warehouse, "SİLİNDİ", 0, "Ürün kaydı silindi");
-        }
+        if(confirm("Silinsin mi?")) db.ref('inventory/' + id).remove();
     }
 
     function clearLogsWithAuth() {
-        if(prompt("Admin Şifresi:") === "250488") {
-            if(confirm("Tüm geçmiş silinecek?")) db.ref('logs').remove();
-        } else alert("Hatalı!");
+        if(prompt("Admin Şifresi:") === "250488") db.ref('logs').remove();
     }
 
     function addLog(name, wh, type, amount, info) {
@@ -281,19 +261,21 @@
         });
     }
 
-    function exportInventoryCSV() {
-        let csv = 'Urun,Kategori,Depo,Tedarikci,Stok,Limit\n';
-        inventory.forEach(i => { csv += `${i.name},${i.category},${i.warehouse},${i.supplier},${i.qty},${i.limit}\n`; });
-        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = 'stok_durumu.csv'; a.click();
+    function initChart() {
+        const ctx = document.getElementById('inventoryChart').getContext('2d');
+        myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['Ankara', 'İstanbul'], datasets: [{ data: [0, 0], backgroundColor: ['#f97316', '#0ea5e9'], borderWidth: 0 }] },
+            options: { cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+        });
     }
 
-    function toggleTheme() {
-        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', t);
-    }
-
-    window.onload = () => { initChart(); updateUI(); };
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        initChart();
+        updateUI();
+    };
 </script>
 </body>
 </html>
