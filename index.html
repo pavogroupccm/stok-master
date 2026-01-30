@@ -64,10 +64,12 @@
         .tag-neg { background: #fee2e2; color: #991b1b; }
 
         /* ROBOT STYLES */
-        .robot-results { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 300px; overflow-y: auto; margin-top: 15px; }
-        .robot-item { padding: 10px; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); }
-        .robot-info h4 { margin: 0 0 5px 0; font-size: 0.9rem; }
+        .robot-results { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 350px; overflow-y: auto; margin-top: 15px; }
+        .robot-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); transition: 0.2s; }
+        .robot-item:hover { border-color: var(--primary); }
+        .robot-info h4 { margin: 0 0 5px 0; font-size: 0.9rem; color: var(--primary); }
         .robot-info p { margin: 0; font-size: 0.75rem; color: var(--secondary); }
+        .robot-info a { color: var(--info); text-decoration: none; font-size: 0.75rem; }
     </style>
 </head>
 <body data-theme="light">
@@ -185,11 +187,10 @@
 
                 <div id="press-page" class="page">
                     
-                    <div class="card" style="border-left: 5px solid var(--info);">
-                        <h3>🤖 Otomatik Medya Tarama Robotu</h3>
-                        <p style="font-size:0.8rem; color:var(--secondary)">Pavo Group ile ilgili son haberleri tarayın (Google News/GNews)</p>
+                    <div class="card" style="border-left: 5px solid var(--primary);">
+                        <h3>🤖 Otomatik Medya Tarama Robotu (Limitsiz)</h3>
+                        <p style="font-size:0.8rem; color:var(--secondary)">Google News altyapısı ile anlık tarama yapar. API Key gerektirmez.</p>
                         <div style="display:flex; gap:10px; margin-top:10px;">
-                            <input type="text" id="robotApiKey" value="d61c9a050f8b83e3ce29ad4223fed75b" placeholder="API Key" style="flex:1">
                             <input type="text" id="robotKeyword" value="Pavo Group" placeholder="Anahtar Kelime" style="flex:1">
                             <button class="btn btn-primary" onclick="fetchNews()">🔍 İnterneti Tara</button>
                         </div>
@@ -312,58 +313,62 @@
         });
     }
 
-    // --- ROBOT FONKSİYONU ---
+    // --- GOOGLE NEWS ROBOTU (RSS to JSON) ---
     async function fetchNews() {
-        const key = document.getElementById('robotApiKey').value;
         const query = document.getElementById('robotKeyword').value;
         const container = document.getElementById('robotResults');
         
-        if(!key || !query) return alert("Lütfen API Key ve Anahtar Kelime giriniz.");
+        if(!query) return alert("Lütfen anahtar kelime giriniz.");
         
-        container.innerHTML = '<div style="padding:10px; text-align:center">Taranıyor...</div>';
+        container.innerHTML = '<div style="padding:10px; text-align:center">Google Haberler taranıyor...</div>';
 
         try {
-            const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=tr&max=5&token=${key}`;
-            const response = await fetch(url);
+            // Google News RSS URL oluştur
+            const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr-TR&gl=TR&ceid=TR:tr`;
+            // rss2json API kullanarak XML'i JSON'a çevir (Ücretsiz ve hızlı)
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+            const response = await fetch(apiUrl);
             const data = await response.json();
 
             container.innerHTML = '';
             
-            if(!data.articles || data.articles.length === 0) {
-                container.innerHTML = '<div style="padding:10px">Haber bulunamadı.</div>';
+            if(!data.items || data.items.length === 0) {
+                container.innerHTML = '<div style="padding:10px">Güncel haber bulunamadı.</div>';
                 return;
             }
 
-            data.articles.forEach(news => {
+            data.items.slice(0, 10).forEach(news => {
                 const div = document.createElement('div');
                 div.className = 'robot-item';
-                // Güvenli HTML yapısı
+                // Tarih formatlama
+                const date = new Date(news.pubDate).toLocaleDateString('tr-TR');
+                
                 div.innerHTML = `
                     <div class="robot-info">
                         <h4>${news.title}</h4>
-                        <p>${news.source.name} - ${new Date(news.publishedAt).toLocaleDateString('tr-TR')}</p>
-                        <a href="${news.url}" target="_blank" style="font-size:0.7rem;">Habere Git</a>
+                        <p>${news.author || 'Google News'} - ${date}</p>
+                        <a href="${news.link}" target="_blank">Habere Git</a>
                     </div>
-                    <button class="btn-action" style="background:var(--success)" onclick="saveRobotNews('${encodeURIComponent(news.title)}', '${encodeURIComponent(news.source.name)}', '${news.url}')">Ekle</button>
+                    <button class="btn-action" style="background:var(--success)" onclick="saveRobotNews('${encodeURIComponent(news.title)}', 'Google News', '${news.link}')">Ekle</button>
                 `;
                 container.appendChild(div);
             });
 
         } catch (error) {
             console.error(error);
-            container.innerHTML = '<div style="color:red; padding:10px">Hata oluştu. Günlük kota dolmuş olabilir.</div>';
+            container.innerHTML = '<div style="color:red; padding:10px">Hata oluştu.</div>';
         }
     }
 
     function saveRobotNews(title, source, url) {
         const t = decodeURIComponent(title);
-        const s = decodeURIComponent(source);
         const id = Date.now();
         db.ref('press/'+id).set({
-            id, title: t, outlet: s, date: new Date().toISOString().split('T')[0], sent: 'Nötr', link: url
+            id, title: t, outlet: 'Otomatik Tarama', date: new Date().toISOString().split('T')[0], sent: 'Nötr', link: url
         });
         log("Robot: " + t);
-        alert("Haber başarıyla kaydedildi!");
+        alert("Haber eklendi!");
     }
 
     // --- UI UPDATERS ---
@@ -417,7 +422,6 @@
         let html=''; [...logs].reverse().forEach(l=>{ html+=`<tr><td><small>${l.time}</small></td><td><small>${l.user}</small></td><td>${l.action}</td></tr>`; }); document.getElementById('logBody').innerHTML=html;
     }
 
-    // ACTIONS
     function addProduct(){ const id=Date.now(); db.ref('inventory/'+id).set({id, name:v('pName'), cat:v('pCat'), wh:v('pWh'), qty:parseInt(v('pQty'))||0}); log("Ürün Eklendi: "+v('pName')); clear(['pName','pQty']); }
     function modStock(id, n){ const i=stock.find(x=>x.id==id); db.ref('inventory/'+id).update({qty:i.qty+n}); log("Stok Güncelleme"); }
     function addFair(){ const id=Date.now(); db.ref('fairs/'+id).set({id, name:v('fName'), date:v('fDate'), cost:v('fCost')}); log("Fuar Eklendi"); clear(['fName','fCost']); }
