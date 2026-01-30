@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --primary: #4f46e5; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+            --primary: #4f46e5; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b; --info: #0ea5e9;
             --bg: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --border: #e2e8f0; --input-bg: #f1f5f9; 
         }
         [data-theme="dark"] {
@@ -59,7 +59,6 @@
         .tag-istanbul { background: #e0f2fe; color: #075985; }
         
         .money { color: var(--success); font-weight: bold; display: block; margin-top: 2px;}
-        .cost-detail { font-size: 0.75rem; color: var(--secondary); display: block; margin-bottom: 2px; border-bottom: 1px dashed var(--border); padding-bottom: 2px;}
         .fair-warning { background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); }
 
         /* MODAL STYLES */
@@ -68,6 +67,10 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .expense-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .expense-list { margin-top: 15px; background: var(--input-bg); padding: 15px; border-radius: 8px; }
+        
+        /* VIEW MODAL DETAIL STYLES */
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+        .detail-row.total { border-top: 2px solid var(--border); border-bottom: none; font-weight: bold; font-size: 1.1rem; margin-top: 10px; padding-top: 15px; color: var(--success); }
     </style>
 </head>
 <body data-theme="light">
@@ -163,7 +166,7 @@
             <div class="card">
                 <h3>Fuar Listesi & Maliyetler</h3>
                 <table>
-                    <thead><tr><th>Fuar Bilgileri</th><th>Tarih</th><th>Alan</th><th>Maliyet Detayları ($)</th><th style="text-align:right">İşlem</th></tr></thead>
+                    <thead><tr><th>Fuar Bilgileri</th><th>Tarih</th><th>Alan</th><th>Toplam Maliyet</th><th style="text-align:right">İşlem</th></tr></thead>
                     <tbody id="fairBody"></tbody>
                 </table>
             </div>
@@ -186,10 +189,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Fuar Düzenle & Gider Yönetimi</h3>
-                <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✖</button>
+                <button onclick="closeModal('editModal')" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✖</button>
             </div>
             <input type="hidden" id="editId">
-            
             <div class="form-grid">
                 <div>
                     <label>Fuar Adı</label><input type="text" id="eName">
@@ -203,13 +205,24 @@
                     <label style="margin-top:5px">Stant ($)</label><input type="number" id="eConst">
                 </div>
             </div>
-
             <h4 style="margin-top:20px; border-bottom:1px solid var(--border); padding-bottom:5px;">Ekstra Giderler</h4>
             <div id="expenseList" class="expense-list"></div>
             <button class="btn btn-sm" onclick="addExpenseRow()" style="background:var(--secondary); color:white; margin-top:10px;">+ Gider Kalemi Ekle</button>
-
             <div style="margin-top:20px; text-align:right;">
                 <button class="btn btn-primary" onclick="saveFairChanges()">Değişiklikleri Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Fuar Detayları</h3>
+                <button onclick="closeModal('viewModal')" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✖</button>
+            </div>
+            <div id="viewContent"></div>
+            <div style="margin-top:20px; text-align:right;">
+                <button class="btn" onclick="closeModal('viewModal')" style="background:#ddd;">Kapat</button>
             </div>
         </div>
     </div>
@@ -330,7 +343,7 @@
         document.getElementById('newName').value = '';
     }
 
-    // --- FUAR UI ---
+    // --- FUAR FONKSİYONLARI ---
     function updateFuarUI() {
         const body = document.getElementById('fairBody');
         let totalCost = 0, totalOther = 0, totalM2 = 0;
@@ -345,15 +358,8 @@
             const rent = parseFloat(f.rent || 0);
             const cons = parseFloat(f.const || 0);
             
-            // Ekstra Giderleri Topla
             let otherSum = 0;
-            let otherHtml = '';
-            if(f.expenses) {
-                f.expenses.forEach(ex => {
-                    otherSum += parseFloat(ex.cost || 0);
-                    otherHtml += `<span class="cost-detail">• ${ex.desc}: $${ex.cost}</span>`;
-                });
-            }
+            if(f.expenses) f.expenses.forEach(ex => otherSum += parseFloat(ex.cost || 0));
 
             const sum = rent + cons + otherSum;
             totalCost += sum;
@@ -364,20 +370,15 @@
                 <td>
                     <b>${f.name}</b>
                     <br><small>${f.country}</small>
-                    <br><small style="color:var(--secondary)">Ted: ${f.supplier}</small>
                 </td>
                 <td>
                     ${f.date}
                     ${isSoon ? '<br><span style="color:#d97706; font-size:0.7rem; font-weight:bold;">⚠️ YAKLAŞIYOR</span>' : ''}
                 </td>
                 <td>${f.m2} m²</td>
-                <td>
-                    <span class="cost-detail">Kira: $${rent.toLocaleString()}</span>
-                    <span class="cost-detail">Stant: $${cons.toLocaleString()}</span>
-                    ${otherHtml}
-                    <span class="money" style="border-top:1px solid #ddd; padding-top:2px;">Toplam: $${sum.toLocaleString()}</span>
-                </td>
+                <td><span class="money">$ ${sum.toLocaleString()}</span></td>
                 <td style="text-align:right">
+                    <button class="btn-action" style="background:var(--info)" onclick="openViewModal('${f.id}')" title="Detaylar">👁️</button>
                     <button class="btn-action" style="background:#eab308" onclick="openEditModal('${f.id}')" title="Düzenle">✏️</button>
                     <button class="btn-action" style="background:var(--danger)" onclick="deleteItem('fairs/', '${f.id}')">Sil</button>
                 </td>
@@ -402,7 +403,7 @@
         ['fName','fCountry','fM2','fSupp','fRent','fConst'].forEach(i => document.getElementById(i).value = '');
     }
 
-    // --- MODAL & GİDER YÖNETİMİ ---
+    // --- MODAL YÖNETİMİ ---
     function openEditModal(id) {
         const f = fairs.find(i => i.id === id);
         document.getElementById('editId').value = f.id;
@@ -414,23 +415,58 @@
         document.getElementById('eRent').value = f.rent;
         document.getElementById('eConst').value = f.const;
         
-        // Gider Listesini Oluştur
         const container = document.getElementById('expenseList');
         container.innerHTML = '';
-        if(f.expenses) {
-            f.expenses.forEach(ex => addExpenseRow(ex.desc, ex.cost));
-        }
+        if(f.expenses) f.expenses.forEach(ex => addExpenseRow(ex.desc, ex.cost));
         
         document.getElementById('editModal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+    // YENİ: VIEW MODAL AÇMA
+    function openViewModal(id) {
+        const f = fairs.find(i => i.id === id);
+        const rent = parseFloat(f.rent || 0);
+        const cons = parseFloat(f.const || 0);
+        let otherSum = 0;
+        let expensesHtml = '';
+
+        if(f.expenses && f.expenses.length > 0) {
+            expensesHtml += `<div style="margin: 10px 0; padding-top:10px; border-top:1px dashed var(--border);"><strong>Diğer Giderler:</strong></div>`;
+            f.expenses.forEach(ex => {
+                otherSum += parseFloat(ex.cost || 0);
+                expensesHtml += `<div class="detail-row"><span>${ex.desc}</span><span>$ ${parseFloat(ex.cost).toLocaleString()}</span></div>`;
+            });
+        } else {
+            expensesHtml = `<div style="margin: 10px 0; color:var(--secondary); font-style:italic;">Ekstra gider girilmemiş.</div>`;
+        }
+
+        const grandTotal = rent + cons + otherSum;
+
+        const html = `
+            <div style="margin-bottom:15px; font-size:1.1rem; color:var(--primary); font-weight:bold;">${f.name}</div>
+            <div class="detail-row"><span>Ülke/Şehir:</span><span>${f.country}</span></div>
+            <div class="detail-row"><span>Tarih:</span><span>${f.date}</span></div>
+            <div class="detail-row"><span>Tedarikçi:</span><span>${f.supplier}</span></div>
+            <div class="detail-row"><span>Katılım Alanı:</span><span>${f.m2} m²</span></div>
+            
+            <div style="margin-top:20px; font-weight:bold; border-bottom:1px solid var(--border);">Finansal Döküm</div>
+            <div class="detail-row"><span>Alan Kirası:</span><span>$ ${rent.toLocaleString()}</span></div>
+            <div class="detail-row"><span>Stant Yapım:</span><span>$ ${cons.toLocaleString()}</span></div>
+            ${expensesHtml}
+            <div class="detail-row total"><span>TOPLAM MALİYET:</span><span>$ ${grandTotal.toLocaleString()}</span></div>
+        `;
+
+        document.getElementById('viewContent').innerHTML = html;
+        document.getElementById('viewModal').style.display = 'flex';
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function addExpenseRow(desc = '', cost = '') {
         const div = document.createElement('div');
         div.className = 'expense-row';
         div.innerHTML = `
-            <input type="text" placeholder="Gider Adı (Örn: Uçak)" value="${desc}" class="ex-desc">
+            <input type="text" placeholder="Gider Adı" value="${desc}" class="ex-desc">
             <input type="number" placeholder="Tutar ($)" value="${cost}" class="ex-cost" style="width:100px">
             <button onclick="this.parentElement.remove()" style="background:var(--danger); color:white; border:none; border-radius:4px; padding:5px 10px; cursor:pointer;">X</button>
         `;
@@ -456,7 +492,7 @@
             const: parseFloat(document.getElementById('eConst').value) || 0,
             expenses: expenses
         });
-        closeModal();
+        closeModal('editModal');
     }
 
     // LOG & GENEL
