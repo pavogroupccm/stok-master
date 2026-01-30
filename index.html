@@ -80,8 +80,16 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
         .modal-content { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
         .expense-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        
+        /* DETAY MODAL STİLLERİ (YENİ) */
+        .detail-group { background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row span:first-child { color: var(--secondary); font-weight: 500; }
+        .detail-row span:last-child { font-weight: 600; color: var(--text-main); }
         .detail-row.total { border-top: 2px solid var(--border); border-bottom: none; font-weight: bold; font-size: 1.1rem; margin-top: 10px; padding-top: 15px; color: var(--success); }
+        .detail-header { font-size: 1.2rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
+        .detail-sub { color: var(--secondary); font-size: 0.9rem; margin-bottom: 15px; }
     </style>
 </head>
 <body data-theme="light">
@@ -230,11 +238,11 @@
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between;"><h3>Düzenle</h3><button onclick="closeModal('editModal')">X</button></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><h3>Düzenle</h3><button onclick="closeModal('editModal')">X</button></div>
             <input type="hidden" id="editId">
             <div class="form-grid">
                 <div><label>Ad</label><input type="text" id="eName"><label>Ülke</label><input type="text" id="eCountry"><label>Tarih</label><input type="date" id="eDate"></div>
-                <div><label>m²</label><input type="number" id="eM2"><label>Kira</label><input type="number" id="eRent"><label>Stant</label><input type="number" id="eConst"></div>
+                <div><label>m²</label><input type="number" id="eM2"><label>Kira</label><input type="number" id="eRent"><label>Stant</label><input type="number" id="eConst"><label>Tedarikçi</label><input type="text" id="eSupp"></div>
             </div>
             <h4>Ekstra Giderler</h4>
             <div id="expenseList"></div>
@@ -245,8 +253,12 @@
 
     <div id="viewModal" class="modal-overlay">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between;"><h3>Detaylar</h3><button onclick="closeModal('viewModal')">X</button></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h3>Fuar Kartı</h3>
+                <button onclick="closeModal('viewModal')" style="border:none; background:none; font-size:1.2rem; cursor:pointer;">✖</button>
+            </div>
             <div id="viewContent"></div>
+            <div style="margin-top:15px; text-align:right;"><button class="btn" style="background:#ddd" onclick="closeModal('viewModal')">Kapat</button></div>
         </div>
     </div>
 
@@ -272,13 +284,13 @@
     let whFilter = 'all';
     let chartStock, chartFair;
 
-    // AUTH LISTENER
+    // AUTH
     auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-screen').style.display = 'block';
-            document.getElementById('user-display').innerText = `Giriş Yapıldı: ${user.email}`;
+            document.getElementById('user-display').innerText = `Kullanıcı: ${user.email}`;
             initDataListeners();
         } else {
             currentUser = null;
@@ -303,9 +315,8 @@
         db.ref('logs').limitToLast(100).on('value', snap => { logs = snap.val() ? Object.values(snap.val()) : []; updateLogUI(); });
     }
 
-    // DASHBOARD & CHARTS
+    // DASHBOARD
     function updateDashboard() {
-        // İstatistikler
         let totalStock = 0, critical = 0;
         let ank = 0, ist = 0;
         inventory.forEach(i => {
@@ -327,27 +338,16 @@
         document.getElementById('d-criticalStock').innerText = critical;
         document.getElementById('d-totalFairCost').innerText = "$ " + totalFairCost.toLocaleString();
 
-        // Grafik 1: Stok
         const ctx1 = document.getElementById('stockChart').getContext('2d');
         if(chartStock) chartStock.destroy();
-        chartStock = new Chart(ctx1, {
-            type: 'pie',
-            data: { labels: ['Ankara', 'İstanbul'], datasets: [{ data: [ank, ist], backgroundColor: ['#f97316', '#0ea5e9'] }] }
-        });
+        chartStock = new Chart(ctx1, { type: 'pie', data: { labels: ['Ankara', 'İstanbul'], datasets: [{ data: [ank, ist], backgroundColor: ['#f97316', '#0ea5e9'] }] } });
 
-        // Grafik 2: Fuar Bütçe
         const ctx2 = document.getElementById('fairChart').getContext('2d');
         if(chartFair) chartFair.destroy();
-        chartFair = new Chart(ctx2, {
-            type: 'bar',
-            data: { 
-                labels: ['Kira', 'Stant', 'Diğer'], 
-                datasets: [{ label: 'Maliyet ($)', data: [rentSum, constSum, otherSum], backgroundColor: ['#6366f1', '#10b981', '#f59e0b'] }] 
-            }
-        });
+        chartFair = new Chart(ctx2, { type: 'bar', data: { labels: ['Kira', 'Stant', 'Diğer'], datasets: [{ label: 'Maliyet ($)', data: [rentSum, constSum, otherSum], backgroundColor: ['#6366f1', '#10b981', '#f59e0b'] }] } });
     }
 
-    // STOK FONKSİYONLARI (Kısaltılmış, mantık aynı)
+    // STOK UI
     function updateStokUI() {
         const s = document.getElementById('searchInput').value.toLowerCase();
         const b = document.getElementById('inventoryBody');
@@ -447,13 +447,55 @@
         });
     }
 
-    // MODAL ACTIONS
+    // DETAYLI GÖRÜNTÜLEME MODALI
+    function viewFair(id) {
+        const f = fairs.find(x => x.id===id);
+        const rent = parseFloat(f.rent || 0);
+        const cons = parseFloat(f.const || 0);
+        let otherTotal = 0;
+        let expensesHtml = '';
+
+        if(f.expenses && f.expenses.length > 0) {
+            expensesHtml = '<div style="margin-top:10px; font-weight:bold; color:var(--secondary); font-size:0.9rem;">Ekstra Giderler</div>';
+            f.expenses.forEach(e => {
+                otherTotal += parseFloat(e.cost || 0);
+                expensesHtml += `<div class="detail-row" style="padding-left:10px;"><span>• ${e.desc}</span><span>$ ${parseFloat(e.cost).toLocaleString()}</span></div>`;
+            });
+        } else {
+            expensesHtml = '<div style="margin-top:10px; color:#999; font-size:0.8rem; font-style:italic;">Ekstra gider girilmemiş.</div>';
+        }
+
+        const grandTotal = rent + cons + otherTotal;
+
+        const html = `
+            <div class="detail-header">${f.name}</div>
+            <div class="detail-sub">${f.country}</div>
+            
+            <div class="detail-group">
+                <div class="detail-row"><span>📅 Tarih:</span><span>${f.date}</span></div>
+                <div class="detail-row"><span>🏢 Tedarikçi:</span><span>${f.supplier || '-'}</span></div>
+                <div class="detail-row"><span>📐 Alan:</span><span>${f.m2} m²</span></div>
+            </div>
+
+            <div style="font-weight:bold; margin-bottom:5px; border-bottom:1px solid var(--border); padding-bottom:5px;">Maliyet Tablosu</div>
+            <div class="detail-row"><span>Alan Kirası:</span><span>$ ${rent.toLocaleString()}</span></div>
+            <div class="detail-row"><span>Stant Yapım:</span><span>$ ${cons.toLocaleString()}</span></div>
+            ${expensesHtml}
+            <div class="detail-row total"><span>GENEL TOPLAM:</span><span>$ ${grandTotal.toLocaleString()}</span></div>
+        `;
+
+        document.getElementById('viewContent').innerHTML = html;
+        document.getElementById('viewModal').style.display = 'flex';
+    }
+
+    // EDIT MODAL
     function editFair(id) {
         const f = fairs.find(x => x.id===id);
         document.getElementById('editId').value = f.id;
         document.getElementById('eName').value = f.name; document.getElementById('eCountry').value = f.country;
         document.getElementById('eDate').value = f.date; document.getElementById('eM2').value = f.m2;
         document.getElementById('eRent').value = f.rent; document.getElementById('eConst').value = f.const;
+        document.getElementById('eSupp').value = f.supplier;
         const c = document.getElementById('expenseList'); c.innerHTML='';
         if(f.expenses) f.expenses.forEach(e => addExpenseRow(e.desc, e.cost));
         document.getElementById('editModal').style.display='flex';
@@ -466,27 +508,10 @@
         });
         db.ref('fairs/'+id).update({
             name: document.getElementById('eName').value, country: document.getElementById('eCountry').value, date: document.getElementById('eDate').value,
-            m2: document.getElementById('eM2').value, rent: document.getElementById('eRent').value, const: document.getElementById('eConst').value, expenses: ex
+            m2: document.getElementById('eM2').value, rent: document.getElementById('eRent').value, const: document.getElementById('eConst').value,
+            supplier: document.getElementById('eSupp').value, expenses: ex
         });
         closeModal('editModal');
-    }
-    function viewFair(id) {
-        const f = fairs.find(x => x.id===id);
-        let exHtml = ''; let tot = parseFloat(f.rent||0)+parseFloat(f.const||0);
-        if(f.expenses) {
-            f.expenses.forEach(e => {
-                exHtml += `<div class="detail-row"><span>${e.desc}</span><span>$ ${e.cost}</span></div>`;
-                tot += parseFloat(e.cost||0);
-            });
-        }
-        document.getElementById('viewContent').innerHTML = `
-            <h3>${f.name}</h3>
-            <div class="detail-row"><span>Kira</span><span>$ ${f.rent}</span></div>
-            <div class="detail-row"><span>Stant</span><span>$ ${f.const}</span></div>
-            ${exHtml}
-            <div class="detail-row total"><span>TOPLAM</span><span>$ ${tot.toLocaleString()}</span></div>
-        `;
-        document.getElementById('viewModal').style.display='flex';
     }
     function addExpenseRow(d='', c='') {
         const div = document.createElement('div'); div.className='expense-row';
