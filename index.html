@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pavo Stok Takip | Bulut ve Toplu İşlem</title>
+    <title>StokMaster Pro | Akıllı Filtreleme</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,6 +26,12 @@
         .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
         .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 15px; }
         input, select { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; }
+        
+        /* Filtre Butonları Stili */
+        .filter-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--secondary); cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
+        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
         .btn-add { background: var(--primary); color: white; cursor: pointer; border:none; border-radius:8px; padding:10px; font-weight:600;}
         .btn-action { color: white; cursor: pointer; border:none; border-radius:6px; padding:8px 12px; font-size: 0.9rem; margin: 2px; }
         table { width: 100%; border-collapse: collapse; }
@@ -39,7 +45,7 @@
 <body>
 
 <div class="sidebar">
-    <h1>Pavo Group Stok Takip</h1>
+    <h1>📦 StokMaster Pro</h1>
     <button class="sidebar-btn" onclick="exportInventoryCSV()">📊 Stok Durumu (CSV)</button>
     <button class="sidebar-btn" onclick="clearLogsWithAuth()" style="background:#7f1d1d;">🕒 Geçmişi Temizle (Admin)</button>
     <button class="sidebar-btn" onclick="toggleTheme()">🌓 Gece/Gündüz Modu</button>
@@ -71,7 +77,13 @@
                 <button class="btn-add" onclick="addNewProduct()">Kaydet</button>
             </div>
             
-            <input type="text" id="searchInput" placeholder="🔍 Ürün veya Kategori Ara..." onkeyup="updateUI()" style="width:100%; margin-bottom:15px; padding:10px; border-radius:8px; border:1px solid var(--border);">
+            <input type="text" id="searchInput" placeholder="🔍 Ürün veya Kategori Ara..." onkeyup="updateUI()" style="width:100%; margin-bottom:10px; padding:10px; border-radius:8px; border:1px solid var(--border);">
+            
+            <div class="filter-group">
+                <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">Hepsi</button>
+                <button class="filter-btn" id="filter-Ankara" onclick="setFilter('Ankara')">Ankara Depo</button>
+                <button class="filter-btn" id="filter-İstanbul" onclick="setFilter('İstanbul')">İstanbul Depo</button>
+            </div>
 
             <table>
                 <thead>
@@ -121,6 +133,7 @@
     let inventory = [];
     let logs = [];
     let myChart;
+    let currentFilter = 'all';
 
     db.ref('inventory').on('value', snap => {
         inventory = snap.val() ? Object.values(snap.val()) : [];
@@ -141,6 +154,14 @@
         });
     }
 
+    function setFilter(val) {
+        currentFilter = val;
+        // Buton renklerini güncelle
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('filter-' + val).classList.add('active');
+        updateUI();
+    }
+
     function updateUI() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const body = document.getElementById('inventoryBody');
@@ -155,16 +176,20 @@
             const isCrit = item.qty <= limitVal;
             if(item.warehouse === "Ankara") ank += item.qty; else ist += item.qty;
 
-            if(item.name.toLowerCase().includes(search)) {
+            // Filtreleme Mantığı: Hem arama kutusu hem de buton filtresi beraber çalışır
+            const matchSearch = item.name.toLowerCase().includes(search) || item.category.toLowerCase().includes(search);
+            const matchFilter = currentFilter === 'all' || item.warehouse === currentFilter;
+
+            if(matchSearch && matchFilter) {
                 body.innerHTML += `<tr>
                     <td><strong>${item.name}</strong><br><small style="color:var(--secondary)">${item.category}</small></td>
                     <td><span class="tag tag-${item.warehouse.toLowerCase()}">${item.warehouse}</span></td>
                     <td style="color:${isCrit ? 'red' : 'inherit'}"><b>${item.qty}</b></td>
                     <td style="text-align:right">
-                        <input type="number" id="bulk-amt-${item.id}" value="1" style="width:50px; margin-right:5px; padding:5px; border:1px solid var(--border); border-radius:4px;">
+                        <input type="number" id="bulk-amt-${item.id}" value="1" style="width:40px; margin-right:5px; padding:5px; border:1px solid var(--border); border-radius:4px;">
                         <button class="btn-action" style="background:var(--success)" onclick="changeStock('${item.id}', 'add')" title="Ekle">+</button>
                         <button class="btn-action" style="background:var(--danger)" onclick="changeStock('${item.id}', 'sub')" title="Düş">-</button>
-                        <button class="btn-action" style="background:#8b5cf6" onclick="transferStock('${item.id}')" title="Depolar Arası Transfer">⇄</button>
+                        <button class="btn-action" style="background:#8b5cf6" onclick="transferStock('${item.id}')" title="Transfer">⇄</button>
                         <button class="btn-action" style="background:#64748b" onclick="deleteProduct('${item.id}')" title="Ürünü Sil">🗑️</button>
                     </td>
                 </tr>`;
@@ -254,6 +279,13 @@
         db.ref('logs/' + Date.now().toString()).set({
             time: new Date().toLocaleString('tr-TR'), name, wh, type, amount, info
         });
+    }
+
+    function exportInventoryCSV() {
+        let csv = 'Urun,Kategori,Depo,Tedarikci,Stok,Limit\n';
+        inventory.forEach(i => { csv += `${i.name},${i.category},${i.warehouse},${i.supplier},${i.qty},${i.limit}\n`; });
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = 'stok_durumu.csv'; a.click();
     }
 
     function toggleTheme() {
