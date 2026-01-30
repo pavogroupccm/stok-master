@@ -33,7 +33,6 @@
         .sidebar { width: 260px; background: #1e293b; height: 100%; color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
         .brand-logo { width: 100%; max-width: 150px; margin-bottom: 20px; filter: brightness(0) invert(1); }
         
-        /* NAVIGATION */
         .nav-group { margin-bottom: 15px; }
         .nav-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-bottom: 5px; font-weight: bold; letter-spacing: 0.5px; }
         .nav-btn { width: 100%; background: transparent; color: #cbd5e1; padding: 10px; border-radius: 8px; margin-bottom: 2px; cursor: pointer; border: none; text-align: left; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-size: 0.9rem; }
@@ -45,7 +44,7 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* COMMON UI */
+        /* COMPONENTS */
         .card { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
@@ -63,10 +62,12 @@
         .tag-pos { background: #dcfce7; color: #166534; }
         .tag-neu { background: #f1f5f9; color: #475569; }
         .tag-neg { background: #fee2e2; color: #991b1b; }
-        
-        /* MODAL */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+
+        /* ROBOT STYLES */
+        .robot-results { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 300px; overflow-y: auto; margin-top: 15px; }
+        .robot-item { padding: 10px; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); }
+        .robot-info h4 { margin: 0 0 5px 0; font-size: 0.9rem; }
+        .robot-info p { margin: 0; font-size: 0.75rem; color: var(--secondary); }
     </style>
 </head>
 <body data-theme="light">
@@ -183,15 +184,27 @@
                 </div>
 
                 <div id="press-page" class="page">
+                    
+                    <div class="card" style="border-left: 5px solid var(--info);">
+                        <h3>🤖 Otomatik Medya Tarama Robotu</h3>
+                        <p style="font-size:0.8rem; color:var(--secondary)">Pavo Group ile ilgili son haberleri tarayın (Google News/GNews)</p>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="text" id="robotApiKey" value="d61c9a050f8b83e3ce29ad4223fed75b" placeholder="API Key" style="flex:1">
+                            <input type="text" id="robotKeyword" value="Pavo Group" placeholder="Anahtar Kelime" style="flex:1">
+                            <button class="btn btn-primary" onclick="fetchNews()">🔍 İnterneti Tara</button>
+                        </div>
+                        <div id="robotResults" class="robot-results"></div>
+                    </div>
+
                     <div class="card">
-                        <h3>Haber Girişi</h3>
+                        <h3>Haber Arşivi (Manuel Giriş)</h3>
                         <div class="form-grid">
                             <input type="text" id="prTitle" placeholder="Haber Başlığı">
                             <input type="text" id="prOutlet" placeholder="Mecra (Örn: Webrazzi)">
                             <input type="date" id="prDate">
                             <select id="prSentiment"><option value="Pozitif">Pozitif 😊</option><option value="Nötr">Nötr 😐</option><option value="Negatif">Negatif ☹️</option></select>
                             <input type="text" id="prLink" placeholder="Haber Linki">
-                            <button class="btn btn-primary" onclick="addPress()">Ekle</button>
+                            <button class="btn btn-primary" onclick="addPress()">Arşive Ekle</button>
                         </div>
                     </div>
                     <div class="card">
@@ -244,7 +257,7 @@
         </div>
     </div>
 
-    <script>
+<script>
     const firebaseConfig = {
       apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
       authDomain: "stokmasterbulut.firebaseapp.com",
@@ -260,10 +273,8 @@
     const auth = firebase.auth();
 
     let currentUser = null;
-    // Data Containers
     let stock=[], fairs=[], media=[], press=[], content=[], suppliers=[], logs=[];
 
-    // AUTH
     auth.onAuthStateChanged(user => {
         if(user){
             currentUser=user;
@@ -283,14 +294,12 @@
     }
     function logout(){ auth.signOut(); }
 
-    // INIT DATA
     function initApp(){
         const refs = ['inventory','fairs','media','press','content','suppliers','logs'];
         refs.forEach(r => {
             db.ref(r).on('value', snap => {
                 const val = snap.val();
                 const list = val ? Object.values(val) : [];
-                // Assign to global var
                 if(r==='inventory') { stock=list; updateStockUI(); }
                 if(r==='fairs') { fairs=list; updateFairUI(); }
                 if(r==='media') { media=list; updateMediaUI(); }
@@ -303,9 +312,61 @@
         });
     }
 
+    // --- ROBOT FONKSİYONU ---
+    async function fetchNews() {
+        const key = document.getElementById('robotApiKey').value;
+        const query = document.getElementById('robotKeyword').value;
+        const container = document.getElementById('robotResults');
+        
+        if(!key || !query) return alert("Lütfen API Key ve Anahtar Kelime giriniz.");
+        
+        container.innerHTML = '<div style="padding:10px; text-align:center">Taranıyor...</div>';
+
+        try {
+            const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=tr&max=5&token=${key}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            container.innerHTML = '';
+            
+            if(!data.articles || data.articles.length === 0) {
+                container.innerHTML = '<div style="padding:10px">Haber bulunamadı.</div>';
+                return;
+            }
+
+            data.articles.forEach(news => {
+                const div = document.createElement('div');
+                div.className = 'robot-item';
+                // Güvenli HTML yapısı
+                div.innerHTML = `
+                    <div class="robot-info">
+                        <h4>${news.title}</h4>
+                        <p>${news.source.name} - ${new Date(news.publishedAt).toLocaleDateString('tr-TR')}</p>
+                        <a href="${news.url}" target="_blank" style="font-size:0.7rem;">Habere Git</a>
+                    </div>
+                    <button class="btn-action" style="background:var(--success)" onclick="saveRobotNews('${encodeURIComponent(news.title)}', '${encodeURIComponent(news.source.name)}', '${news.url}')">Ekle</button>
+                `;
+                container.appendChild(div);
+            });
+
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = '<div style="color:red; padding:10px">Hata oluştu. Günlük kota dolmuş olabilir.</div>';
+        }
+    }
+
+    function saveRobotNews(title, source, url) {
+        const t = decodeURIComponent(title);
+        const s = decodeURIComponent(source);
+        const id = Date.now();
+        db.ref('press/'+id).set({
+            id, title: t, outlet: s, date: new Date().toISOString().split('T')[0], sent: 'Nötr', link: url
+        });
+        log("Robot: " + t);
+        alert("Haber başarıyla kaydedildi!");
+    }
+
     // --- UI UPDATERS ---
-    
-    // 1. Dashboard
     function updateDashboard(){
         document.getElementById('d-stock').innerText = stock.reduce((a,b)=>a+b.qty,0);
         let fairBud = fairs.reduce((a,b)=>a+parseFloat(b.cost||0),0);
@@ -313,22 +374,21 @@
         document.getElementById('d-media').innerText = media.length + " Kişi";
         document.getElementById('d-press').innerText = press.length + " Adet";
 
-        // Chart 1: Stock
-        new Chart(document.getElementById('chart1'), {
+        if(window.myChart1) window.myChart1.destroy();
+        window.myChart1 = new Chart(document.getElementById('chart1'), {
             type: 'doughnut',
             data: { labels: ['Ankara','İstanbul'], datasets: [{data:[stock.filter(i=>i.wh=='Ankara').length, stock.filter(i=>i.wh=='İstanbul').length], backgroundColor:['#f97316','#0ea5e9']}] }
         });
-        // Chart 2: Content
-        new Chart(document.getElementById('chart2'), {
+
+        if(window.myChart2) window.myChart2.destroy();
+        window.myChart2 = new Chart(document.getElementById('chart2'), {
             type: 'bar',
             data: { labels: ['Basın', 'LinkedIn', 'Twitter'], datasets: [{label:'Adet', data:[press.length, content.filter(c=>c.plat=='LinkedIn').length, content.filter(c=>c.plat=='Twitter/X').length], backgroundColor:'#6366f1'}] }
         });
     }
 
-    // 2. Stock
     function updateStockUI(){
-        let html='';
-        const term = document.getElementById('searchStock').value.toLowerCase();
+        let html=''; const term = document.getElementById('searchStock').value.toLowerCase();
         stock.forEach(i=>{
             if(i.name.toLowerCase().includes(term))
             html+=`<tr><td><b>${i.name}</b><br><small>${i.cat}</small></td><td>${i.wh}</td><td>${i.qty}</td>
@@ -338,125 +398,34 @@
         });
         document.getElementById('stockBody').innerHTML=html;
     }
-
-    // 3. Fairs
     function updateFairUI(){
-        let html='';
-        fairs.forEach(f=>{
-            html+=`<tr><td><b>${f.name}</b></td><td>${f.date}</td><td>$ ${parseFloat(f.cost).toLocaleString()}</td>
-            <td><button class="btn-action" style="background:var(--danger)" onclick="del('fairs','${f.id}')">🗑️</button></td></tr>`;
-        });
-        document.getElementById('fairBody').innerHTML=html;
+        let html=''; fairs.forEach(f=>{ html+=`<tr><td><b>${f.name}</b></td><td>${f.date}</td><td>$ ${parseFloat(f.cost).toLocaleString()}</td><td><button class="btn-action" style="background:var(--danger)" onclick="del('fairs','${f.id}')">🗑️</button></td></tr>`; }); document.getElementById('fairBody').innerHTML=html;
     }
-
-    // 4. Media (CRM)
     function updateMediaUI(){
-        let html='';
-        media.forEach(m=>{
-            html+=`<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td>
-            <td><small>${m.email}<br>${m.phone}</small></td>
-            <td><button class="btn-action" style="background:var(--danger)" onclick="del('media','${m.id}')">🗑️</button></td></tr>`;
-        });
-        document.getElementById('mediaBody').innerHTML=html;
+        let html=''; media.forEach(m=>{ html+=`<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td><td><small>${m.email}</small></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('media','${m.id}')">🗑️</button></td></tr>`; }); document.getElementById('mediaBody').innerHTML=html;
     }
-
-    // 5. Press
     function updatePressUI(){
-        let html='';
-        press.forEach(p=>{
-            let badge = p.sent==='Pozitif'?'tag-pos':(p.sent==='Negatif'?'tag-neg':'tag-neu');
-            html+=`<tr><td><small>${p.date}</small></td><td><b>${p.title}</b><br><small>${p.outlet}</small></td>
-            <td><span class="tag ${badge}">${p.sent}</span></td>
-            <td><a href="${p.link}" target="_blank">🔗 Git</a></td>
-            <td><button class="btn-action" style="background:var(--danger)" onclick="del('press','${p.id}')">🗑️</button></td></tr>`;
-        });
-        document.getElementById('pressBody').innerHTML=html;
+        let html=''; press.forEach(p=>{ let b=p.sent==='Pozitif'?'tag-pos':(p.sent==='Negatif'?'tag-neg':'tag-neu'); html+=`<tr><td><small>${p.date}</small></td><td><b>${p.title}</b><br><small>${p.outlet}</small></td><td><span class="tag ${b}">${p.sent}</span></td><td><a href="${p.link}" target="_blank">🔗</a></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('press','${p.id}')">🗑️</button></td></tr>`; }); document.getElementById('pressBody').innerHTML=html;
     }
-
-    // 6. Content
     function updateContentUI(){
-        let html='';
-        content.forEach(c=>{
-            let color = c.status==='Yayında'?'#22c55e':(c.status==='Taslak'?'#64748b':'#f59e0b');
-            html+=`<tr><td><small>${c.date}</small></td><td>${c.plat}</td><td>${c.title}</td>
-            <td><span style="color:${color}; font-weight:bold">${c.status}</span></td>
-            <td><button class="btn-action" style="background:var(--danger)" onclick="del('content','${c.id}')">🗑️</button></td></tr>`;
-        });
-        document.getElementById('contentBody').innerHTML=html;
+        let html=''; content.forEach(c=>{ let k=c.status==='Yayında'?'#22c55e':(c.status==='Taslak'?'#64748b':'#f59e0b'); html+=`<tr><td><small>${c.date}</small></td><td>${c.plat}</td><td>${c.title}</td><td><span style="color:${k};font-weight:bold">${c.status}</span></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('content','${c.id}')">🗑️</button></td></tr>`; }); document.getElementById('contentBody').innerHTML=html;
     }
-
-    // 7. Supplier
     function updateSupplierUI(){
-        let html='';
-        suppliers.forEach(s=>{
-            html+=`<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}<br><small>${s.phone}</small></td>
-            <td><button class="btn-action" style="background:var(--danger)" onclick="del('suppliers','${s.id}')">🗑️</button></td></tr>`;
-        });
-        document.getElementById('supplierBody').innerHTML=html;
+        let html=''; suppliers.forEach(s=>{ html+=`<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}<br><small>${s.phone}</small></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('suppliers','${s.id}')">🗑️</button></td></tr>`; }); document.getElementById('supplierBody').innerHTML=html;
     }
-
-    // 8. Logs
     function updateLogUI(){
-        let html='';
-        [...logs].reverse().forEach(l=>{
-            html+=`<tr><td><small>${l.time}</small></td><td><small>${l.user}</small></td><td>${l.action}</td></tr>`;
-        });
-        document.getElementById('logBody').innerHTML=html;
+        let html=''; [...logs].reverse().forEach(l=>{ html+=`<tr><td><small>${l.time}</small></td><td><small>${l.user}</small></td><td>${l.action}</td></tr>`; }); document.getElementById('logBody').innerHTML=html;
     }
 
+    // ACTIONS
+    function addProduct(){ const id=Date.now(); db.ref('inventory/'+id).set({id, name:v('pName'), cat:v('pCat'), wh:v('pWh'), qty:parseInt(v('pQty'))||0}); log("Ürün Eklendi: "+v('pName')); clear(['pName','pQty']); }
+    function modStock(id, n){ const i=stock.find(x=>x.id==id); db.ref('inventory/'+id).update({qty:i.qty+n}); log("Stok Güncelleme"); }
+    function addFair(){ const id=Date.now(); db.ref('fairs/'+id).set({id, name:v('fName'), date:v('fDate'), cost:v('fCost')}); log("Fuar Eklendi"); clear(['fName','fCost']); }
+    function addMedia(){ const id=Date.now(); db.ref('media/'+id).set({id, name:v('mName'), outlet:v('mOutlet'), role:v('mRole'), email:v('mEmail'), phone:v('mPhone')}); log("Medya Eklendi"); clear(['mName','mOutlet','mRole','mEmail','mPhone']); }
+    function addPress(){ const id=Date.now(); db.ref('press/'+id).set({id, title:v('prTitle'), outlet:v('prOutlet'), date:v('prDate'), sent:v('prSentiment'), link:v('prLink')}); log("Haber Eklendi"); clear(['prTitle','prOutlet','prLink']); }
+    function addContent(){ const id=Date.now(); db.ref('content/'+id).set({id, date:v('cDate'), plat:v('cPlatform'), title:v('cTitle'), status:v('cStatus')}); log("İçerik Planlandı"); clear(['cTitle']); }
+    function addSupplier(){ const id=Date.now(); db.ref('suppliers/'+id).set({id, name:v('sName'), type:v('sType'), contact:v('sContact'), phone:v('sPhone')}); log("Tedarikçi Eklendi"); clear(['sName','sContact','sPhone']); }
 
-    // --- ACTIONS ---
-    function addProduct(){
-        const id=Date.now();
-        db.ref('inventory/'+id).set({
-            id, name:v('pName'), cat:v('pCat'), wh:v('pWh'), qty:parseInt(v('pQty'))||0
-        });
-        log("Ürün Eklendi: "+v('pName'));
-        clear(['pName','pQty']);
-    }
-    
-    function modStock(id, n){
-        const item = stock.find(i=>i.id==id);
-        db.ref('inventory/'+id).update({qty:item.qty+n});
-        log("Stok Güncelleme: "+item.name);
-    }
-
-    function addFair(){
-        const id=Date.now();
-        db.ref('fairs/'+id).set({id, name:v('fName'), date:v('fDate'), cost:v('fCost')});
-        log("Fuar Eklendi: "+v('fName'));
-        clear(['fName','fCost']);
-    }
-
-    function addMedia(){
-        const id=Date.now();
-        db.ref('media/'+id).set({id, name:v('mName'), outlet:v('mOutlet'), role:v('mRole'), email:v('mEmail'), phone:v('mPhone')});
-        log("Gazeteci Eklendi: "+v('mName'));
-        clear(['mName','mOutlet','mRole','mEmail','mPhone']);
-    }
-
-    function addPress(){
-        const id=Date.now();
-        db.ref('press/'+id).set({id, title:v('prTitle'), outlet:v('prOutlet'), date:v('prDate'), sent:v('prSentiment'), link:v('prLink')});
-        log("Haber Eklendi: "+v('prTitle'));
-        clear(['prTitle','prOutlet','prLink']);
-    }
-
-    function addContent(){
-        const id=Date.now();
-        db.ref('content/'+id).set({id, date:v('cDate'), plat:v('cPlatform'), title:v('cTitle'), status:v('cStatus')});
-        log("İçerik Planlandı: "+v('cTitle'));
-        clear(['cTitle']);
-    }
-
-    function addSupplier(){
-        const id=Date.now();
-        db.ref('suppliers/'+id).set({id, name:v('sName'), type:v('sType'), contact:v('sContact'), phone:v('sPhone')});
-        log("Tedarikçi Eklendi: "+v('sName'));
-        clear(['sName','sContact','sPhone']);
-    }
-
-    // HELPER UTILS
     function v(id){ return document.getElementById(id).value; }
     function clear(ids){ ids.forEach(id=>document.getElementById(id).value=''); }
     function del(path, id){ if(confirm('Silinsin mi?')) db.ref(path+'/'+id).remove(); log(path+" Silindi"); }
@@ -468,10 +437,7 @@
         document.getElementById(pid).classList.add('active');
         btn.classList.add('active');
     }
-    function toggleTheme(){
-        const t = document.body.getAttribute('data-theme')=='dark'?'light':'dark';
-        document.body.setAttribute('data-theme',t);
-    }
+    function toggleTheme(){ const t=document.body.getAttribute('data-theme')=='dark'?'light':'dark'; document.body.setAttribute('data-theme',t); }
 </script>
 </body>
 </html>
