@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pavo Group | Kurumsal İletişim ERP</title>
+    <title>Pavo Group | Tam Kapsamlı ERP</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -59,14 +59,26 @@
         .btn-action { padding: 5px 8px; margin-left: 2px; border-radius: 4px; border: none; color: white; cursor: pointer; }
         
         .tag { padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
-        .tag-pos { background: #dcfce7; color: #166534; }
-        .tag-neu { background: #f1f5f9; color: #475569; }
-        .tag-neg { background: #fee2e2; color: #991b1b; }
+        .tag-ankara { background: #ffedd5; color: #9a3412; }
+        .tag-istanbul { background: #e0f2fe; color: #075985; }
+        .money { color: var(--success); font-weight: bold; }
+        .fair-warning { background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); }
+
+        /* FILTERS */
+        .filter-group { display: flex; gap: 8px; margin: 10px 0 20px 0; }
+        .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--secondary); cursor: pointer; font-size: 0.75rem; font-weight: 600; }
+        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* MODALS */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .expense-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+        .detail-row.total { border-top: 2px solid var(--border); border-bottom: none; font-weight: bold; font-size: 1.1rem; margin-top: 10px; padding-top: 15px; color: var(--success); }
 
         /* ROBOT STYLES */
         .robot-results { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 350px; overflow-y: auto; margin-top: 15px; }
         .robot-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); transition: 0.2s; }
-        .robot-item:hover { border-color: var(--primary); }
         .robot-info h4 { margin: 0 0 5px 0; font-size: 0.9rem; color: var(--primary); }
         .robot-info p { margin: 0; font-size: 0.75rem; color: var(--secondary); }
         .robot-info a { color: var(--info); text-decoration: none; font-size: 0.75rem; }
@@ -77,7 +89,7 @@
     <div id="login-screen">
         <div class="login-card">
             <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="login-logo">
-            <h3>Kurumsal İletişim ERP</h3>
+            <h3>Kurumsal ERP</h3>
             <input type="email" id="email" class="login-input" placeholder="E-posta">
             <input type="password" id="password" class="login-input" placeholder="Şifre">
             <button class="btn btn-primary" style="width:100%" onclick="login()">Giriş Yap</button>
@@ -98,7 +110,7 @@
 
                 <div class="nav-group">
                     <div class="nav-label">Operasyon</div>
-                    <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Promosyon Stok</button>
+                    <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Stok Yönetimi</button>
                     <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuar & Etkinlik</button>
                 </div>
 
@@ -134,19 +146,32 @@
 
                 <div id="stok-page" class="page">
                     <div class="card">
-                        <h3>Ürün Ekle</h3>
+                        <h3>Ürün Girişi</h3>
                         <div class="form-grid">
-                            <input type="text" id="pName" placeholder="Ürün Adı">
-                            <select id="pCat"><option>Basılı</option><option>Promosyon</option><option>Demirbaş</option></select>
-                            <select id="pWh"><option>Ankara</option><option>İstanbul</option></select>
-                            <input type="number" id="pQty" placeholder="Miktar">
-                            <button class="btn btn-primary" onclick="addProduct()">Kaydet</button>
+                            <div>
+                                <label>Ürün Adı</label><input type="text" id="pName">
+                                <label style="margin-top:5px">Kategori</label><select id="pCat"><option>Genel</option><option>Basılı</option><option>Promosyon</option><option>Demirbaş</option></select>
+                            </div>
+                            <div>
+                                <label>Depo</label><select id="pWh"><option>Ankara</option><option>İstanbul</option></select>
+                                <div style="display:flex; gap:10px; margin-top:5px">
+                                    <input type="number" id="pQty" placeholder="Adet" style="flex:1">
+                                    <button class="btn btn-primary" onclick="addProduct()" style="flex:1">Ekle</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card">
-                        <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="🔍 Stok Ara..." style="margin-bottom:10px">
+                        <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="🔍 Ürün veya Kategori Ara..." style="margin-bottom:10px">
+                        
+                        <div class="filter-group">
+                            <button class="filter-btn active" id="f-all" onclick="setWhFilter('all')">Hepsi</button>
+                            <button class="filter-btn" id="f-Ankara" onclick="setWhFilter('Ankara')">Ankara</button>
+                            <button class="filter-btn" id="f-İstanbul" onclick="setWhFilter('İstanbul')">İstanbul</button>
+                        </div>
+
                         <table>
-                            <thead><tr><th>Ürün</th><th>Depo</th><th>Adet</th><th>İşlem</th></tr></thead>
+                            <thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlemler (Adet Gir)</th></tr></thead>
                             <tbody id="stockBody"></tbody>
                         </table>
                     </div>
@@ -154,16 +179,24 @@
 
                 <div id="fuar-page" class="page">
                     <div class="card">
-                        <h3>Yeni Fuar</h3>
+                        <h3>Yeni Fuar Planlama</h3>
                         <div class="form-grid">
-                            <input type="text" id="fName" placeholder="Fuar Adı">
-                            <input type="date" id="fDate">
-                            <input type="number" id="fCost" placeholder="Toplam Bütçe ($)">
-                            <button class="btn btn-primary" onclick="addFair()">Planla</button>
+                            <div>
+                                <label>Fuar Adı</label><input type="text" id="fName">
+                                <label style="margin-top:5px">Tarih</label><input type="date" id="fDate">
+                            </div>
+                            <div>
+                                 <label>Ülke</label><input type="text" id="fCountry">
+                                 <div style="display:flex; gap:10px; margin-top:5px;">
+                                     <input type="number" id="fRent" placeholder="Kira ($)" style="flex:1">
+                                     <input type="number" id="fConst" placeholder="Stant ($)" style="flex:1">
+                                 </div>
+                                 <button class="btn btn-primary" onclick="addFair()" style="margin-top:10px; width:100%">Planla</button>
+                            </div>
                         </div>
                     </div>
                     <div class="card">
-                        <table><thead><tr><th>Fuar</th><th>Tarih</th><th>Bütçe</th><th>İşlem</th></tr></thead><tbody id="fairBody"></tbody></table>
+                        <table><thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="fairBody"></tbody></table>
                     </div>
                 </div>
 
@@ -172,44 +205,35 @@
                         <h3>Yeni Gazeteci / Editör</h3>
                         <div class="form-grid">
                             <input type="text" id="mName" placeholder="Ad Soyad">
-                            <input type="text" id="mOutlet" placeholder="Kurum (Örn: Hürriyet)">
-                            <input type="text" id="mRole" placeholder="Görevi (Örn: Editör)">
+                            <input type="text" id="mOutlet" placeholder="Kurum">
+                            <input type="text" id="mRole" placeholder="Görevi">
                             <input type="text" id="mEmail" placeholder="E-posta">
                             <input type="text" id="mPhone" placeholder="Telefon">
                             <button class="btn btn-primary" onclick="addMedia()">Kaydet</button>
                         </div>
                     </div>
                     <div class="card">
-                        <h3>Medya Veritabanı</h3>
                         <table><thead><tr><th>İsim / Görev</th><th>Kurum</th><th>İletişim</th><th>İşlem</th></tr></thead><tbody id="mediaBody"></tbody></table>
                     </div>
                 </div>
 
                 <div id="press-page" class="page">
-                    
                     <div class="card" style="border-left: 5px solid var(--primary);">
-                        <h3>🤖 Otomatik Medya Tarama Robotu (Limitsiz)</h3>
-                        <p style="font-size:0.8rem; color:var(--secondary)">Google News altyapısı ile anlık tarama yapar. API Key gerektirmez.</p>
+                        <h3>🤖 Medya Robotu (Limitsiz)</h3>
                         <div style="display:flex; gap:10px; margin-top:10px;">
                             <input type="text" id="robotKeyword" value="Pavo Group" placeholder="Anahtar Kelime" style="flex:1">
-                            <button class="btn btn-primary" onclick="fetchNews()">🔍 İnterneti Tara</button>
+                            <button class="btn btn-primary" onclick="fetchNews()">🔍 Tara</button>
                         </div>
                         <div id="robotResults" class="robot-results"></div>
                     </div>
-
                     <div class="card">
-                        <h3>Haber Arşivi (Manuel Giriş)</h3>
+                        <h3>Haber Arşivi</h3>
                         <div class="form-grid">
                             <input type="text" id="prTitle" placeholder="Haber Başlığı">
-                            <input type="text" id="prOutlet" placeholder="Mecra (Örn: Webrazzi)">
-                            <input type="date" id="prDate">
-                            <select id="prSentiment"><option value="Pozitif">Pozitif 😊</option><option value="Nötr">Nötr 😐</option><option value="Negatif">Negatif ☹️</option></select>
-                            <input type="text" id="prLink" placeholder="Haber Linki">
-                            <button class="btn btn-primary" onclick="addPress()">Arşive Ekle</button>
+                            <input type="text" id="prLink" placeholder="Link">
+                            <button class="btn btn-primary" onclick="addPress()">Ekle</button>
                         </div>
-                    </div>
-                    <div class="card">
-                        <table><thead><tr><th>Tarih</th><th>Başlık / Mecra</th><th>Durum</th><th>Link</th><th>İşlem</th></tr></thead><tbody id="pressBody"></tbody></table>
+                        <table><thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th>İşlem</th></tr></thead><tbody id="pressBody"></tbody></table>
                     </div>
                 </div>
 
@@ -218,9 +242,9 @@
                         <h3>İçerik Planla</h3>
                         <div class="form-grid">
                             <input type="date" id="cDate">
-                            <select id="cPlatform"><option>LinkedIn</option><option>Twitter/X</option><option>Instagram</option><option>Web Sitesi</option></select>
-                            <input type="text" id="cTitle" placeholder="Konu / Başlık">
-                            <select id="cStatus"><option>Taslak</option><option>Onay Bekliyor</option><option>Yayında</option></select>
+                            <select id="cPlatform"><option>LinkedIn</option><option>Twitter</option><option>Instagram</option></select>
+                            <input type="text" id="cTitle" placeholder="Konu">
+                            <select id="cStatus"><option>Taslak</option><option>Yayında</option></select>
                             <button class="btn btn-primary" onclick="addContent()">Planla</button>
                         </div>
                     </div>
@@ -231,12 +255,11 @@
 
                 <div id="supplier-page" class="page">
                     <div class="card">
-                        <h3>Yeni Tedarikçi</h3>
+                        <h3>Tedarikçi Ekle</h3>
                         <div class="form-grid">
                             <input type="text" id="sName" placeholder="Firma Adı">
-                            <select id="sType"><option>Ajans (PR)</option><option>Kreatif</option><option>Matbaa</option><option>Prodüksiyon</option><option>Lojistik</option></select>
-                            <input type="text" id="sContact" placeholder="Yetkili Kişi">
-                            <input type="text" id="sPhone" placeholder="Telefon / Email">
+                            <select id="sType"><option>Ajans</option><option>Matbaa</option><option>Lojistik</option></select>
+                            <input type="text" id="sPhone" placeholder="İletişim">
                             <button class="btn btn-primary" onclick="addSupplier()">Ekle</button>
                         </div>
                     </div>
@@ -258,6 +281,32 @@
         </div>
     </div>
 
+    <div id="viewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h3>Fuar Kartı</h3>
+                <button onclick="closeModal('viewModal')" style="border:none; background:none; font-size:1.2rem; cursor:pointer;">✖</button>
+            </div>
+            <div id="viewContent"></div>
+            <div style="margin-top:15px; text-align:right;"><button class="btn" style="background:#ddd" onclick="closeModal('viewModal')">Kapat</button></div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><h3>Düzenle & Gider Ekle</h3><button onclick="closeModal('editModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer">✖</button></div>
+            <input type="hidden" id="editId">
+            <div class="form-grid">
+                <div><label>Ad</label><input type="text" id="eName"><label>Ülke</label><input type="text" id="eCountry"><label>Tarih</label><input type="date" id="eDate"></div>
+                <div><label>m²</label><input type="number" id="eM2"><label>Kira ($)</label><input type="number" id="eRent"><label>Stant ($)</label><input type="number" id="eConst"><label>Tedarikçi</label><input type="text" id="eSupp"></div>
+            </div>
+            <h4 style="margin-top:15px; border-bottom:1px solid #eee">Ekstra Giderler</h4>
+            <div id="expenseList"></div>
+            <button class="btn btn-primary" onclick="addExpenseRow()" style="margin-top:10px; font-size:0.8rem">+ Gider Ekle</button>
+            <button class="btn btn-primary" onclick="saveFairChanges()" style="margin-top:10px; width:100%">Kaydet</button>
+        </div>
+    </div>
+
 <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
@@ -275,6 +324,7 @@
 
     let currentUser = null;
     let stock=[], fairs=[], media=[], press=[], content=[], suppliers=[], logs=[];
+    let whFilter = 'all';
 
     auth.onAuthStateChanged(user => {
         if(user){
@@ -313,133 +363,211 @@
         });
     }
 
-    // --- GOOGLE NEWS ROBOTU (RSS to JSON) ---
+    // --- GOOGLE NEWS ---
     async function fetchNews() {
         const query = document.getElementById('robotKeyword').value;
         const container = document.getElementById('robotResults');
-        
-        if(!query) return alert("Lütfen anahtar kelime giriniz.");
-        
-        container.innerHTML = '<div style="padding:10px; text-align:center">Google Haberler taranıyor...</div>';
-
+        if(!query) return alert("Anahtar kelime giriniz.");
+        container.innerHTML = '<div style="padding:10px; text-align:center">Aranıyor...</div>';
         try {
-            // Google News RSS URL oluştur
             const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr-TR&gl=TR&ceid=TR:tr`;
-            // rss2json API kullanarak XML'i JSON'a çevir (Ücretsiz ve hızlı)
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-
-            const response = await fetch(apiUrl);
+            const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
             const data = await response.json();
-
             container.innerHTML = '';
-            
-            if(!data.items || data.items.length === 0) {
-                container.innerHTML = '<div style="padding:10px">Güncel haber bulunamadı.</div>';
-                return;
-            }
-
+            if(!data.items || data.items.length === 0) { container.innerHTML = 'Haber bulunamadı.'; return; }
             data.items.slice(0, 10).forEach(news => {
-                const div = document.createElement('div');
-                div.className = 'robot-item';
-                // Tarih formatlama
+                const div = document.createElement('div'); div.className = 'robot-item';
                 const date = new Date(news.pubDate).toLocaleDateString('tr-TR');
-                
-                div.innerHTML = `
-                    <div class="robot-info">
-                        <h4>${news.title}</h4>
-                        <p>${news.author || 'Google News'} - ${date}</p>
-                        <a href="${news.link}" target="_blank">Habere Git</a>
-                    </div>
-                    <button class="btn-action" style="background:var(--success)" onclick="saveRobotNews('${encodeURIComponent(news.title)}', 'Google News', '${news.link}')">Ekle</button>
-                `;
+                div.innerHTML = `<div class="robot-info"><h4>${news.title}</h4><p>${news.author||'Google News'} - ${date}</p><a href="${news.link}" target="_blank">Git</a></div><button class="btn-action" style="background:var(--success)" onclick="saveRobotNews('${encodeURIComponent(news.title)}','Google News','${news.link}')">Ekle</button>`;
                 container.appendChild(div);
             });
-
-        } catch (error) {
-            console.error(error);
-            container.innerHTML = '<div style="color:red; padding:10px">Hata oluştu.</div>';
-        }
+        } catch (error) { container.innerHTML = 'Hata oluştu.'; }
+    }
+    function saveRobotNews(t, s, u) {
+        db.ref('press/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), outlet:s, date:new Date().toISOString().split('T')[0], sent:'Nötr', link:u});
+        alert("Eklendi!");
     }
 
-    function saveRobotNews(title, source, url) {
-        const t = decodeURIComponent(title);
-        const id = Date.now();
-        db.ref('press/'+id).set({
-            id, title: t, outlet: 'Otomatik Tarama', date: new Date().toISOString().split('T')[0], sent: 'Nötr', link: url
+    // --- STOK (FİLTRELİ & TRANSFERLİ) ---
+    function updateStockUI() {
+        const s = document.getElementById('searchStock').value.toLowerCase();
+        const b = document.getElementById('stockBody');
+        b.innerHTML = '';
+        stock.forEach(i => {
+            const match = (i.name.toLowerCase().includes(s) || i.cat.toLowerCase().includes(s)) && (whFilter==='all' || i.wh===whFilter);
+            if(match) {
+                b.innerHTML += `<tr>
+                    <td><b>${i.name}</b><br><small>${i.cat}</small></td>
+                    <td><span class="tag tag-${i.wh.toLowerCase()}">${i.wh}</span></td>
+                    <td><b>${i.qty}</b></td>
+                    <td style="text-align:right">
+                        <input type="number" id="amt-${i.id}" value="1" style="width:40px; text-align:center; padding:5px;">
+                        <button class="btn-action" style="background:var(--success)" onclick="modStock('${i.id}',1)">+</button>
+                        <button class="btn-action" style="background:var(--danger)" onclick="handleOut('${i.id}')">-</button>
+                        <button class="btn-action" style="background:#8b5cf6" onclick="transfer('${i.id}')">⇄</button>
+                        <button class="btn-action" style="background:#64748b" onclick="del('inventory','${i.id}')">🗑️</button>
+                    </td></tr>`;
+            }
         });
-        log("Robot: " + t);
-        alert("Haber eklendi!");
     }
 
-    // --- UI UPDATERS ---
+    function modStock(id, dir) { 
+        const i = stock.find(x => x.id===id); 
+        const amt = parseInt(document.getElementById('amt-'+id).value)||1;
+        db.ref('inventory/'+id).update({qty: i.qty + (amt*dir)});
+        log(dir>0 ? "Giriş" : "Çıkış", i.name + " (" + amt + ")");
+    }
+
+    function handleOut(id) {
+        const i = stock.find(x => x.id===id);
+        const amt = parseInt(document.getElementById('amt-'+id).value)||1;
+        if(i.qty < amt) return alert("Yetersiz stok!");
+        let dest = prompt("Nereye gidiyor? (Örn: Fuar, Personel)");
+        if(!dest) return;
+        db.ref('inventory/'+id).update({qty: i.qty - amt});
+        log("Çıkış", `${i.name} (${amt}) -> ${dest}`);
+    }
+
+    function transfer(id) {
+        const i = stock.find(x => x.id===id);
+        const target = i.wh==="Ankara"?"İstanbul":"Ankara";
+        const amt = parseInt(document.getElementById('amt-'+id).value)||1;
+        if(i.qty < amt) return alert("Yetersiz stok!");
+        
+        db.ref('inventory/'+id).update({qty: i.qty - amt});
+        
+        // Hedef depoda var mı?
+        const exist = stock.find(x => x.name===i.name && x.wh===target);
+        if(exist) {
+            db.ref('inventory/'+exist.id).update({qty: exist.qty + amt});
+        } else {
+            const nid = Date.now();
+            db.ref('inventory/'+nid).set({...i, id:nid, wh:target, qty:amt});
+        }
+        log("Transfer", `${i.name} (${amt}) ${i.wh} -> ${target}`);
+    }
+
+    function setWhFilter(val) {
+        whFilter = val;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('f-' + val).classList.add('active');
+        updateStockUI();
+    }
+
+    // --- FUAR UI (DETAYLI) ---
+    function updateFuarUI(){
+        const b = document.getElementById('fairBody');
+        const now = new Date(); const warn = new Date(); warn.setDate(now.getDate()+30);
+        b.innerHTML = '';
+        fairs.forEach(f=>{
+            let tot = parseFloat(f.rent||0)+parseFloat(f.const||0);
+            if(f.expenses) f.expenses.forEach(e=>tot+=parseFloat(e.cost||0));
+            const d = new Date(f.date); const isSoon = d>=now && d<=warn;
+            b.innerHTML += `<tr class="${isSoon?'fair-warning':''}">
+                <td><b>${f.name}</b><br><small>${f.country}</small></td>
+                <td>${f.date} ${isSoon?'⚠️':''}</td>
+                <td><span class="money">$ ${tot.toLocaleString()}</span></td>
+                <td style="text-align:right">
+                    <button class="btn-action" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button>
+                    <button class="btn-action" style="background:#eab308" onclick="editFair('${f.id}')">✏️</button>
+                    <button class="btn-action" style="background:var(--danger)" onclick="del('fairs','${f.id}')">🗑️</button>
+                </td></tr>`;
+        });
+    }
+
+    function viewFair(id){
+        const f = fairs.find(x=>x.id==id);
+        let exHtml = ''; let tot = parseFloat(f.rent||0)+parseFloat(f.const||0);
+        if(f.expenses) f.expenses.forEach(e=>{ exHtml+=`<div class="detail-row"><span>${e.desc}</span><span>$ ${e.cost}</span></div>`; tot+=parseFloat(e.cost); });
+        
+        const html = `
+            <h3 style="color:var(--primary)">${f.name}</h3>
+            <div style="font-size:0.9rem; color:var(--secondary); margin-bottom:15px;">${f.country} - ${f.date}</div>
+            <div class="detail-row"><span>Tedarikçi:</span><span>${f.supplier||'-'}</span></div>
+            <div class="detail-row"><span>Alan:</span><span>${f.m2} m²</span></div>
+            <div style="margin-top:15px; font-weight:bold; border-bottom:1px solid #eee">Maliyetler</div>
+            <div class="detail-row"><span>Kira:</span><span>$ ${parseFloat(f.rent||0).toLocaleString()}</span></div>
+            <div class="detail-row"><span>Stant:</span><span>$ ${parseFloat(f.const||0).toLocaleString()}</span></div>
+            ${exHtml}
+            <div class="detail-row total"><span>TOPLAM:</span><span>$ ${tot.toLocaleString()}</span></div>
+        `;
+        document.getElementById('viewContent').innerHTML = html;
+        document.getElementById('viewModal').style.display='flex';
+    }
+
+    function editFair(id){
+        const f = fairs.find(x=>x.id==id);
+        document.getElementById('editId').value=f.id;
+        document.getElementById('eName').value=f.name; document.getElementById('eCountry').value=f.country;
+        document.getElementById('eDate').value=f.date; document.getElementById('eM2').value=f.m2;
+        document.getElementById('eRent').value=f.rent; document.getElementById('eConst').value=f.const;
+        document.getElementById('eSupp').value=f.supplier;
+        const c = document.getElementById('expenseList'); c.innerHTML='';
+        if(f.expenses) f.expenses.forEach(e=>addExpenseRow(e.desc, e.cost));
+        document.getElementById('editModal').style.display='flex';
+    }
+
+    function saveFairChanges(){
+        const id=document.getElementById('editId').value;
+        const ex=[]; document.querySelectorAll('.expense-row').forEach(r=>{
+            const d=r.querySelector('.ex-desc').value; const c=r.querySelector('.ex-cost').value;
+            if(d&&c) ex.push({desc:d, cost:c});
+        });
+        db.ref('fairs/'+id).update({
+            name:document.getElementById('eName').value, country:document.getElementById('eCountry').value, date:document.getElementById('eDate').value,
+            m2:document.getElementById('eM2').value, rent:document.getElementById('eRent').value, const:document.getElementById('eConst').value,
+            supplier:document.getElementById('eSupp').value, expenses:ex
+        });
+        closeModal('editModal');
+    }
+
+    function addExpenseRow(d='', c=''){
+        const div=document.createElement('div'); div.className='expense-row';
+        div.innerHTML=`<input type="text" value="${d}" class="ex-desc" placeholder="Gider"><input type="number" value="${c}" class="ex-cost" placeholder="$" style="width:80px"><button onclick="this.parentElement.remove()" style="color:red;border:none;background:none;cursor:pointer">X</button>`;
+        document.getElementById('expenseList').appendChild(div);
+    }
+
+    // --- OTHER UI & ACTIONS ---
     function updateDashboard(){
         document.getElementById('d-stock').innerText = stock.reduce((a,b)=>a+b.qty,0);
-        let fairBud = fairs.reduce((a,b)=>a+parseFloat(b.cost||0),0);
+        let fairBud = fairs.reduce((a,b)=> {
+            let sub = parseFloat(b.rent||0)+parseFloat(b.const||0);
+            if(b.expenses) b.expenses.forEach(e=>sub+=parseFloat(e.cost||0));
+            return a+sub;
+        },0);
         document.getElementById('d-fair').innerText = "$ " + fairBud.toLocaleString();
         document.getElementById('d-media').innerText = media.length + " Kişi";
         document.getElementById('d-press').innerText = press.length + " Adet";
 
         if(window.myChart1) window.myChart1.destroy();
-        window.myChart1 = new Chart(document.getElementById('chart1'), {
-            type: 'doughnut',
-            data: { labels: ['Ankara','İstanbul'], datasets: [{data:[stock.filter(i=>i.wh=='Ankara').length, stock.filter(i=>i.wh=='İstanbul').length], backgroundColor:['#f97316','#0ea5e9']}] }
-        });
-
+        window.myChart1 = new Chart(document.getElementById('chart1'), {type:'doughnut',data:{labels:['Ankara','İstanbul'],datasets:[{data:[stock.filter(i=>i.wh=='Ankara').length,stock.filter(i=>i.wh=='İstanbul').length],backgroundColor:['#f97316','#0ea5e9']}]}});
         if(window.myChart2) window.myChart2.destroy();
-        window.myChart2 = new Chart(document.getElementById('chart2'), {
-            type: 'bar',
-            data: { labels: ['Basın', 'LinkedIn', 'Twitter'], datasets: [{label:'Adet', data:[press.length, content.filter(c=>c.plat=='LinkedIn').length, content.filter(c=>c.plat=='Twitter/X').length], backgroundColor:'#6366f1'}] }
-        });
+        window.myChart2 = new Chart(document.getElementById('chart2'), {type:'bar',data:{labels:['Basın','LinkedIn','Twitter'],datasets:[{label:'Adet',data:[press.length,content.filter(c=>c.plat=='LinkedIn').length,content.filter(c=>c.plat=='Twitter/X').length],backgroundColor:'#6366f1'}]}});
     }
 
-    function updateStockUI(){
-        let html=''; const term = document.getElementById('searchStock').value.toLowerCase();
-        stock.forEach(i=>{
-            if(i.name.toLowerCase().includes(term))
-            html+=`<tr><td><b>${i.name}</b><br><small>${i.cat}</small></td><td>${i.wh}</td><td>${i.qty}</td>
-            <td><button class="btn-action" style="background:var(--success)" onclick="modStock('${i.id}',1)">+</button>
-            <button class="btn-action" style="background:var(--danger)" onclick="modStock('${i.id}',-1)">-</button>
-            <button class="btn-action" style="background:#64748b" onclick="del('inventory','${i.id}')">🗑️</button></td></tr>`;
-        });
-        document.getElementById('stockBody').innerHTML=html;
-    }
-    function updateFairUI(){
-        let html=''; fairs.forEach(f=>{ html+=`<tr><td><b>${f.name}</b></td><td>${f.date}</td><td>$ ${parseFloat(f.cost).toLocaleString()}</td><td><button class="btn-action" style="background:var(--danger)" onclick="del('fairs','${f.id}')">🗑️</button></td></tr>`; }); document.getElementById('fairBody').innerHTML=html;
-    }
-    function updateMediaUI(){
-        let html=''; media.forEach(m=>{ html+=`<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td><td><small>${m.email}</small></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('media','${m.id}')">🗑️</button></td></tr>`; }); document.getElementById('mediaBody').innerHTML=html;
-    }
-    function updatePressUI(){
-        let html=''; press.forEach(p=>{ let b=p.sent==='Pozitif'?'tag-pos':(p.sent==='Negatif'?'tag-neg':'tag-neu'); html+=`<tr><td><small>${p.date}</small></td><td><b>${p.title}</b><br><small>${p.outlet}</small></td><td><span class="tag ${b}">${p.sent}</span></td><td><a href="${p.link}" target="_blank">🔗</a></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('press','${p.id}')">🗑️</button></td></tr>`; }); document.getElementById('pressBody').innerHTML=html;
-    }
-    function updateContentUI(){
-        let html=''; content.forEach(c=>{ let k=c.status==='Yayında'?'#22c55e':(c.status==='Taslak'?'#64748b':'#f59e0b'); html+=`<tr><td><small>${c.date}</small></td><td>${c.plat}</td><td>${c.title}</td><td><span style="color:${k};font-weight:bold">${c.status}</span></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('content','${c.id}')">🗑️</button></td></tr>`; }); document.getElementById('contentBody').innerHTML=html;
-    }
-    function updateSupplierUI(){
-        let html=''; suppliers.forEach(s=>{ html+=`<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}<br><small>${s.phone}</small></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('suppliers','${s.id}')">🗑️</button></td></tr>`; }); document.getElementById('supplierBody').innerHTML=html;
-    }
-    function updateLogUI(){
-        let html=''; [...logs].reverse().forEach(l=>{ html+=`<tr><td><small>${l.time}</small></td><td><small>${l.user}</small></td><td>${l.action}</td></tr>`; }); document.getElementById('logBody').innerHTML=html;
-    }
+    function updateMediaUI(){ let h=''; media.forEach(m=>{ h+=`<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td><td><small>${m.email}</small></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('media','${m.id}')">🗑️</button></td></tr>`; }); document.getElementById('mediaBody').innerHTML=h; }
+    function updatePressUI(){ let h=''; press.forEach(p=>{ let b=p.sent==='Pozitif'?'tag-pos':(p.sent==='Negatif'?'tag-neg':'tag-neu'); h+=`<tr><td><small>${p.date}</small></td><td><b>${p.title}</b><br><small>${p.outlet}</small></td><td><span class="tag ${b}">${p.sent}</span></td><td><a href="${p.link}" target="_blank">🔗</a></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('press','${p.id}')">🗑️</button></td></tr>`; }); document.getElementById('pressBody').innerHTML=h; }
+    function updateContentUI(){ let h=''; content.forEach(c=>{ let k=c.status==='Yayında'?'#22c55e':(c.status==='Taslak'?'#64748b':'#f59e0b'); h+=`<tr><td><small>${c.date}</small></td><td>${c.plat}</td><td>${c.title}</td><td><span style="color:${k};font-weight:bold">${c.status}</span></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('content','${c.id}')">🗑️</button></td></tr>`; }); document.getElementById('contentBody').innerHTML=h; }
+    function updateSupplierUI(){ let h=''; suppliers.forEach(s=>{ h+=`<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}<br><small>${s.phone}</small></td><td><button class="btn-action" style="background:var(--danger)" onclick="del('suppliers','${s.id}')">🗑️</button></td></tr>`; }); document.getElementById('supplierBody').innerHTML=h; }
+    function updateLogUI(){ let h=''; [...logs].reverse().forEach(l=>{ h+=`<tr><td><small>${l.time}</small></td><td><small>${l.user}</small></td><td>${l.action}</td></tr>`; }); document.getElementById('logBody').innerHTML=h; }
 
-    function addProduct(){ const id=Date.now(); db.ref('inventory/'+id).set({id, name:v('pName'), cat:v('pCat'), wh:v('pWh'), qty:parseInt(v('pQty'))||0}); log("Ürün Eklendi: "+v('pName')); clear(['pName','pQty']); }
-    function modStock(id, n){ const i=stock.find(x=>x.id==id); db.ref('inventory/'+id).update({qty:i.qty+n}); log("Stok Güncelleme"); }
-    function addFair(){ const id=Date.now(); db.ref('fairs/'+id).set({id, name:v('fName'), date:v('fDate'), cost:v('fCost')}); log("Fuar Eklendi"); clear(['fName','fCost']); }
-    function addMedia(){ const id=Date.now(); db.ref('media/'+id).set({id, name:v('mName'), outlet:v('mOutlet'), role:v('mRole'), email:v('mEmail'), phone:v('mPhone')}); log("Medya Eklendi"); clear(['mName','mOutlet','mRole','mEmail','mPhone']); }
-    function addPress(){ const id=Date.now(); db.ref('press/'+id).set({id, title:v('prTitle'), outlet:v('prOutlet'), date:v('prDate'), sent:v('prSentiment'), link:v('prLink')}); log("Haber Eklendi"); clear(['prTitle','prOutlet','prLink']); }
-    function addContent(){ const id=Date.now(); db.ref('content/'+id).set({id, date:v('cDate'), plat:v('cPlatform'), title:v('cTitle'), status:v('cStatus')}); log("İçerik Planlandı"); clear(['cTitle']); }
-    function addSupplier(){ const id=Date.now(); db.ref('suppliers/'+id).set({id, name:v('sName'), type:v('sType'), contact:v('sContact'), phone:v('sPhone')}); log("Tedarikçi Eklendi"); clear(['sName','sContact','sPhone']); }
+    function addProduct(){ const id=Date.now(); db.ref('inventory/'+id).set({id, name:v('pName'), cat:v('pCat'), wh:v('pWh'), qty:parseInt(v('pQty'))||0}); log("Ürün Eklendi", v('pName')); clear(['pName','pQty']); }
+    function addFair(){ const id=Date.now(); db.ref('fairs/'+id).set({id, name:v('fName'), country:v('fCountry'), date:v('fDate'), m2:v('fM2'), supplier:v('fSupp'), rent:v('fRent'), const:v('fConst')}); log("Fuar Eklendi", v('fName')); clear(['fName','fCountry','fM2','fSupp','fRent','fConst']); }
+    function addMedia(){ const id=Date.now(); db.ref('media/'+id).set({id, name:v('mName'), outlet:v('mOutlet'), role:v('mRole'), email:v('mEmail'), phone:v('mPhone')}); log("Medya Eklendi", v('mName')); clear(['mName','mOutlet','mRole','mEmail','mPhone']); }
+    function addPress(){ const id=Date.now(); db.ref('press/'+id).set({id, title:v('prTitle'), outlet:v('prOutlet'), date:v('prDate'), sent:v('prSentiment'), link:v('prLink')}); log("Haber Eklendi", v('prTitle')); clear(['prTitle','prOutlet','prLink']); }
+    function addContent(){ const id=Date.now(); db.ref('content/'+id).set({id, date:v('cDate'), plat:v('cPlatform'), title:v('cTitle'), status:v('cStatus')}); log("İçerik Planlandı", v('cTitle')); clear(['cTitle']); }
+    function addSupplier(){ const id=Date.now(); db.ref('suppliers/'+id).set({id, name:v('sName'), type:v('sType'), contact:v('sContact'), phone:v('sPhone')}); log("Tedarikçi Eklendi", v('sName')); clear(['sName','sContact','sPhone']); }
 
     function v(id){ return document.getElementById(id).value; }
     function clear(ids){ ids.forEach(id=>document.getElementById(id).value=''); }
-    function del(path, id){ if(confirm('Silinsin mi?')) db.ref(path+'/'+id).remove(); log(path+" Silindi"); }
-    function log(act){ db.ref('logs/'+Date.now()).set({time:new Date().toLocaleString('tr-TR'), user:currentUser.email, action:act}); }
+    function del(path, id){ if(confirm('Silinsin mi?')) db.ref(path+'/'+id).remove(); log("Silme", path); }
+    function log(act, det=''){ db.ref('logs/'+Date.now()).set({time:new Date().toLocaleString('tr-TR'), user:currentUser.email, action:act + (det ? ' - '+det : '')}); }
     
+    function closeModal(id) { document.getElementById(id).style.display='none'; }
     function showPage(pid, btn){
         document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-        document.getElementById(pid).classList.add('active');
-        btn.classList.add('active');
+        document.getElementById(pid).classList.add('active'); btn.classList.add('active');
     }
     function toggleTheme(){ const t=document.body.getAttribute('data-theme')=='dark'?'light':'dark'; document.body.setAttribute('data-theme',t); }
 </script>
