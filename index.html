@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pavo Group | Enterprise ERP Pro</title>
+    <link rel="manifest" href="manifest.json">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -520,6 +521,10 @@
     function logAction(a,d){ db.ref('logs/'+Date.now()).set({time:new Date().toLocaleString('tr-TR'), user:currentUser.email, action:a+' '+d}); }
     function showToast(m,t){ const d=document.createElement('div'); d.className=`toast ${t}`; d.innerHTML=m; document.getElementById('toast-container').appendChild(d); setTimeout(()=>d.remove(),3000); }
     function toggleTheme(){ const b=document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')=='dark'?'light':'dark'); }
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
 </script>
 </body>
 </html>
