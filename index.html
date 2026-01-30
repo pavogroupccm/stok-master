@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pavo Group | Enterprise ERP v2.0</title>
+    <title>Pavo Group | Enterprise ERP v3.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -28,84 +28,80 @@
         * { box-sizing: border-box; outline: none; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; font-size: 14px; }
 
-        /* --- TOAST NOTIFICATION (YENİ) --- */
+        /* TOAST NOTIFICATION */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
         .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 10px; min-width: 250px; }
         .toast.success { border-left: 5px solid var(--success); }
         .toast.error { border-left: 5px solid var(--danger); }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        /* --- LAYOUT --- */
+        /* LAYOUT */
         .wrapper { display: flex; height: 100%; width: 100%; }
-        .sidebar { width: 260px; background: var(--sidebar-bg); color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; transition: 0.3s; }
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
         .main-container { flex-grow: 1; overflow-y: auto; padding: 25px; position: relative; scroll-behavior: smooth; }
-        
         .brand-logo { width: 100%; max-width: 160px; margin-bottom: 30px; filter: brightness(0) invert(1); display: block; margin-left: auto; margin-right: auto; }
         
-        /* NAVIGATION */
+        /* NAV */
         .nav-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin: 15px 0 5px 10px; font-weight: 700; letter-spacing: 0.5px; }
         .nav-btn { width: 100%; background: transparent; color: #cbd5e1; padding: 12px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; border: none; text-align: left; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; font-size: 0.95rem; }
         .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
         .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-        /* CARDS & GRIDS */
+        /* CARDS */
         .card { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
         .stat-card h2 { margin: 5px 0 0 0; font-size: 1.8rem; font-weight: 700; }
         .stat-card small { color: var(--secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
 
-        /* FORMS */
+        /* FORMS & TABLES */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .form-group label { display: block; font-size: 0.8rem; color: var(--secondary); margin-bottom: 6px; font-weight: 600; }
         input, select { background: var(--input-bg); color: var(--text-main); padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; width: 100%; transition: 0.2s; }
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
-        /* TABLES */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; }
         td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
         
-        /* BUTTONS */
         .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-danger { background: var(--danger); color: white; }
         .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
         
-        /* ACTION BUTTONS (TABLE) */
-        .action-group { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
-        .btn-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; transition: 0.2s; font-weight: bold; font-size: 1.1rem; }
         .btn-icon:hover { transform: translateY(-2px); opacity: 0.9; }
+        .action-group { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
 
-        /* BADGES */
         .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .tag-Ankara { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
         .tag-İstanbul { background: #f0f9ff; color: #0369a1; border: 1px solid #e0f2fe; }
-        .tag-pos { background: #dcfce7; color: #15803d; }
-        .tag-neu { background: #f1f5f9; color: #475569; }
-        .tag-neg { background: #fee2e2; color: #b91c1c; }
 
         /* MODALS */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
         .modal-content { background: var(--card-bg); width: 90%; max-width: 650px; border-radius: 16px; padding: 30px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        .modal-header h3 { margin: 0; font-size: 1.25rem; }
         
-        /* FILTERS */
         .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--secondary); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* UTILS */
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
         
-        /* LOGIN */
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; background: var(--bg); position: fixed; width: 100%; z-index: 2000; }
+        
+        /* DETAY SATIRLARI */
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+        .detail-row.total { border-top: 2px solid var(--border); border-bottom: none; font-weight: bold; font-size: 1.1rem; margin-top: 10px; padding-top: 15px; color: var(--success); }
+        .expense-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        
+        /* ROBOT */
+        .robot-results { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 350px; overflow-y: auto; margin-top: 15px; }
+        .robot-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); transition: 0.2s; }
+        .robot-info h4 { margin: 0 0 5px 0; font-size: 0.9rem; color: var(--primary); }
+        .robot-info p { margin: 0; font-size: 0.75rem; color: var(--secondary); }
     </style>
 </head>
 <body data-theme="light">
@@ -116,17 +112,10 @@
         <div class="card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px;">
             <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo" style="filter: invert(0); margin-bottom: 20px;">
             <h2 style="margin-bottom: 10px;">Yönetim Paneli</h2>
-            <p style="color: var(--secondary); margin-bottom: 30px;">Lütfen kurumsal hesabınızla giriş yapın.</p>
-            
-            <div style="text-align: left; margin-bottom: 15px;">
-                <label style="font-size: 0.8rem; font-weight: 600; color: var(--secondary);">E-Posta</label>
-                <input type="email" id="email" placeholder="ornek@pavo.com.tr">
-            </div>
-            <div style="text-align: left; margin-bottom: 25px;">
-                <label style="font-size: 0.8rem; font-weight: 600; color: var(--secondary);">Şifre</label>
-                <input type="password" id="password" placeholder="••••••••">
-            </div>
-            <button class="btn btn-primary" style="width: 100%; padding: 14px;" onclick="login()">Giriş Yap</button>
+            <p style="color: var(--secondary); margin-bottom: 30px;">Yetkili personel girişi</p>
+            <input type="email" id="email" placeholder="E-Posta" style="margin-bottom: 15px;">
+            <input type="password" id="password" placeholder="Şifre" style="margin-bottom: 25px;">
+            <button class="btn btn-primary" style="width: 100%;" onclick="login()">Giriş Yap</button>
         </div>
     </div>
 
@@ -135,15 +124,15 @@
             <div class="sidebar">
                 <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo">
                 
-                <div class="nav-label">GENEL BAKIŞ</div>
-                <button class="nav-btn active" onclick="showPage('dashboard-page', this)">📊 Yönetim Paneli</button>
-                <button class="nav-btn" onclick="showPage('log-page', this)">🕒 İşlem Günlüğü</button>
+                <div class="nav-label">GENEL</div>
+                <button class="nav-btn active" onclick="showPage('dashboard-page', this)">📊 Dashboard</button>
+                <button class="nav-btn" onclick="showPage('log-page', this)">🕒 İşlem Logları</button>
 
                 <div class="nav-label">OPERASYON</div>
                 <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Stok Yönetimi</button>
                 <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuar Planlama</button>
 
-                <div class="nav-label">İLETİŞİM & PR</div>
+                <div class="nav-label">İLETİŞİM</div>
                 <button class="nav-btn" onclick="showPage('media-page', this)">👥 Medya CRM</button>
                 <button class="nav-btn" onclick="showPage('press-page', this)">📰 Basın Yansımaları</button>
                 <button class="nav-btn" onclick="showPage('content-page', this)">📅 İçerik Takvimi</button>
@@ -151,53 +140,40 @@
 
                 <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #334155;">
                     <div id="user-display" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px;"></div>
-                    <button class="nav-btn" onclick="toggleTheme()" style="font-size: 0.8rem;">🌓 Tema Değiştir</button>
-                    <button class="nav-btn" onclick="logout()" style="color: #f87171; font-size: 0.8rem;">🚪 Çıkış Yap</button>
+                    <button class="nav-btn" onclick="toggleTheme()" style="font-size: 0.8rem;">🌓 Tema</button>
+                    <button class="nav-btn" onclick="logout()" style="color: #f87171; font-size: 0.8rem;">🚪 Çıkış</button>
                 </div>
             </div>
 
             <div class="main-container">
                 
                 <div id="dashboard-page" class="page active">
-                    <h2 style="margin-bottom: 20px;">Hoş Geldiniz 👋</h2>
+                    <h2 style="margin-bottom: 20px;">Hoş Geldiniz</h2>
                     <div class="stats-grid">
                         <div class="stat-card"><small>Toplam Stok</small><h2 id="d-stock">0</h2></div>
-                        <div class="stat-card"><small>Fuar Bütçesi (Yıllık)</small><h2 id="d-fair" style="color:var(--success)">$0</h2></div>
-                        <div class="stat-card"><small>Medya Veritabanı</small><h2 id="d-media">0</h2></div>
-                        <div class="stat-card"><small>Haber Yansıması</small><h2 id="d-press">0</h2></div>
+                        <div class="stat-card"><small>Fuar Bütçesi</small><h2 id="d-fair" style="color:var(--success)">$0</h2></div>
+                        <div class="stat-card"><small>Medya</small><h2 id="d-media">0</h2></div>
+                        <div class="stat-card"><small>Haber</small><h2 id="d-press">0</h2></div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="card">
-                            <h3>Depo Doluluk Oranı</h3>
-                            <div style="height: 250px;"><canvas id="chart1"></canvas></div>
-                        </div>
-                        <div class="card">
-                            <h3>İletişim Performansı</h3>
-                            <div style="height: 250px;"><canvas id="chart2"></canvas></div>
-                        </div>
+                        <div class="card"><h3>Depo Durumu</h3><div style="height: 250px;"><canvas id="chart1"></canvas></div></div>
+                        <div class="card"><h3>İletişim</h3><div style="height: 250px;"><canvas id="chart2"></canvas></div></div>
                     </div>
                 </div>
 
                 <div id="stok-page" class="page">
                     <div class="card">
-                        <h3 style="margin-bottom: 15px;">Hızlı Ürün Girişi</h3>
+                        <h3>Hızlı Ürün Girişi</h3>
                         <div class="form-grid">
                             <div>
-                                <div class="form-group"><label>Ürün Adı</label><input type="text" id="pName" placeholder="Örn: Kalem Seti"></div>
-                                <div class="form-group"><label>Kategori</label>
-                                    <select id="pCat">
-                                        <option value="Promosyon">Promosyon Ürün</option>
-                                        <option value="Basılı">Basılı Malzeme</option>
-                                        <option value="Sarf">Sarf Malzeme</option>
-                                        <option value="Demirbaş">Demirbaş</option>
-                                    </select>
-                                </div>
+                                <label>Ürün Adı</label><input type="text" id="pName" placeholder="Örn: Defter">
+                                <label style="margin-top:5px">Kategori</label><select id="pCat"><option>Promosyon</option><option>Basılı</option><option>Sarf</option><option>Demirbaş</option></select>
                             </div>
                             <div>
-                                <div class="form-group"><label>Depo</label><select id="pWh"><option value="Ankara">Ankara Merkez</option><option value="İstanbul">İstanbul Ofis</option></select></div>
-                                <div style="display: flex; gap: 10px; align-items: flex-end;">
-                                    <div class="form-group" style="flex:1"><label>Adet</label><input type="number" id="pQty" placeholder="0"></div>
-                                    <button class="btn btn-primary" onclick="addProduct()" style="height: 42px; margin-bottom: 2px;">Kaydet</button>
+                                <label>Depo</label><select id="pWh"><option>Ankara</option><option>İstanbul</option></select>
+                                <div style="display: flex; gap: 10px; margin-top:5px;">
+                                    <input type="number" id="pQty" placeholder="Adet" style="flex:1">
+                                    <button class="btn btn-primary" onclick="addProduct()" style="flex:1">Kaydet</button>
                                 </div>
                             </div>
                         </div>
@@ -205,15 +181,15 @@
 
                     <div class="card">
                         <div class="filter-bar">
-                            <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="🔍 Ürün ara..." style="flex: 1; max-width: 300px;">
-                            <div class="filter-group" style="margin:0;">
+                            <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="🔍 Ürün ara..." style="flex: 1;">
+                            <div class="filter-group">
                                 <button class="filter-btn active" id="f-all" onclick="setWhFilter('all')">Tümü</button>
                                 <button class="filter-btn" id="f-Ankara" onclick="setWhFilter('Ankara')">Ankara</button>
                                 <button class="filter-btn" id="f-İstanbul" onclick="setWhFilter('İstanbul')">İstanbul</button>
                             </div>
                         </div>
                         <table>
-                            <thead><tr><th>Ürün Detayı</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlemler</th></tr></thead>
+                            <thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlemler</th></tr></thead>
                             <tbody id="stockBody"></tbody>
                         </table>
                     </div>
@@ -223,15 +199,15 @@
                     <div class="card">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <h3>Fuar Takvimi</h3>
-                            <button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar Planla</button>
+                            <button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button>
                         </div>
-                        <table><thead><tr><th>Fuar Adı</th><th>Tarih / Yer</th><th>Maliyet</th><th style="text-align:right">Yönetim</th></tr></thead><tbody id="fairBody"></tbody></table>
+                        <table><thead><tr><th>Fuar</th><th>Yer/Tarih</th><th>Maliyet</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="fairBody"></tbody></table>
                     </div>
                 </div>
 
                 <div id="media-page" class="page">
                     <div class="card">
-                        <h3 style="margin-bottom:15px">Gazeteci Ekle</h3>
+                        <h3>Gazeteci Ekle</h3>
                         <div class="form-grid">
                             <input type="text" id="mName" placeholder="Ad Soyad"><input type="text" id="mOutlet" placeholder="Kurum">
                             <input type="text" id="mRole" placeholder="Görevi"><input type="text" id="mEmail" placeholder="E-posta">
@@ -246,12 +222,12 @@
                         <h3>🤖 Google News Robotu</h3>
                         <div style="display:flex; gap:10px; margin-top:10px;">
                             <input type="text" id="robotKeyword" value="Pavo Group" placeholder="Anahtar Kelime" style="flex:1">
-                            <button class="btn btn-primary" onclick="fetchNews()">🔍 Tara ve Getir</button>
+                            <button class="btn btn-primary" onclick="fetchNews()">🔍 Tara</button>
                         </div>
                         <div id="robotResults" class="robot-results"></div>
                     </div>
                     <div class="card">
-                        <h3>Basın Yansımaları Arşivi</h3>
+                        <h3>Haber Arşivi</h3>
                         <table><thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th>Sil</th></tr></thead><tbody id="pressBody"></tbody></table>
                     </div>
                 </div>
@@ -280,8 +256,8 @@
 
                 <div id="log-page" class="page">
                     <div class="card">
-                        <h3>Sistem Kayıtları</h3>
-                        <div style="max-height:600px;overflow-y:auto"><table><thead><tr><th>Zaman</th><th>Kullanıcı</th><th>İşlem</th></tr></thead><tbody id="logBody"></tbody></table></div>
+                        <h3>İşlem Geçmişi</h3>
+                        <div style="max-height:600px; overflow-y:auto;"><table><thead><tr><th>Zaman</th><th>Kullanıcı</th><th>İşlem</th></tr></thead><tbody id="logBody"></tbody></table></div>
                     </div>
                 </div>
 
@@ -291,41 +267,36 @@
 
     <div id="fairModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header"><h3>Fuar Planlama</h3><button onclick="closeModal('fairModal')" class="btn-icon" style="color:var(--text-main)">✕</button></div>
+            <div class="modal-header"><h3>Fuar Planlama</h3><button onclick="closeModal('fairModal')" class="btn-icon" style="color:var(--text-main); font-size:1.5rem;">×</button></div>
             <input type="hidden" id="fEditId">
-            
             <div class="form-grid">
-                <div class="form-group"><label>Fuar Adı</label><input type="text" id="fName"></div>
-                <div class="form-group"><label>Ülke / Şehir</label><input type="text" id="fCountry"></div>
-                <div class="form-group"><label>Tarih</label><input type="date" id="fDate"></div>
-                <div class="form-group"><label>Alan (m²)</label><input type="number" id="fM2"></div>
-                <div class="form-group"><label>Kira Bedeli ($)</label><input type="number" id="fRent"></div>
-                <div class="form-group"><label>Stant Yapım ($)</label><input type="number" id="fConst"></div>
-                <div class="form-group"><label>Tedarikçi</label><input type="text" id="fSupp"></div>
+                <div><label>Fuar Adı</label><input type="text" id="fName"></div>
+                <div><label>Ülke</label><input type="text" id="fCountry"></div>
+                <div><label>Tarih</label><input type="date" id="fDate"></div>
+                <div><label>Alan (m²)</label><input type="number" id="fM2"></div>
+                <div><label>Kira ($)</label><input type="number" id="fRent"></div>
+                <div><label>Stant ($)</label><input type="number" id="fConst"></div>
+                <div><label>Tedarikçi</label><input type="text" id="fSupp"></div>
             </div>
-
-            <div style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border);">
-                <h4 style="margin:0 0 10px 0;">Ekstra Giderler</h4>
+            <div style="margin-top:20px; border-top:1px dashed var(--border); padding-top:10px;">
+                <h4>Ekstra Giderler</h4>
                 <div id="expenseList"></div>
-                <button class="btn btn-sm" style="background:#e2e8f0; color:#334155; margin-top:5px;" onclick="addExpenseRow()">+ Gider Kalemi Ekle</button>
+                <button class="btn btn-sm" style="background:#e2e8f0; color:#333; margin-top:5px;" onclick="addExpenseRow()">+ Gider Ekle</button>
             </div>
-
-            <div style="margin-top:20px; text-align:right">
-                <button class="btn btn-primary" onclick="saveFair()">Kaydet ve Kapat</button>
-            </div>
+            <div style="margin-top:20px; text-align:right;"><button class="btn btn-primary" onclick="saveFair()">Kaydet</button></div>
         </div>
     </div>
 
     <div id="viewModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header"><h3>Fuar Detay Kartı</h3><button onclick="closeModal('viewModal')" class="btn-icon" style="color:var(--text-main)">✕</button></div>
+            <div class="modal-header"><h3>Fuar Detayı</h3><button onclick="closeModal('viewModal')" class="btn-icon" style="color:var(--text-main); font-size:1.5rem;">×</button></div>
             <div id="viewContent"></div>
-            <div style="margin-top:20px; text-align:right"><button class="btn" style="background:var(--border); color:var(--text-main)" onclick="closeModal('viewModal')">Kapat</button></div>
+            <div style="margin-top:20px; text-align:right;"><button class="btn" style="background:#e2e8f0; color:#333;" onclick="closeModal('viewModal')">Kapat</button></div>
         </div>
     </div>
 
 <script>
-    // --- FIREBASE SETUP ---
+    // FIREBASE INIT
     const firebaseConfig = {
       apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
       authDomain: "stokmasterbulut.firebaseapp.com",
@@ -335,29 +306,24 @@
       messagingSenderId: "623117556073",
       appId: "1:623117556073:web:b082fb0567879ac71d45f8"
     };
-
-    try {
-        firebase.initializeApp(firebaseConfig);
-    } catch(e) { console.error("Firebase init error", e); }
-    
+    try { firebase.initializeApp(firebaseConfig); } catch(e){}
     const db = firebase.database();
     const auth = firebase.auth();
 
-    // --- STATE ---
-    let currentUser = null;
-    let data = { inventory: [], fairs: [], media: [], press: [], content: [], suppliers: [], logs: [] };
+    let data = { inventory:[], fairs:[], media:[], press:[], content:[], suppliers:[], logs:[] };
     let whFilter = 'all';
-    let charts = { stock: null, fair: null };
+    let charts = { stock:null, fair:null };
+    let currentUser = null;
 
-    // --- AUTH ---
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUser = user;
-            document.getElementById('user-display').innerText = user.email;
+    // AUTH
+    auth.onAuthStateChanged(u => {
+        if(u) {
+            currentUser = u;
+            document.getElementById('user-display').innerText = u.email;
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
             initListeners();
-            showToast('Giriş başarılı!', 'success');
+            showToast('Giriş Başarılı', 'success');
         } else {
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('app-screen').classList.add('hidden');
@@ -367,474 +333,264 @@
     function login() {
         const e = document.getElementById('email').value;
         const p = document.getElementById('password').value;
-        if(!e || !p) return showToast('Lütfen alanları doldurun', 'error');
-        auth.signInWithEmailAndPassword(e, p).catch(err => showToast('Giriş başarısız: ' + err.message, 'error'));
+        if(e && p) auth.signInWithEmailAndPassword(e,p).catch(err=>showToast(err.message, 'error'));
     }
-    function logout() { auth.signOut(); }
+    function logout(){ auth.signOut(); }
 
-    // --- DATA LISTENERS ---
     function initListeners() {
-        const keys = Object.keys(data);
-        keys.forEach(key => {
-            db.ref(key).on('value', snap => {
-                const val = snap.val();
-                data[key] = val ? Object.values(val) : [];
-                
-                // Specific UI updates
-                if(key === 'inventory') { updateStockUI(); updateDashboard(); }
-                if(key === 'fairs') { updateFairUI(); updateDashboard(); }
-                if(key === 'media') updateMediaUI();
-                if(key === 'press') updatePressUI();
-                if(key === 'content') updateContentUI();
-                if(key === 'suppliers') updateSupplierUI();
-                if(key === 'logs') updateLogUI();
+        Object.keys(data).forEach(k => {
+            db.ref(k).on('value', s => {
+                data[k] = s.val() ? Object.values(s.val()) : [];
+                if(k==='inventory') { updateStockUI(); updateDashboard(); }
+                if(k==='fairs') { updateFairUI(); updateDashboard(); }
+                if(k==='media') updateMediaUI();
+                if(k==='press') updatePressUI();
+                if(k==='content') updateContentUI();
+                if(k==='suppliers') updateSupplierUI();
+                if(k==='logs') updateLogUI();
             });
         });
     }
 
-    // --- STOCK LOGIC (FIXED) ---
+    // --- STOK (FIXED) ---
     function updateStockUI() {
         const term = document.getElementById('searchStock').value.toLowerCase();
-        const tbody = document.getElementById('stockBody');
-        tbody.innerHTML = '';
-
-        data.inventory.forEach(item => {
-            const matchesSearch = item.name.toLowerCase().includes(term) || item.cat.toLowerCase().includes(term);
-            const matchesFilter = whFilter === 'all' || item.wh === whFilter;
-
-            if (matchesSearch && matchesFilter) {
+        const tb = document.getElementById('stockBody'); tb.innerHTML='';
+        
+        data.inventory.forEach(i => {
+            const match = (i.name.toLowerCase().includes(term) || i.cat.toLowerCase().includes(term)) && (whFilter==='all' || i.wh===whFilter);
+            if(match) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>
-                        <div style="font-weight:600">${item.name}</div>
-                        <div style="font-size:0.75rem; color:var(--secondary)">${item.cat}</div>
-                    </td>
-                    <td><span class="tag tag-${item.wh}">${item.wh}</span></td>
-                    <td><span style="font-weight:bold; font-size:1.1rem; color:${item.qty < 10 ? 'var(--danger)':'inherit'}">${item.qty}</span></td>
+                    <td><strong>${i.name}</strong><br><small style="color:var(--secondary)">${i.cat}</small></td>
+                    <td><span class="tag tag-${i.wh}">${i.wh}</span></td>
+                    <td><b style="font-size:1.1rem">${i.qty}</b></td>
                     <td style="text-align:right">
                         <div class="action-group">
-                            <input type="number" id="qty-${item.id}" value="1" style="width:50px; text-align:center; padding:6px; border-radius:6px; border:1px solid var(--border)">
-                            <button class="btn-icon" style="background:var(--success)" onclick="stockOp('${item.id}', 1)" title="Ekle">+</button>
-                            <button class="btn-icon" style="background:var(--danger)" onclick="stockOp('${item.id}', -1)" title="Çıkar">-</button>
-                            <button class="btn-icon" style="background:#8b5cf6" onclick="transferStock('${item.id}')" title="Transfer">⇄</button>
-                            <button class="btn-icon" style="background:#ef4444; margin-left:10px" onclick="deleteItem('inventory','${item.id}')" title="Sil">🗑️</button>
+                            <input type="number" id="qty-${i.id}" value="1" style="width:50px; text-align:center; padding:5px; border:1px solid #ddd; border-radius:4px;">
+                            <button class="btn-icon" style="background:var(--success)" onclick="stockOp('${i.id}',1)">+</button>
+                            <button class="btn-icon" style="background:var(--danger)" onclick="stockOp('${i.id}',-1)">-</button>
+                            <button class="btn-icon" style="background:#8b5cf6" onclick="transferStock('${i.id}')">⇄</button>
+                            <button class="btn-icon" style="background:#64748b; margin-left:5px;" onclick="deleteItem('inventory','${i.id}')">🗑️</button>
                         </div>
                     </td>
                 `;
-                tbody.appendChild(tr);
+                tb.appendChild(tr);
             }
         });
     }
 
-    function addProduct() {
-        const name = document.getElementById('pName').value;
-        const cat = document.getElementById('pCat').value;
-        const wh = document.getElementById('pWh').value;
-        const qty = parseInt(document.getElementById('pQty').value) || 0;
-
-        if(!name) return showToast('Ürün adı gerekli', 'error');
-
-        const id = Date.now().toString();
-        db.ref('inventory/' + id).set({ id, name, cat, wh, qty })
-          .then(() => { showToast('Ürün eklendi', 'success'); clearInputs(['pName', 'pQty']); });
-        logAction('Ürün Ekleme', `${name} (${wh})`);
-    }
-
     function stockOp(id, dir) {
-        const item = data.inventory.find(i => i.id === id);
-        const input = document.getElementById(`qty-${id}`);
-        const val = parseInt(input.value) || 1;
+        const item = data.inventory.find(i=>i.id==id);
+        const inp = document.getElementById('qty-'+id);
+        if(!item || !inp) return;
+        const val = parseInt(inp.value)||1;
         
-        if(dir === -1 && item.qty < val) return showToast('Stok yetersiz!', 'error');
-
-        const newQty = item.qty + (val * dir);
-        db.ref(`inventory/${id}`).update({ qty: newQty });
+        if(dir===-1 && item.qty<val) return showToast('Stok yetersiz', 'error');
         
-        // Eğer çıkış yapılıyorsa ve bir yere gidiyorsa sorabiliriz, ama basit tutalım.
-        logAction(dir === 1 ? 'Stok Giriş' : 'Stok Çıkış', `${item.name} (${val} Adet)`);
+        db.ref('inventory/'+item.id).update({qty: item.qty + (val*dir)});
+        logAction(dir===1?'Stok Giriş':'Stok Çıkış', `${item.name} (${val})`);
         showToast('Stok güncellendi', 'success');
     }
 
     function transferStock(id) {
-        const item = data.inventory.find(i => i.id === id);
-        const input = document.getElementById(`qty-${id}`);
-        const val = parseInt(input.value) || 1;
-        const targetWh = item.wh === 'Ankara' ? 'İstanbul' : 'Ankara';
+        const item = data.inventory.find(i=>i.id==id);
+        const inp = document.getElementById('qty-'+id);
+        if(!item || !inp) return;
+        const val = parseInt(inp.value)||1;
+        const targetWh = item.wh==='Ankara'?'İstanbul':'Ankara';
 
-        if(item.qty < val) return showToast('Transfer için stok yetersiz', 'error');
+        if(item.qty<val) return showToast('Transfer için stok yok', 'error');
 
-        // 1. Kaynaktan Düş
-        db.ref(`inventory/${id}`).update({ qty: item.qty - val });
-
-        // 2. Hedefte Var mı?
-        const targetItem = data.inventory.find(i => i.name === item.name && i.wh === targetWh);
+        // Düş
+        db.ref('inventory/'+item.id).update({qty: item.qty-val});
         
-        if(targetItem) {
-            db.ref(`inventory/${targetItem.id}`).update({ qty: targetItem.qty + val });
+        // Ekle
+        const tItem = data.inventory.find(x=>x.name===item.name && x.wh===targetWh);
+        if(tItem) {
+            db.ref('inventory/'+tItem.id).update({qty: tItem.qty+val});
         } else {
-            const newId = Date.now().toString();
-            db.ref(`inventory/${newId}`).set({
-                id: newId, name: item.name, cat: item.cat, wh: targetWh, qty: val
-            });
+            const nid = Date.now().toString();
+            db.ref('inventory/'+nid).set({id:nid, name:item.name, cat:item.cat, wh:targetWh, qty:val});
         }
-        
-        logAction('Transfer', `${item.name}: ${item.wh} -> ${targetWh} (${val})`);
-        showToast('Transfer başarılı', 'success');
+        logAction('Transfer', `${item.name} ${item.wh}->${targetWh} (${val})`);
+        showToast('Transfer yapıldı', 'success');
     }
 
-    function setWhFilter(val) {
-        whFilter = val;
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('f-' + val).classList.add('active');
+    function addProduct() {
+        const name=document.getElementById('pName').value;
+        const cat=document.getElementById('pCat').value;
+        const wh=document.getElementById('pWh').value;
+        const qty=parseInt(document.getElementById('pQty').value)||0;
+        if(!name) return showToast('İsim gerekli','error');
+        const id=Date.now().toString();
+        db.ref('inventory/'+id).set({id,name,cat,wh,qty});
+        showToast('Ürün eklendi','success');
+        document.getElementById('pName').value='';
+    }
+
+    function setWhFilter(v) { 
+        whFilter=v; 
+        document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+        document.getElementById('f-'+v).classList.add('active');
         updateStockUI();
     }
 
-    // --- FAIR LOGIC (Advanced) ---
+    // --- FUAR & GİDERLER ---
     function updateFairUI() {
-        const tbody = document.getElementById('fairBody');
-        tbody.innerHTML = '';
-        const now = new Date(); 
-        const warningDate = new Date(); warningDate.setDate(now.getDate() + 30);
-
+        const tb = document.getElementById('fairBody'); tb.innerHTML='';
+        const now = new Date(); const warn = new Date(); warn.setDate(now.getDate()+30);
+        
         data.fairs.forEach(f => {
-            const fDate = new Date(f.date);
-            const isNear = fDate >= now && fDate <= warningDate;
+            let tot = parseFloat(f.rent||0) + parseFloat(f.const||0);
+            if(f.expenses) f.expenses.forEach(e=>tot+=parseFloat(e.cost||0));
+            const isNear = new Date(f.date)>=now && new Date(f.date)<=warn;
             
-            // Calculate Total Cost
-            let total = parseFloat(f.rent || 0) + parseFloat(f.const || 0);
-            if(f.expenses) f.expenses.forEach(e => total += parseFloat(e.cost || 0));
-
-            const tr = document.createElement('tr');
-            if(isNear) tr.style.backgroundColor = '#fff7ed'; // Warning Color
-            
-            tr.innerHTML = `
-                <td><strong>${f.name}</strong></td>
-                <td>${f.date} <br> <span style="font-size:0.8rem; color:var(--secondary)">${f.country}</span> ${isNear ? '⚠️' : ''}</td>
-                <td><span class="money">$ ${total.toLocaleString()}</span></td>
+            tb.innerHTML += `<tr style="${isNear?'background:#fff7ed':''}">
+                <td><b>${f.name}</b><br><small style="color:#666">${f.country}</small></td>
+                <td>${f.date} ${isNear?'⚠️':''}</td>
+                <td><span class="money">$ ${tot.toLocaleString()}</span></td>
                 <td style="text-align:right">
-                    <div class="action-group">
-                        <button class="btn-icon" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button>
-                        <button class="btn-icon" style="background:var(--warning)" onclick="editFair('${f.id}')">✏️</button>
-                        <button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('fairs','${f.id}')">🗑️</button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(tr);
+                    <button class="btn-icon" style="background:var(--info); display:inline-flex;" onclick="viewFair('${f.id}')">👁️</button>
+                    <button class="btn-icon" style="background:var(--warning); display:inline-flex;" onclick="editFair('${f.id}')">✏️</button>
+                    <button class="btn-icon" style="background:var(--danger); display:inline-flex;" onclick="deleteItem('fairs','${f.id}')">🗑️</button>
+                </td></tr>`;
         });
+    }
+
+    function editFair(id) {
+        const f = data.fairs.find(i=>i.id==id);
+        document.getElementById('fEditId').value=f.id;
+        document.getElementById('fName').value=f.name;
+        document.getElementById('fCountry').value=f.country;
+        document.getElementById('fDate').value=f.date;
+        document.getElementById('fM2').value=f.m2;
+        document.getElementById('fRent').value=f.rent;
+        document.getElementById('fConst').value=f.const;
+        document.getElementById('fSupp').value=f.supplier;
+        
+        const div = document.getElementById('expenseList'); div.innerHTML='';
+        if(f.expenses) f.expenses.forEach(e=>addExpenseRow(e.desc, e.cost));
+        openModal('fairModal');
     }
 
     function saveFair() {
         const id = document.getElementById('fEditId').value || Date.now().toString();
-        
-        // Collect Expenses
-        const expenses = [];
-        document.querySelectorAll('.expense-row').forEach(row => {
-            const desc = row.querySelector('.ex-desc').value;
-            const cost = row.querySelector('.ex-cost').value;
-            if(desc && cost) expenses.push({ desc, cost: parseFloat(cost) });
+        const ex = [];
+        document.querySelectorAll('.expense-row').forEach(r=>{
+            const d=r.querySelector('.ex-desc').value; const c=r.querySelector('.ex-cost').value;
+            if(d&&c) ex.push({desc:d, cost:parseFloat(c)});
         });
-
-        const fairData = {
-            id,
-            name: document.getElementById('fName').value,
-            country: document.getElementById('fCountry').value,
-            date: document.getElementById('fDate').value,
-            m2: document.getElementById('fM2').value,
-            rent: document.getElementById('fRent').value,
-            const: document.getElementById('fConst').value,
-            supplier: document.getElementById('fSupp').value,
-            expenses: expenses
+        
+        const obj = {
+            id, name:document.getElementById('fName').value, country:document.getElementById('fCountry').value,
+            date:document.getElementById('fDate').value, m2:document.getElementById('fM2').value,
+            rent:document.getElementById('fRent').value, const:document.getElementById('fConst').value,
+            supplier:document.getElementById('fSupp').value, expenses:ex
         };
-
-        if(!fairData.name) return showToast('Fuar adı giriniz', 'error');
-
-        db.ref('fairs/' + id).update(fairData)
-          .then(() => {
-              showToast('Fuar kaydedildi', 'success');
-              closeModal('fairModal');
-              logAction('Fuar Kayıt', fairData.name);
-          });
-    }
-
-    function editFair(id) {
-        const f = data.fairs.find(i => i.id === id);
-        if(!f) return;
-
-        document.getElementById('fEditId').value = f.id;
-        document.getElementById('fName').value = f.name;
-        document.getElementById('fCountry').value = f.country;
-        document.getElementById('fDate').value = f.date;
-        document.getElementById('fM2').value = f.m2;
-        document.getElementById('fRent').value = f.rent;
-        document.getElementById('fConst').value = f.const;
-        document.getElementById('fSupp').value = f.supplier;
-
-        const list = document.getElementById('expenseList');
-        list.innerHTML = '';
-        if(f.expenses) f.expenses.forEach(e => addExpenseRow(e.desc, e.cost));
-
-        openModal('fairModal');
+        
+        if(!obj.name) return showToast('Ad gerekli','error');
+        db.ref('fairs/'+id).update(obj);
+        showToast('Fuar kaydedildi','success');
+        closeModal('fairModal');
     }
 
     function viewFair(id) {
-        const f = data.fairs.find(i => i.id === id);
-        const rent = parseFloat(f.rent || 0);
-        const constr = parseFloat(f.const || 0);
-        let exTotal = 0;
-        let exHtml = '';
-
-        if(f.expenses) {
-            f.expenses.forEach(e => {
-                exTotal += parseFloat(e.cost);
-                exHtml += `<div class="detail-row"><span>${e.desc}</span><span>$ ${parseFloat(e.cost).toLocaleString()}</span></div>`;
-            });
-        }
-
-        const html = `
-            <h2 style="color:var(--primary); margin-bottom:5px;">${f.name}</h2>
-            <p style="color:var(--secondary); margin-bottom:20px;">📍 ${f.country} | 📅 ${f.date}</p>
-            
-            <div style="background:var(--input-bg); padding:15px; border-radius:8px; margin-bottom:15px;">
-                <div class="detail-row"><span>Katılım Alanı</span><span>${f.m2} m²</span></div>
-                <div class="detail-row"><span>Tedarikçi</span><span>${f.supplier}</span></div>
-            </div>
-
-            <h4 style="border-bottom:1px solid var(--border); padding-bottom:5px;">Maliyet Tablosu</h4>
-            <div class="detail-row"><span>Alan Kirası</span><span>$ ${rent.toLocaleString()}</span></div>
-            <div class="detail-row"><span>Stant Yapım</span><span>$ ${constr.toLocaleString()}</span></div>
-            ${exHtml}
-            <div class="detail-row total"><span>GENEL TOPLAM</span><span>$ ${(rent+constr+exTotal).toLocaleString()}</span></div>
-        `;
+        const f = data.fairs.find(i=>i.id==id);
+        const rent=parseFloat(f.rent||0), constr=parseFloat(f.const||0);
+        let exHtml='', exTot=0;
+        if(f.expenses) f.expenses.forEach(e=>{
+            exTot+=parseFloat(e.cost);
+            exHtml+=`<div class="detail-row"><span>${e.desc}</span><span>$ ${parseFloat(e.cost).toLocaleString()}</span></div>`;
+        });
         
-        document.getElementById('viewContent').innerHTML = html;
+        document.getElementById('viewContent').innerHTML=`
+            <h2 style="color:var(--primary); margin-top:0">${f.name}</h2>
+            <p style="color:#666">${f.country} | ${f.date}</p>
+            <div style="background:#f8fafc; padding:10px; border-radius:8px; margin-bottom:15px">
+                <div class="detail-row"><span>Tedarikçi</span><span>${f.supplier}</span></div>
+                <div class="detail-row"><span>Alan</span><span>${f.m2} m²</span></div>
+            </div>
+            <h4>Maliyetler</h4>
+            <div class="detail-row"><span>Kira</span><span>$ ${rent.toLocaleString()}</span></div>
+            <div class="detail-row"><span>Stant</span><span>$ ${constr.toLocaleString()}</span></div>
+            ${exHtml}
+            <div class="detail-row total"><span>TOPLAM</span><span>$ ${(rent+constr+exTot).toLocaleString()}</span></div>
+        `;
         openModal('viewModal');
     }
 
-    function addExpenseRow(desc='', cost='') {
-        const div = document.createElement('div');
-        div.className = 'expense-row';
-        div.innerHTML = `
-            <input type="text" class="ex-desc" placeholder="Gider Açıklaması" value="${desc}" style="flex:2">
-            <input type="number" class="ex-cost" placeholder="Tutar ($)" value="${cost}" style="flex:1">
-            <button onclick="this.parentElement.remove()" style="background:var(--danger); color:white; border:none; border-radius:4px; width:30px; height:38px; cursor:pointer;">X</button>
-        `;
+    function addExpenseRow(d='',c='') {
+        const div=document.createElement('div'); div.className='expense-row';
+        div.innerHTML=`<input type="text" class="ex-desc" placeholder="Gider" value="${d}" style="flex:2">
+        <input type="number" class="ex-cost" placeholder="$" value="${c}" style="flex:1">
+        <button style="color:red;border:none;background:none;cursor:pointer" onclick="this.parentElement.remove()">✕</button>`;
         document.getElementById('expenseList').appendChild(div);
     }
 
-    // --- MEDIA & CONTENT & SUPPLIER (Standard CRUD) ---
+    // --- OTHER MODULES ---
     function addMedia() {
-        const obj = {
-            id: Date.now().toString(),
-            name: document.getElementById('mName').value,
-            outlet: document.getElementById('mOutlet').value,
-            role: document.getElementById('mRole').value,
-            email: document.getElementById('mEmail').value
-        };
-        if(!obj.name) return;
-        db.ref('media/' + obj.id).set(obj);
-        showToast('Gazeteci eklendi', 'success'); clearInputs(['mName','mOutlet','mRole','mEmail']);
+        const id=Date.now().toString();
+        const obj={id, name:document.getElementById('mName').value, outlet:document.getElementById('mOutlet').value, role:document.getElementById('mRole').value, email:document.getElementById('mEmail').value};
+        if(obj.name) { db.ref('media/'+id).set(obj); showToast('Eklendi','success'); }
     }
-    function updateMediaUI() {
-        const b = document.getElementById('mediaBody'); b.innerHTML = '';
-        data.media.forEach(m => {
-            b.innerHTML += `<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td><td>${m.email}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('media','${m.id}')">🗑️</button></td></tr>`;
-        });
-    }
+    function updateMediaUI(){ const b=document.getElementById('mediaBody'); b.innerHTML=''; data.media.forEach(m=>{ b.innerHTML+=`<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td><td>${m.email}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('media','${m.id}')">🗑️</button></td></tr>`; }); }
 
-    function addContent() {
-        const obj = {
-            id: Date.now().toString(),
-            date: document.getElementById('cDate').value,
-            plat: document.getElementById('cPlatform').value,
-            title: document.getElementById('cTitle').value,
-            status: 'Taslak'
-        };
-        if(!obj.title) return;
-        db.ref('content/' + obj.id).set(obj);
-        showToast('İçerik planlandı', 'success'); clearInputs(['cTitle']);
-    }
-    function updateContentUI() {
-        const b = document.getElementById('contentBody'); b.innerHTML = '';
-        data.content.forEach(c => {
-            b.innerHTML += `<tr><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td><span class="tag tag-neu">${c.status}</span></td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('content','${c.id}')">🗑️</button></td></tr>`;
-        });
-    }
-
-    function addSupplier() {
-        const obj = {
-            id: Date.now().toString(),
-            name: document.getElementById('sName').value,
-            type: document.getElementById('sType').value,
-            contact: document.getElementById('sContact').value
-        };
-        if(!obj.name) return;
-        db.ref('suppliers/' + obj.id).set(obj);
-        showToast('Tedarikçi eklendi', 'success'); clearInputs(['sName','sContact']);
-    }
-    function updateSupplierUI() {
-        const b = document.getElementById('supplierBody'); b.innerHTML = '';
-        data.suppliers.forEach(s => {
-            b.innerHTML += `<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('suppliers','${s.id}')">🗑️</button></td></tr>`;
-        });
-    }
-
-    // --- GOOGLE NEWS ROBOT ---
     async function fetchNews() {
-        const query = document.getElementById('robotKeyword').value;
-        const container = document.getElementById('robotResults');
-        if(!query) return showToast('Anahtar kelime girin', 'error');
-        
-        container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--secondary)">Taranıyor...</div>';
-        
+        const q=document.getElementById('robotKeyword').value;
+        const c=document.getElementById('robotResults');
+        if(!q) return showToast('Anahtar kelime gir','error');
+        c.innerHTML='<div style="padding:10px;text-align:center">Taranıyor...</div>';
         try {
-            const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=tr-TR&gl=TR&ceid=TR:tr`;
-            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-            const json = await res.json();
-            
-            container.innerHTML = '';
-            if(!json.items || json.items.length === 0) return container.innerHTML = '<div style="padding:10px">Haber bulunamadı.</div>';
-
-            json.items.slice(0,8).forEach(news => {
-                const div = document.createElement('div');
-                div.className = 'robot-item';
-                div.innerHTML = `
-                    <div class="robot-info">
-                        <h4>${news.title}</h4>
-                        <p>${new Date(news.pubDate).toLocaleDateString('tr-TR')} - ${news.author || 'Google News'}</p>
-                        <a href="${news.link}" target="_blank">Haberi Oku ↗</a>
-                    </div>
-                    <button class="btn-icon" style="background:var(--success)" onclick="saveNews('${encodeURIComponent(news.title)}', '${news.link}')">+</button>
-                `;
-                container.appendChild(div);
+            const res=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=tr-TR&gl=TR&ceid=TR:tr`)}`);
+            const j=await res.json();
+            c.innerHTML='';
+            if(!j.items||j.items.length===0) return c.innerHTML='Haber yok';
+            j.items.slice(0,10).forEach(n=>{
+                const div=document.createElement('div'); div.className='robot-item';
+                div.innerHTML=`<div class="robot-info"><h4>${n.title}</h4><p>${new Date(n.pubDate).toLocaleDateString()} - Google News</p><a href="${n.link}" target="_blank">Git</a></div><button class="btn-icon" style="background:var(--success)" onclick="saveNews('${encodeURIComponent(n.title)}','${n.link}')">+</button>`;
+                c.appendChild(div);
             });
-        } catch(e) {
-            container.innerHTML = '<div style="color:var(--danger)">Hata oluştu.</div>';
-        }
+        } catch(e){c.innerHTML='Hata';}
     }
+    function saveNews(t,l){ db.ref('press/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), link:l, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); }
+    function updatePressUI(){ const b=document.getElementById('pressBody'); b.innerHTML=''; data.press.forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('press','${p.id}')">🗑️</button></td></tr>`; }); }
 
-    function saveNews(title, link) {
-        db.ref('press/' + Date.now()).set({
-            id: Date.now(),
-            title: decodeURIComponent(title),
-            link: link,
-            date: new Date().toISOString().split('T')[0]
-        });
-        showToast('Haber arşive eklendi', 'success');
-    }
-    function updatePressUI() {
-        const b = document.getElementById('pressBody'); b.innerHTML = '';
-        data.press.forEach(p => {
-            b.innerHTML += `<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('press','${p.id}')">🗑️</button></td></tr>`;
-        });
-    }
+    function addContent(){ const id=Date.now().toString(); const obj={id, date:document.getElementById('cDate').value, plat:document.getElementById('cPlatform').value, title:document.getElementById('cTitle').value, status:'Taslak'}; if(obj.title){ db.ref('content/'+id).set(obj); showToast('Eklendi','success'); }}
+    function updateContentUI(){ const b=document.getElementById('contentBody'); b.innerHTML=''; data.content.forEach(c=>{ b.innerHTML+=`<tr><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td>${c.status}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('content','${c.id}')">🗑️</button></td></tr>`; }); }
 
-    // --- DASHBOARD & LOGS ---
-    function updateDashboard() {
-        // Counts
-        document.getElementById('d-stock').innerText = data.inventory.reduce((a,b) => a+b.qty, 0);
-        document.getElementById('d-media').innerText = data.media.length;
-        document.getElementById('d-press').innerText = data.press.length;
+    function addSupplier(){ const id=Date.now().toString(); const obj={id, name:document.getElementById('sName').value, type:document.getElementById('sType').value, contact:document.getElementById('sContact').value}; if(obj.name){ db.ref('suppliers/'+id).set(obj); showToast('Eklendi','success'); }}
+    function updateSupplierUI(){ const b=document.getElementById('supplierBody'); b.innerHTML=''; data.suppliers.forEach(s=>{ b.innerHTML+=`<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('suppliers','${s.id}')">🗑️</button></td></tr>`; }); }
+
+    function updateLogUI(){ const b=document.getElementById('logBody'); b.innerHTML=''; [...data.logs].reverse().slice(0,50).forEach(l=>{ b.innerHTML+=`<tr><td><small>${l.time}</small></td><td>${l.user}</td><td>${l.action}</td></tr>`; }); }
+
+    function updateDashboard(){
+        document.getElementById('d-stock').innerText=data.inventory.reduce((a,b)=>a+b.qty,0);
+        document.getElementById('d-media').innerText=data.media.length;
+        document.getElementById('d-press').innerText=data.press.length;
+        let tot=0; data.fairs.forEach(f=>{ tot+=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses) f.expenses.forEach(e=>tot+=parseFloat(e.cost||0)); });
+        document.getElementById('d-fair').innerText="$ "+tot.toLocaleString();
         
-        let totalBudget = 0;
-        data.fairs.forEach(f => {
-            totalBudget += parseFloat(f.rent||0) + parseFloat(f.const||0);
-            if(f.expenses) f.expenses.forEach(e => totalBudget += parseFloat(e.cost||0));
-        });
-        document.getElementById('d-fair').innerText = "$ " + totalBudget.toLocaleString();
-
-        // Charts
-        const ctx1 = document.getElementById('chart1').getContext('2d');
         if(charts.stock) charts.stock.destroy();
-        charts.stock = new Chart(ctx1, {
-            type: 'doughnut',
-            data: {
-                labels: ['Ankara', 'İstanbul'],
-                datasets: [{ 
-                    data: [
-                        data.inventory.filter(i=>i.wh==='Ankara').reduce((a,b)=>a+b.qty,0),
-                        data.inventory.filter(i=>i.wh==='İstanbul').reduce((a,b)=>a+b.qty,0)
-                    ],
-                    backgroundColor: ['#f97316', '#3b82f6']
-                }]
-            },
-            options: { maintainAspectRatio: false }
-        });
-
-        const ctx2 = document.getElementById('chart2').getContext('2d');
+        charts.stock = new Chart(document.getElementById('chart1'), {type:'doughnut', data:{labels:['Ankara','İstanbul'], datasets:[{data:[data.inventory.filter(i=>i.wh=='Ankara').reduce((a,b)=>a+b.qty,0), data.inventory.filter(i=>i.wh=='İstanbul').reduce((a,b)=>a+b.qty,0)], backgroundColor:['#f97316','#0ea5e9']}]}, options:{maintainAspectRatio:false}});
+        
         if(charts.fair) charts.fair.destroy();
-        charts.fair = new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: ['Gazeteciler', 'Haberler', 'Planlanan İçerik'],
-                datasets: [{
-                    label: 'Adet',
-                    data: [data.media.length, data.press.length, data.content.length],
-                    backgroundColor: '#6366f1'
-                }]
-            },
-            options: { maintainAspectRatio: false }
-        });
+        charts.fair = new Chart(document.getElementById('chart2'), {type:'bar', data:{labels:['Medya','Haber','İçerik'], datasets:[{label:'Adet', data:[data.media.length, data.press.length, data.content.length], backgroundColor:'#6366f1'}]}, options:{maintainAspectRatio:false}});
     }
 
-    function updateLogUI() {
-        const b = document.getElementById('logBody'); b.innerHTML = '';
-        [...data.logs].reverse().slice(0,50).forEach(l => {
-            b.innerHTML += `<tr><td><small>${l.time}</small></td><td>${l.user}</td><td>${l.action}</td></tr>`;
-        });
-    }
-
-    // --- UTILITIES ---
-    function showPage(pageId, btn) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        btn.classList.add('active');
-    }
-
-    function openModal(id) { 
-        // Reset Inputs if opening fresh
-        if(id === 'fairModal') {
-            if(!document.getElementById('fEditId').value) clearInputs(['fName','fCountry','fDate','fM2','fRent','fConst','fSupp']);
+    // --- UTILS ---
+    function showPage(pid, btn){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.getElementById(pid).classList.add('active'); btn.classList.add('active'); }
+    function openModal(id){ 
+        if(id==='fairModal' && !document.getElementById('fEditId').value) {
+            document.querySelectorAll('#fairModal input').forEach(i=>i.value=''); document.getElementById('expenseList').innerHTML='';
         }
-        document.getElementById(id).style.display = 'flex'; 
+        document.getElementById(id).style.display='flex'; 
     }
-    function closeModal(id) { 
-        document.getElementById(id).style.display = 'none'; 
-        if(id === 'fairModal') document.getElementById('fEditId').value = ''; // Reset edit ID
-    }
-
-    function deleteItem(path, id) {
-        if(confirm('Bu kaydı silmek istediğinize emin misiniz?')) {
-            db.ref(`${path}/${id}`).remove();
-            showToast('Kayıt silindi', 'success');
-            logAction('Silme', path);
-        }
-    }
-
-    function logAction(action, detail) {
-        db.ref('logs/' + Date.now()).set({
-            time: new Date().toLocaleString('tr-TR'),
-            user: currentUser.email,
-            action: `${action} - ${detail}`
-        });
-    }
-
-    function clearInputs(ids) { ids.forEach(id => document.getElementById(id).value = ''); }
-
-    function showToast(msg, type='info') {
-        const t = document.createElement('div');
-        t.className = `toast ${type}`;
-        t.innerHTML = msg;
-        document.getElementById('toast-container').appendChild(t);
-        setTimeout(() => t.remove(), 3000);
-    }
-
-    function toggleTheme() {
-        const body = document.body;
-        const current = body.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        body.setAttribute('data-theme', next);
-    }
+    function closeModal(id){ document.getElementById(id).style.display='none'; if(id==='fairModal') document.getElementById('fEditId').value=''; }
+    function deleteItem(p,id){ if(confirm('Sil?')) { db.ref(p+'/'+id).remove(); showToast('Silindi','success'); logAction('Silme', p); } }
+    function logAction(act, det){ db.ref('logs/'+Date.now()).set({time:new Date().toLocaleString('tr-TR'), user:currentUser.email, action:act+' - '+det}); }
+    function showToast(msg, type){ const t=document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=msg; document.getElementById('toast-container').appendChild(t); setTimeout(()=>t.remove(),3000); }
+    function toggleTheme(){ const b=document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')=='dark'?'light':'dark'); }
 </script>
 </body>
 </html>
