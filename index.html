@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StokMaster Cloud Pro</title>
+    <title>StokMaster Pro | Toplu İşlem Destekli</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,67 +11,54 @@
     <style>
         :root { --primary: #4f46e5; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --border: #e2e8f0; --input-bg: #f1f5f9; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; display: flex; flex-direction: column; transition: 0.3s; }
-        
         .sidebar { width: 260px; background: #1e293b; height: 100vh; color: white; padding: 20px; position: fixed; box-sizing: border-box; overflow-y: auto; z-index: 100; }
         .main-content { margin-left: 260px; padding: 20px; width: calc(100% - 260px); box-sizing: border-box; min-height: 100vh; }
-
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
             .main-content { margin-left: 0; width: 100%; }
             .grid-container { grid-template-columns: 1fr !important; }
-            .stats-bar { grid-template-columns: 1fr !important; }
         }
-
         .sidebar h1 { font-size: 1.4rem; margin-bottom: 20px; color: #818cf8; }
         .sidebar-btn { width: 100%; background: #334155; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; border: none; text-align: left; font-size: 0.85rem; }
-        
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
-        
         .grid-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .full-width { grid-column: span 1; }
-        @media (min-width: 769px) { .full-width { grid-column: span 2; } }
-
-        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 15px; }
         input, select { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; }
-        
         .btn-add { background: var(--primary); color: white; cursor: pointer; border:none; border-radius:8px; padding:10px; font-weight:600;}
-        .btn-action { color: white; cursor: pointer; border:none; border-radius:6px; padding:8px; font-size: 0.85rem; margin: 2px; }
-        
+        .btn-action { color: white; cursor: pointer; border:none; border-radius:6px; padding:8px 12px; font-size: 0.9rem; margin: 2px; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 12px 8px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.75rem; }
         td { padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-        
         .tag { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
         .tag-ankara { background: #ffedd5; color: #9a3412; }
         .tag-istanbul { background: #e0f2fe; color: #075985; }
-        .tag-danger { background: var(--danger); color: white; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <h1>📦 StokMaster Pro</h1>
-    <div id="sync-status" style="color:#22c55e; font-size:0.7rem; margin-bottom:15px;">● Bulut Canlı Bağlantı</div>
-    <button class="sidebar-btn" onclick="exportInventoryCSV()">📊 Stok İndir (CSV)</button>
+    <button class="sidebar-btn" onclick="exportInventoryCSV()">📊 Stok Durumu (CSV)</button>
     <button class="sidebar-btn" onclick="clearLogsWithAuth()" style="background:#7f1d1d;">🕒 Geçmişi Temizle (Admin)</button>
+    <button class="sidebar-btn" onclick="toggleTheme()">🌓 Gece/Gündüz Modu</button>
 </div>
 
 <div class="main-content">
     <div class="stats-bar">
         <div class="stat-card"><small>Ankara Toplam</small><h2 id="ankaraTotal">0</h2></div>
         <div class="stat-card"><small>İstanbul Toplam</small><h2 id="istanbulTotal">0</h2></div>
-        <div class="stat-card" style="border-color: var(--danger);"><small style="color:var(--danger)">Kritik Ürün Sayısı</small><h2 id="criticalAlert" style="color:var(--danger)">0</h2></div>
+        <div class="stat-card" style="border-color: var(--danger);"><small style="color:var(--danger)">Kritik Stok</small><h2 id="criticalAlert" style="color:var(--danger)">0</h2></div>
     </div>
 
     <div class="grid-container">
         <div class="card">
-            <h3>Ürün Yönetimi</h3>
+            <h3>Ürün Kaydı</h3>
             <div class="input-group">
                 <input type="text" id="newName" placeholder="Ürün Adı">
                 <select id="newCat">
-                    <option value="Genel">Kategori</option>
+                    <option value="Genel">Genel</option>
                     <option value="Basılı Malzeme">Basılı Malzeme</option>
                     <option value="Promosyon Ürün">Promosyon Ürün</option>
                     <option value="Sarf Malzeme">Sarf Malzeme</option>
@@ -79,16 +66,16 @@
                 </select>
                 <select id="newWarehouse"><option value="Ankara">Ankara</option><option value="İstanbul">İstanbul</option></select>
                 <input type="text" id="newSupplier" placeholder="Tedarikçi">
-                <input type="number" id="newQty" placeholder="Stok">
-                <input type="number" id="newLimit" placeholder="Krt. Sınır">
-                <button class="btn-add" onclick="addNewProduct()">Ekle</button>
+                <input type="number" id="newQty" placeholder="Miktar">
+                <input type="number" id="newLimit" placeholder="Kritik Sınır">
+                <button class="btn-add" onclick="addNewProduct()">Kaydet</button>
             </div>
             
-            <input type="text" id="searchInput" placeholder="🔍 Ürün Ara..." onkeyup="updateUI()" style="width:100%; margin:10px 0; border:2px solid var(--border); padding: 10px; border-radius: 8px;">
+            <input type="text" id="searchInput" placeholder="🔍 Ürün veya Kategori Ara..." onkeyup="updateUI()" style="width:100%; margin-bottom:15px; padding:10px; border-radius:8px; border:1px solid var(--border);">
 
             <table>
                 <thead>
-                    <tr><th>Ürün</th><th>Depo</th><th>Mevcut Stok</th><th style="text-align:right">İşlemler</th></tr>
+                    <tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlemler (Adet Seçebilirsin)</th></tr>
                 </thead>
                 <tbody id="inventoryBody"></tbody>
             </table>
@@ -96,9 +83,9 @@
 
         <div>
             <div class="card" style="border-left: 5px solid var(--danger);">
-                <h3 style="color:var(--danger); margin:0;">⚠️ Acil Tedarik (Kritik)</h3>
-                <table id="criticalTable" style="font-size: 0.8rem; margin-top: 10px;">
-                    <thead><tr><th>Ürün</th><th>Depo</th><th>Stok/Limit</th></tr></thead>
+                <h3 style="color:var(--danger); margin:0;">⚠️ Kritik Stok Listesi</h3>
+                <table id="criticalTable" style="font-size: 0.8rem; margin-top:10px;">
+                    <thead><tr><th>Ürün</th><th>Depo</th><th>Adet</th></tr></thead>
                     <tbody id="criticalBody"></tbody>
                 </table>
             </div>
@@ -136,14 +123,12 @@
     let myChart;
 
     db.ref('inventory').on('value', snap => {
-        const data = snap.val();
-        inventory = data ? Object.values(data) : [];
+        inventory = snap.val() ? Object.values(snap.val()) : [];
         updateUI();
     });
 
     db.ref('logs').limitToLast(100).on('value', snap => {
-        const data = snap.val();
-        logs = data ? Object.values(data) : [];
+        logs = snap.val() ? Object.values(snap.val()) : [];
         updateUI();
     });
 
@@ -165,27 +150,27 @@
 
         body.innerHTML = ''; critBody.innerHTML = '';
         
-        inventory.forEach((item) => {
+        inventory.forEach((item, idx) => {
             const limitVal = item.limit || 5;
             const isCrit = item.qty <= limitVal;
             if(item.warehouse === "Ankara") ank += item.qty; else ist += item.qty;
 
             if(item.name.toLowerCase().includes(search)) {
                 body.innerHTML += `<tr>
-                    <td><strong>${item.name}</strong><br><small style="color:var(--secondary)">${item.category} - ${item.supplier || ''}</small></td>
+                    <td><strong>${item.name}</strong><br><small style="color:var(--secondary)">${item.category}</small></td>
                     <td><span class="tag tag-${item.warehouse.toLowerCase()}">${item.warehouse}</span></td>
-                    <td><b style="color:${isCrit ? 'var(--danger)':'inherit'}">${item.qty}</b></td>
+                    <td style="color:${isCrit ? 'red' : 'inherit'}"><b>${item.qty}</b></td>
                     <td style="text-align:right">
-                        <button class="btn-action" style="background:var(--success)" onclick="changeStock('${item.id}', 1)">+</button>
-                        <button class="btn-action" style="background:var(--danger)" onclick="changeStock('${item.id}', -1)">-</button>
+                        <input type="number" id="bulk-amt-${item.id}" value="1" style="width:50px; margin-right:5px; padding:5px; border:1px solid var(--border); border-radius:4px;">
+                        <button class="btn-action" style="background:var(--success)" onclick="changeStock('${item.id}', 'add')">+</button>
+                        <button class="btn-action" style="background:var(--danger)" onclick="changeStock('${item.id}', 'sub')">-</button>
                         <button class="btn-action" style="background:#8b5cf6" onclick="transferStock('${item.id}')">⇄</button>
-                        <button class="btn-action" style="background:#94a3b8" onclick="deleteProduct('${item.id}')">🗑️</button>
                     </td>
                 </tr>`;
             }
             if(isCrit) {
                 critCount++;
-                critBody.innerHTML += `<tr><td>${item.name}</td><td>${item.warehouse}</td><td><span class="tag tag-danger">${item.qty} / ${limitVal}</span></td></tr>`;
+                critBody.innerHTML += `<tr><td>${item.name}</td><td>${item.warehouse}</td><td><span class="tag tag-danger" style="background:red; color:white;">${item.qty}</span></td></tr>`;
             }
         });
 
@@ -204,36 +189,39 @@
         const name = document.getElementById('newName').value;
         if(!name) return;
         const id = Date.now().toString();
-        const item = {
+        db.ref('inventory/' + id).set({
             id, name,
             category: document.getElementById('newCat').value,
             warehouse: document.getElementById('newWarehouse').value,
-            supplier: document.getElementById('newSupplier').value,
+            supplier: document.getElementById('newSupplier').value || "Genel",
             qty: parseInt(document.getElementById('newQty').value) || 0,
             limit: parseInt(document.getElementById('newLimit').value) || 5
-        };
-        db.ref('inventory/' + id).set(item);
-        addLog(name, item.warehouse, "Yeni Ürün", item.qty, "Kayıt");
+        });
+        addLog(name, document.getElementById('newWarehouse').value, "Yeni Ürün", document.getElementById('newQty').value || 0, "Kayıt");
         document.getElementById('newName').value = '';
     }
 
-    function changeStock(id, amt) {
+    function changeStock(id, type) {
         const item = inventory.find(i => i.id === id);
-        const newQty = item.qty + amt;
-        if(newQty < 0) return alert("Stok yetersiz!");
+        const inputAmt = parseInt(document.getElementById(`bulk-amt-${id}`).value) || 1;
+        const newQty = type === 'add' ? item.qty + inputAmt : item.qty - inputAmt;
+
+        if(newQty < 0) return alert("Hata: Stok eksiye düşemez!");
         
-        let detail = amt < 0 ? prompt("Çıkış Nedeni?") : "Giriş";
-        if(amt < 0 && !detail) return;
+        let detail = type === 'sub' ? prompt(`${inputAmt} adet çıkış için hedef/neden girin:`) : "Giriş";
+        if(type === 'sub' && !detail) return;
 
         db.ref('inventory/' + id).update({ qty: newQty });
-        addLog(item.name, item.warehouse, amt > 0 ? "Giriş" : "Çıkış", Math.abs(amt), detail);
+        addLog(item.name, item.warehouse, type === 'add' ? "Giriş" : "Çıkış", inputAmt, detail);
     }
 
     function transferStock(id) {
         const item = inventory.find(i => i.id === id);
         const targetWh = item.warehouse === "Ankara" ? "İstanbul" : "Ankara";
-        const amt = parseInt(prompt(`Miktar (${item.warehouse} -> ${targetWh})?`, "1"));
-        if(!amt || amt <= 0 || item.qty < amt) return alert("Geçersiz işlem!");
+        const amt = parseInt(document.getElementById(`bulk-amt-${id}`).value) || 1;
+        
+        if(item.qty < amt) return alert("Yetersiz stok!");
+        if(!confirm(`${amt} adet ${item.name} transfer edilsin mi?`)) return;
 
         db.ref('inventory/' + id).update({ qty: item.qty - amt });
         let targetItem = inventory.find(i => i.name === item.name && i.warehouse === targetWh);
@@ -244,14 +232,6 @@
             db.ref('inventory/' + newId).set({...item, id: newId, warehouse: targetWh, qty: amt});
         }
         addLog(item.name, item.warehouse, "Transfer", amt, `${targetWh} deposuna`);
-    }
-
-    function deleteProduct(id) {
-        if(confirm("Silinsin mi?")) {
-            const item = inventory.find(i => i.id === id);
-            db.ref('inventory/' + id).remove();
-            addLog(item.name, item.warehouse, "SİLİNDİ", 0, "-");
-        }
     }
 
     function clearLogsWithAuth() {
@@ -266,11 +246,9 @@
         });
     }
 
-    function exportInventoryCSV() {
-        let csv = 'Urun,Kategori,Depo,Tedarikci,Stok\n';
-        inventory.forEach(i => { csv += `${i.name},${i.category},${i.warehouse},${i.supplier},${i.qty}\n`; });
-        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = 'stok.csv'; a.click();
+    function toggleTheme() {
+        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
     }
 
     window.onload = () => { initChart(); updateUI(); };
