@@ -34,7 +34,6 @@
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
         
-        /* Dikey Form Stilleri */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
         
@@ -42,7 +41,6 @@
         .form-group label { display: block; font-size: 0.75rem; color: var(--secondary); margin-bottom: 5px; font-weight: 600; }
         input, select { background: var(--input-bg); color: var(--text-main); padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
         
-        /* Stok Tablosu Filtreleri */
         .filter-group { display: flex; gap: 8px; margin: 10px 0 20px 0; }
         .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--secondary); cursor: pointer; font-size: 0.75rem; font-weight: 600; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -61,7 +59,7 @@
         .tag-istanbul { background: #e0f2fe; color: #075985; }
         
         .money { color: var(--success); font-weight: bold; display: block; margin-top: 2px;}
-        .cost-detail { font-size: 0.75rem; color: var(--secondary); display: block; }
+        .cost-detail { font-size: 0.75rem; color: var(--secondary); display: block; margin-bottom: 2px; }
         .fair-warning { background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); }
     </style>
 </head>
@@ -89,7 +87,7 @@
             </div>
 
             <div class="card">
-                <h3>Yeni Ürün Girişi</h3>
+                <h3>Ürün Girişi</h3>
                 <div class="form-grid">
                     <div>
                         <div class="form-group"><label>Ürün Adı</label><input type="text" id="newName"></div>
@@ -107,7 +105,7 @@
                          <div class="form-group"><label>Depo</label><select id="newWarehouse"><option value="Ankara">Ankara</option><option value="İstanbul">İstanbul</option></select></div>
                          <div style="display: flex; gap: 10px;">
                              <div class="form-group" style="flex:1"><label>Miktar</label><input type="number" id="newQty"></div>
-                             <div class="form-group" style="flex:1"><label>Kritik Sınır</label><input type="number" id="newLimit"></div>
+                             <div class="form-group" style="flex:1"><label>Limit</label><input type="number" id="newLimit"></div>
                          </div>
                          <button class="btn btn-primary" onclick="addNewProduct()" style="margin-top: 5px;">Kaydet</button>
                     </div>
@@ -148,7 +146,15 @@
                          <div class="form-group"><label>Alan (m²)</label><input type="number" id="fM2"></div>
                          <div class="form-group"><label>Alan Kira Bedeli ($)</label><input type="number" id="fRent"></div>
                          <div class="form-group"><label>Stant Yapım Bedeli ($)</label><input type="number" id="fConst"></div>
-                         <div class="form-group"><label>Diğer Giderler ($)</label><input type="number" id="fOther" placeholder="Uçak, Nakliye vb."></div>
+                         
+                         <div class="form-group">
+                             <label>Diğer Giderler ($)</label>
+                             <div style="display: flex; gap: 5px;">
+                                 <input type="text" id="fOtherDesc" placeholder="Açıklama (Örn: Uçak)" style="flex:1">
+                                 <input type="number" id="fOther" placeholder="Tutar" style="width: 100px;">
+                             </div>
+                         </div>
+                         
                          <button class="btn btn-primary" onclick="addNewFair()" style="margin-top: 10px;">Fuarı Listeye Ekle</button>
                     </div>
                 </div>
@@ -195,7 +201,6 @@
     let logs = [];
     let whFilter = 'all';
 
-    // NAVIGASYON
     function showPage(pageId, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -210,12 +215,11 @@
         updateStokUI();
     }
 
-    // VERİ DİNLEME
     db.ref('inventory').on('value', snap => { inventory = snap.val() ? Object.values(snap.val()) : []; updateStokUI(); });
     db.ref('fairs').on('value', snap => { fairs = snap.val() ? Object.values(snap.val()) : []; updateFuarUI(); });
     db.ref('logs').limitToLast(100).on('value', snap => { logs = snap.val() ? Object.values(snap.val()) : []; updateLogUI(); });
 
-    // --- STOK FONKSİYONLARI ---
+    // STOK MANTIĞI
     function updateStokUI() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const body = document.getElementById('inventoryBody');
@@ -294,7 +298,7 @@
         document.getElementById('newName').value = '';
     }
 
-    // --- FUAR FONKSİYONLARI ---
+    // FUAR MANTIĞI
     function updateFuarUI() {
         const body = document.getElementById('fairBody');
         let totalCost = 0, totalOther = 0, totalM2 = 0;
@@ -305,10 +309,12 @@
         fairs.forEach(f => {
             const fDate = new Date(f.date);
             const isSoon = fDate >= now && fDate <= warnDate;
+            
             const rent = parseFloat(f.rent || 0);
             const cons = parseFloat(f.const || 0);
             const other = parseFloat(f.other || 0);
             const sum = rent + cons + other;
+            const otherDesc = f.otherDesc ? `(${f.otherDesc})` : '';
 
             totalCost += sum;
             totalOther += other;
@@ -328,7 +334,7 @@
                 <td>
                     <span class="cost-detail">Kira: $${rent.toLocaleString()}</span>
                     <span class="cost-detail">Stant: $${cons.toLocaleString()}</span>
-                    <span class="cost-detail">Diğer: $${other.toLocaleString()}</span>
+                    <span class="cost-detail">Diğer ${otherDesc}: $${other.toLocaleString()}</span>
                     <span class="money">Toplam: $${sum.toLocaleString()}</span>
                 </td>
                 <td style="text-align:right">
@@ -352,28 +358,36 @@
             supplier: document.getElementById('fSupp').value,
             rent: document.getElementById('fRent').value,
             const: document.getElementById('fConst').value,
-            other: document.getElementById('fOther').value
+            other: document.getElementById('fOther').value,
+            otherDesc: document.getElementById('fOtherDesc').value
         });
-        ['fName','fCountry','fM2','fSupp','fRent','fConst','fOther'].forEach(i => document.getElementById(i).value = '');
+        ['fName','fCountry','fM2','fSupp','fRent','fConst','fOther','fOtherDesc'].forEach(i => document.getElementById(i).value = '');
     }
 
     function editFairFinancials(id) {
         const f = fairs.find(i => i.id === id);
+        
         const newRent = prompt("Yeni Kira Bedeli ($):", f.rent);
         if(newRent === null) return;
+        
         const newConst = prompt("Yeni Stant Bedeli ($):", f.const);
         if(newConst === null) return;
-        const newOther = prompt("Yeni Diğer Giderler ($):", f.other || 0);
+        
+        const newOtherDesc = prompt("Diğer Gider Açıklaması (Örn: Uçak):", f.otherDesc || "");
+        if(newOtherDesc === null) return;
+
+        const newOther = prompt("Diğer Gider Tutarı ($):", f.other || 0);
         if(newOther === null) return;
 
         db.ref('fairs/' + id).update({
             rent: parseFloat(newRent),
             const: parseFloat(newConst),
-            other: parseFloat(newOther)
+            other: parseFloat(newOther),
+            otherDesc: newOtherDesc
         });
     }
 
-    // --- ORTAK ---
+    // LOG
     function updateLogUI() {
         const body = document.getElementById('logBody');
         body.innerHTML = '';
