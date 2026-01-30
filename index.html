@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StokMaster Pro | Toplu İşlem Destekli</title>
+    <title>StokMaster Pro | Bulut ve Toplu İşlem</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -75,7 +75,7 @@
 
             <table>
                 <thead>
-                    <tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlemler (Adet Seçebilirsin)</th></tr>
+                    <tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlemler</th></tr>
                 </thead>
                 <tbody id="inventoryBody"></tbody>
             </table>
@@ -150,7 +150,7 @@
 
         body.innerHTML = ''; critBody.innerHTML = '';
         
-        inventory.forEach((item, idx) => {
+        inventory.forEach((item) => {
             const limitVal = item.limit || 5;
             const isCrit = item.qty <= limitVal;
             if(item.warehouse === "Ankara") ank += item.qty; else ist += item.qty;
@@ -162,9 +162,10 @@
                     <td style="color:${isCrit ? 'red' : 'inherit'}"><b>${item.qty}</b></td>
                     <td style="text-align:right">
                         <input type="number" id="bulk-amt-${item.id}" value="1" style="width:50px; margin-right:5px; padding:5px; border:1px solid var(--border); border-radius:4px;">
-                        <button class="btn-action" style="background:var(--success)" onclick="changeStock('${item.id}', 'add')">+</button>
-                        <button class="btn-action" style="background:var(--danger)" onclick="changeStock('${item.id}', 'sub')">-</button>
-                        <button class="btn-action" style="background:#8b5cf6" onclick="transferStock('${item.id}')">⇄</button>
+                        <button class="btn-action" style="background:var(--success)" onclick="changeStock('${item.id}', 'add')" title="Ekle">+</button>
+                        <button class="btn-action" style="background:var(--danger)" onclick="changeStock('${item.id}', 'sub')" title="Düş">-</button>
+                        <button class="btn-action" style="background:#8b5cf6" onclick="transferStock('${item.id}')" title="Depolar Arası Transfer">⇄</button>
+                        <button class="btn-action" style="background:#64748b" onclick="deleteProduct('${item.id}')" title="Ürünü Sil">🗑️</button>
                     </td>
                 </tr>`;
             }
@@ -186,7 +187,8 @@
     }
 
     function addNewProduct() {
-        const name = document.getElementById('newName').value;
+        const nameInput = document.getElementById('newName');
+        const name = nameInput.value;
         if(!name) return;
         const id = Date.now().toString();
         db.ref('inventory/' + id).set({
@@ -198,7 +200,7 @@
             limit: parseInt(document.getElementById('newLimit').value) || 5
         });
         addLog(name, document.getElementById('newWarehouse').value, "Yeni Ürün", document.getElementById('newQty').value || 0, "Kayıt");
-        document.getElementById('newName').value = '';
+        nameInput.value = '';
     }
 
     function changeStock(id, type) {
@@ -232,6 +234,14 @@
             db.ref('inventory/' + newId).set({...item, id: newId, warehouse: targetWh, qty: amt});
         }
         addLog(item.name, item.warehouse, "Transfer", amt, `${targetWh} deposuna`);
+    }
+
+    function deleteProduct(id) {
+        const item = inventory.find(i => i.id === id);
+        if(confirm(`${item.name} ürününü silmek istediğinize emin misiniz?`)) {
+            db.ref('inventory/' + id).remove();
+            addLog(item.name, item.warehouse, "SİLİNDİ", 0, "Ürün kaydı silindi");
+        }
     }
 
     function clearLogsWithAuth() {
