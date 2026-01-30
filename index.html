@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pavo Group | Enterprise ERP v3.0</title>
+    <title>Pavo Group | Enterprise ERP</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -15,7 +15,7 @@
     
     <style>
         :root { 
-            --primary: #4f46e5; --primary-dark: #4338ca; --secondary: #64748b; 
+            --primary: #4f46e5; --secondary: #64748b; 
             --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #0ea5e9;
             --bg: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; --border: #e2e8f0; 
             --input-bg: #f8fafc; --sidebar-bg: #1e293b;
@@ -28,7 +28,7 @@
         * { box-sizing: border-box; outline: none; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; font-size: 14px; }
 
-        /* TOAST NOTIFICATION */
+        /* TOAST */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
         .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 10px; min-width: 250px; }
         .toast.success { border-left: 5px solid var(--success); }
@@ -92,16 +92,10 @@
         
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; background: var(--bg); position: fixed; width: 100%; z-index: 2000; }
         
-        /* DETAY SATIRLARI */
         .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
-        .detail-row.total { border-top: 2px solid var(--border); border-bottom: none; font-weight: bold; font-size: 1.1rem; margin-top: 10px; padding-top: 15px; color: var(--success); }
         .expense-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        
-        /* ROBOT */
         .robot-results { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 350px; overflow-y: auto; margin-top: 15px; }
-        .robot-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); transition: 0.2s; }
-        .robot-info h4 { margin: 0 0 5px 0; font-size: 0.9rem; color: var(--primary); }
-        .robot-info p { margin: 0; font-size: 0.75rem; color: var(--secondary); }
+        .robot-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); }
     </style>
 </head>
 <body data-theme="light">
@@ -296,7 +290,7 @@
     </div>
 
 <script>
-    // FIREBASE INIT
+    // FIREBASE SETUP
     const firebaseConfig = {
       apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
       authDomain: "stokmasterbulut.firebaseapp.com",
@@ -352,7 +346,7 @@
         });
     }
 
-    // --- STOK (FIXED) ---
+    // --- STOCK LOGIC (DÜZELTİLDİ: SEBEP SORUYOR & TİP GÜVENLİ) ---
     function updateStockUI() {
         const term = document.getElementById('searchStock').value.toLowerCase();
         const tb = document.getElementById('stockBody'); tb.innerHTML='';
@@ -367,10 +361,10 @@
                     <td><b style="font-size:1.1rem">${i.qty}</b></td>
                     <td style="text-align:right">
                         <div class="action-group">
-                            <input type="number" id="qty-${i.id}" value="1" style="width:50px; text-align:center; padding:5px; border:1px solid #ddd; border-radius:4px;">
-                            <button class="btn-icon" style="background:var(--success)" onclick="stockOp('${i.id}',1)">+</button>
-                            <button class="btn-icon" style="background:var(--danger)" onclick="stockOp('${i.id}',-1)">-</button>
-                            <button class="btn-icon" style="background:#8b5cf6" onclick="transferStock('${i.id}')">⇄</button>
+                            <input type="number" id="qty-${i.id}" value="1" style="width:50px; text-align:center; padding:5px; border:1px solid #ddd; border-radius:4px; margin-right:5px">
+                            <button class="btn-icon" style="background:var(--success)" onclick="stockOp('${i.id}',1)" title="Giriş Yap">+</button>
+                            <button class="btn-icon" style="background:var(--danger)" onclick="stockOp('${i.id}',-1)" title="Çıkış Yap">-</button>
+                            <button class="btn-icon" style="background:#8b5cf6" onclick="transferStock('${i.id}')" title="Transfer Et">⇄</button>
                             <button class="btn-icon" style="background:#64748b; margin-left:5px;" onclick="deleteItem('inventory','${i.id}')">🗑️</button>
                         </div>
                     </td>
@@ -381,40 +375,60 @@
     }
 
     function stockOp(id, dir) {
-        const item = data.inventory.find(i=>i.id==id);
+        const item = data.inventory.find(i => i.id == id); // == kullanarak tip dönüşümü sağlar
+        if(!item) return showToast('Hata: Ürün bulunamadı', 'error');
+        
         const inp = document.getElementById('qty-'+id);
-        if(!item || !inp) return;
-        const val = parseInt(inp.value)||1;
+        const val = parseInt(inp.value) || 1;
         
-        if(dir===-1 && item.qty<val) return showToast('Stok yetersiz', 'error');
+        let reason = "";
+
+        // Eğer ÇIKIŞ işlemiyse (-1), sebep sor
+        if(dir === -1) {
+            if(item.qty < val) return showToast('Yetersiz Stok!', 'error');
+            const userReason = prompt(`Çıkış Sebebi / Nereye?\n(Örn: Fuar, Numune, Zayi)`);
+            if (userReason === null) return; // İptal'e basarsa işlemi durdur
+            reason = userReason || "Belirtilmedi";
+        } else {
+            // Giriş ise sebep opsiyonel (veya otomatik "Satın Alma/İade" diyebiliriz)
+            reason = "Stok Girişi"; 
+        }
         
-        db.ref('inventory/'+item.id).update({qty: item.qty + (val*dir)});
-        logAction(dir===1?'Stok Giriş':'Stok Çıkış', `${item.name} (${val})`);
-        showToast('Stok güncellendi', 'success');
+        const newQty = parseInt(item.qty) + (val * dir);
+        db.ref('inventory/'+item.id).update({qty: newQty});
+        
+        // Log mesajını oluştur
+        const logMsg = `${item.name} (${val} Adet) - ${reason}`;
+        logAction(dir === 1 ? 'Stok Giriş' : 'Stok Çıkış', logMsg);
+        showToast('İşlem Başarılı', 'success');
     }
 
     function transferStock(id) {
-        const item = data.inventory.find(i=>i.id==id);
-        const inp = document.getElementById('qty-'+id);
-        if(!item || !inp) return;
-        const val = parseInt(inp.value)||1;
-        const targetWh = item.wh==='Ankara'?'İstanbul':'Ankara';
-
-        if(item.qty<val) return showToast('Transfer için stok yok', 'error');
-
-        // Düş
-        db.ref('inventory/'+item.id).update({qty: item.qty-val});
+        const item = data.inventory.find(i => i.id == id);
+        if(!item) return showToast('Ürün yok', 'error');
         
-        // Ekle
-        const tItem = data.inventory.find(x=>x.name===item.name && x.wh===targetWh);
+        const inp = document.getElementById('qty-'+id);
+        const val = parseInt(inp.value) || 1;
+        const targetWh = item.wh === 'Ankara' ? 'İstanbul' : 'Ankara';
+
+        if(item.qty < val) return showToast('Transfer için stok yetersiz', 'error');
+
+        // Kaynaktan düş
+        db.ref('inventory/'+item.id).update({qty: parseInt(item.qty) - val});
+        
+        // Hedefte var mı?
+        const tItem = data.inventory.find(x => x.name === item.name && x.wh === targetWh);
         if(tItem) {
-            db.ref('inventory/'+tItem.id).update({qty: tItem.qty+val});
+            db.ref('inventory/'+tItem.id).update({qty: parseInt(tItem.qty) + val});
         } else {
             const nid = Date.now().toString();
-            db.ref('inventory/'+nid).set({id:nid, name:item.name, cat:item.cat, wh:targetWh, qty:val});
+            db.ref('inventory/'+nid).set({
+                id: nid, name: item.name, cat: item.cat, wh: targetWh, qty: val
+            });
         }
-        logAction('Transfer', `${item.name} ${item.wh}->${targetWh} (${val})`);
-        showToast('Transfer yapıldı', 'success');
+        
+        logAction('Transfer', `${val} Adet ${item.name} (${item.wh} -> ${targetWh})`);
+        showToast(`Transfer Başarılı: ${targetWh}`, 'success');
     }
 
     function addProduct() {
@@ -436,7 +450,7 @@
         updateStockUI();
     }
 
-    // --- FUAR & GİDERLER ---
+    // --- FUAR LOGIC ---
     function updateFairUI() {
         const tb = document.getElementById('fairBody'); tb.innerHTML='';
         const now = new Date(); const warn = new Date(); warn.setDate(now.getDate()+30);
@@ -451,9 +465,9 @@
                 <td>${f.date} ${isNear?'⚠️':''}</td>
                 <td><span class="money">$ ${tot.toLocaleString()}</span></td>
                 <td style="text-align:right">
-                    <button class="btn-icon" style="background:var(--info); display:inline-flex;" onclick="viewFair('${f.id}')">👁️</button>
-                    <button class="btn-icon" style="background:var(--warning); display:inline-flex;" onclick="editFair('${f.id}')">✏️</button>
-                    <button class="btn-icon" style="background:var(--danger); display:inline-flex;" onclick="deleteItem('fairs','${f.id}')">🗑️</button>
+                    <button class="btn-icon" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button>
+                    <button class="btn-icon" style="background:var(--warning)" onclick="editFair('${f.id}')">✏️</button>
+                    <button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('fairs','${f.id}')">🗑️</button>
                 </td></tr>`;
         });
     }
@@ -528,7 +542,7 @@
         document.getElementById('expenseList').appendChild(div);
     }
 
-    // --- OTHER MODULES ---
+    // --- OTHER ---
     function addMedia() {
         const id=Date.now().toString();
         const obj={id, name:document.getElementById('mName').value, outlet:document.getElementById('mOutlet').value, role:document.getElementById('mRole').value, email:document.getElementById('mEmail').value};
@@ -565,14 +579,14 @@
     function updateLogUI(){ const b=document.getElementById('logBody'); b.innerHTML=''; [...data.logs].reverse().slice(0,50).forEach(l=>{ b.innerHTML+=`<tr><td><small>${l.time}</small></td><td>${l.user}</td><td>${l.action}</td></tr>`; }); }
 
     function updateDashboard(){
-        document.getElementById('d-stock').innerText=data.inventory.reduce((a,b)=>a+b.qty,0);
+        document.getElementById('d-stock').innerText=data.inventory.reduce((a,b)=>a+parseInt(b.qty),0);
         document.getElementById('d-media').innerText=data.media.length;
         document.getElementById('d-press').innerText=data.press.length;
         let tot=0; data.fairs.forEach(f=>{ tot+=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses) f.expenses.forEach(e=>tot+=parseFloat(e.cost||0)); });
         document.getElementById('d-fair').innerText="$ "+tot.toLocaleString();
         
         if(charts.stock) charts.stock.destroy();
-        charts.stock = new Chart(document.getElementById('chart1'), {type:'doughnut', data:{labels:['Ankara','İstanbul'], datasets:[{data:[data.inventory.filter(i=>i.wh=='Ankara').reduce((a,b)=>a+b.qty,0), data.inventory.filter(i=>i.wh=='İstanbul').reduce((a,b)=>a+b.qty,0)], backgroundColor:['#f97316','#0ea5e9']}]}, options:{maintainAspectRatio:false}});
+        charts.stock = new Chart(document.getElementById('chart1'), {type:'doughnut', data:{labels:['Ankara','İstanbul'], datasets:[{data:[data.inventory.filter(i=>i.wh=='Ankara').reduce((a,b)=>a+parseInt(b.qty),0), data.inventory.filter(i=>i.wh=='İstanbul').reduce((a,b)=>a+parseInt(b.qty),0)], backgroundColor:['#f97316','#0ea5e9']}]}, options:{maintainAspectRatio:false}});
         
         if(charts.fair) charts.fair.destroy();
         charts.fair = new Chart(document.getElementById('chart2'), {type:'bar', data:{labels:['Medya','Haber','İçerik'], datasets:[{label:'Adet', data:[data.media.length, data.press.length, data.content.length], backgroundColor:'#6366f1'}]}, options:{maintainAspectRatio:false}});
