@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --primary: #4f46e5; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; 
+            --primary: #4f46e5; --secondary: #64748b; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
             --bg: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --border: #e2e8f0; --input-bg: #f1f5f9; 
         }
         [data-theme="dark"] {
@@ -33,7 +33,6 @@
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
         
-        /* Input & Filter Group */
         .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 15px; }
         input, select { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; width: 100%; }
         
@@ -54,6 +53,7 @@
         .tag-ankara { background: #ffedd5; color: #9a3412; }
         .tag-istanbul { background: #e0f2fe; color: #075985; }
         .money { color: var(--success); font-weight: bold; }
+        .fair-warning { background-color: rgba(245, 158, 11, 0.1); }
     </style>
 </head>
 <body data-theme="light">
@@ -105,7 +105,7 @@
                 </div>
 
                 <table>
-                    <thead><tr><th>Ürün / Kategori</th><th>Depo</th><th>Mevcut Stok</th><th style="text-align:right">İşlemler (Adet Girilebilir)</th></tr></thead>
+                    <thead><tr><th>Ürün / Kategori</th><th>Depo</th><th>Mevcut Stok</th><th style="text-align:right">İşlemler</th></tr></thead>
                     <tbody id="inventoryBody"></tbody>
                 </table>
             </div>
@@ -113,8 +113,8 @@
 
         <div id="fuar-page" class="page">
             <div class="stats-grid">
-                <div class="stat-card"><small>Toplam Kira Bedeli</small><h2 id="totalRentCost" class="money">0 ₺</h2></div>
-                <div class="stat-card"><small>Toplam Stant Bedeli</small><h2 id="totalStandCost" class="money">0 ₺</h2></div>
+                <div class="stat-card"><small>Toplam Kira Bedeli</small><h2 id="totalRentCost" class="money">$ 0</h2></div>
+                <div class="stat-card"><small>Toplam Stant Bedeli</small><h2 id="totalStandCost" class="money">$ 0</h2></div>
                 <div class="stat-card"><small>Toplam Katılım (m²)</small><h2 id="totalM2">0</h2></div>
             </div>
             <div class="card">
@@ -127,8 +127,8 @@
                     <input type="text" id="fSupp" placeholder="Tedarikçi">
                 </div>
                 <div class="input-row">
-                    <input type="number" id="fRent" placeholder="Kira ($/€/₺)">
-                    <input type="number" id="fConst" placeholder="Stant Bedeli">
+                    <input type="number" id="fRent" placeholder="Kira ($)">
+                    <input type="number" id="fConst" placeholder="Stant Bedeli ($)">
                     <button class="btn btn-primary" onclick="addNewFair()">Fuarı Kaydet</button>
                 </div>
                 <table>
@@ -285,19 +285,30 @@
     function updateFuarUI() {
         const body = document.getElementById('fairBody');
         let r=0, c=0, m=0;
+        const now = new Date();
+        const thirtyDaysLater = new Date();
+        thirtyDaysLater.setDate(now.getDate() + 30);
+
         body.innerHTML = '';
         fairs.forEach(f => {
+            const fairDate = new Date(f.date);
+            const isSoon = fairDate >= now && fairDate <= thirtyDaysLater;
+            
             r += parseFloat(f.rent || 0); c += parseFloat(f.const || 0); m += parseFloat(f.m2 || 0);
-            body.innerHTML += `<tr>
+            
+            body.innerHTML += `<tr class="${isSoon ? 'fair-warning' : ''}">
                 <td><b>${f.name}</b><br><small>${f.country}</small></td>
-                <td>${f.date}</td>
+                <td>
+                    ${f.date} 
+                    ${isSoon ? '<br><span style="color:var(--warning); font-size:0.7rem; font-weight:bold;">⚠️ YAKLAŞIYOR</span>' : ''}
+                </td>
                 <td>${f.m2} m²</td>
-                <td class="money">${(parseFloat(f.rent)+parseFloat(f.const)).toLocaleString()} ₺</td>
+                <td class="money">$ ${(parseFloat(f.rent)+parseFloat(f.const)).toLocaleString()}</td>
                 <td><button class="btn btn-danger btn-sm" onclick="deleteItem('fairs/', '${f.id}')">Sil</button></td>
             </tr>`;
         });
-        document.getElementById('totalRentCost').innerText = r.toLocaleString() + " ₺";
-        document.getElementById('totalStandCost').innerText = c.toLocaleString() + " ₺";
+        document.getElementById('totalRentCost').innerText = "$ " + r.toLocaleString();
+        document.getElementById('totalStandCost').innerText = "$ " + c.toLocaleString();
         document.getElementById('totalM2').innerText = m;
     }
 
