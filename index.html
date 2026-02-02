@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -28,55 +29,72 @@
         }
         
         * { box-sizing: border-box; outline: none; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; font-size: 14px; transition: background 0.3s; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; font-size: 14px; }
 
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-        .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease; }
+        .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; }
         .toast.success { border-left: 5px solid var(--success); }
         .toast.error { border-left: 5px solid var(--danger); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
         .wrapper { display: flex; height: 100%; width: 100%; }
         .sidebar { width: 260px; background: var(--sidebar-bg); color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
         .main-container { flex-grow: 1; overflow-y: auto; padding: 25px; position: relative; scroll-behavior: smooth; }
         .brand-logo { width: 100%; max-width: 160px; margin-bottom: 30px; filter: brightness(0) invert(1); display: block; margin-left: auto; margin-right: auto; }
         
-        .nav-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin: 15px 0 5px 10px; font-weight: 700; }
-        .nav-btn { width: 100%; background: transparent; color: #cbd5e1; padding: 12px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; border: none; text-align: left; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .nav-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin: 15px 0 5px 10px; font-weight: 700; letter-spacing: 0.5px; }
+        .nav-btn { width: 100%; background: transparent; color: #cbd5e1; padding: 10px; border-radius: 8px; margin-bottom: 2px; cursor: pointer; border: none; text-align: left; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-size: 0.9rem; }
         .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
         .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
-        input, select, textarea { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; width: 100%; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        input, select, textarea { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; width: 100%; transition: 0.2s; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
         
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.75rem; }
-        td { padding: 12px; border-bottom: 1px solid var(--border); }
-        
-        .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; }
+        .btn-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; transition: 0.2s; font-weight: bold; font-size: 1rem; }
+        .action-group { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
 
-        .tag { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
-        .tag-Ankara { background: #fff7ed; color: #c2410c; }
-        .tag-İstanbul { background: #f0f9ff; color: #0369a1; }
-        
+        .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .tag-Ankara { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+        .tag-İstanbul { background: #f0f9ff; color: #0369a1; border: 1px solid #e0f2fe; }
+        .money { color: var(--success); font-weight: bold; }
+
         .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .progress-bg { width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; margin-top: 8px; }
-        .progress-fill { height: 100%; background: var(--primary); border-radius: 5px; transition: width 0.5s; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
+        .stat-card h2 { margin: 5px 0 0 0; font-size: 1.5rem; font-weight: 700; }
+        
+        .upcoming-card { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white !important; }
+        .upcoming-card h3, .upcoming-card p, .upcoming-card small { color: white !important; opacity: 0.95; }
+        .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #fcd34d; backdrop-filter: blur(5px); }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .progress-bg { width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s ease; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
         .modal-content { background: var(--card-bg); width: 90%; max-width: 700px; border-radius: 16px; padding: 25px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+
+        .image-upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; background: var(--input-bg); }
+        .preview-file { max-width: 100%; max-height: 150px; margin-top: 10px; display: none; border-radius: 6px; }
+
+        .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
+        .asset-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; background: var(--input-bg); }
 
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .hidden { display: none !important; }
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; background: var(--bg); position: fixed; width: 100%; z-index: 3000; }
-        
-        .expense-row { display: grid; grid-template-columns: 1fr 100px 40px; gap: 10px; margin-bottom: 8px; }
+        .expense-row { display: grid; grid-template-columns: 1fr 1fr 40px; gap: 10px; margin-bottom: 10px; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
     </style>
 </head>
 <body data-theme="light">
@@ -84,12 +102,12 @@
     <div id="toast-container"></div>
 
     <div id="login-screen">
-        <div class="card" style="width: 350px; text-align: center;">
-            <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" style="width:150px; margin-bottom:20px; filter:none">
-            <h3>ERP Panel Girişi</h3>
-            <input type="email" id="email" placeholder="E-posta" style="margin-bottom:10px">
-            <input type="password" id="password" placeholder="Şifre" style="margin-bottom:20px">
-            <button class="btn btn-primary" style="width:100%" onclick="login()">Giriş Yap</button>
+        <div class="card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px;">
+            <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo" style="filter: invert(0); margin-bottom: 20px;">
+            <h2>Yönetim Paneli</h2>
+            <input type="email" id="email" placeholder="E-Posta" style="margin-bottom: 15px;">
+            <input type="password" id="password" placeholder="Şifre" style="margin-bottom: 25px;">
+            <button class="btn btn-primary" style="width: 100%;" onclick="login()">Giriş Yap</button>
         </div>
     </div>
 
@@ -97,156 +115,105 @@
         <div class="wrapper">
             <div class="sidebar">
                 <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo">
+                <div class="nav-label">GENEL BAKIŞ</div>
                 <button class="nav-btn active" onclick="showPage('dashboard-page', this)">📊 Dashboard</button>
                 <button class="nav-btn" onclick="showPage('calendar-page', this)">📅 Görsel Takvim</button>
+                <button class="nav-btn" onclick="showPage('brand-page', this)">🎨 Kurumsal Kimlik</button>
+                <div class="nav-label">OPERASYONEL</div>
                 <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Stok Yönetimi</button>
                 <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuar Planlama</button>
+                <div class="nav-label">İLETİŞİM</div>
                 <button class="nav-btn" onclick="showPage('media-page', this)">👥 Medya CRM</button>
+                <button class="nav-btn" onclick="showPage('press-page', this)">📰 Basın Yansımaları</button>
+                <button class="nav-btn" onclick="showPage('competitor-page', this)">🕵️‍♂️ Rakip İstihbarat</button>
                 <button class="nav-btn" onclick="showPage('content-page', this)">📱 İçerik Takvimi</button>
-                <button class="nav-btn" onclick="showPage('log-page', this)">🕒 İşlem Logları</button>
-                
-                <div style="margin-top:auto">
-                    <button class="nav-btn" onclick="toggleTheme()">🌓 Tema Değiştir</button>
-                    <button class="nav-btn" onclick="logout()" style="color:var(--danger)">🚪 Çıkış</button>
+                <button class="nav-btn" onclick="showPage('supplier-page', this)">🤝 Tedarikçi Havuzu</button>
+                <div style="margin-top: auto;">
+                    <button class="nav-btn" onclick="toggleTheme()">🌓 Tema</button>
+                    <button class="nav-btn" onclick="logout()" style="color: #f87171;">🚪 Çıkış</button>
                 </div>
             </div>
 
             <div class="main-container">
                 <div id="dashboard-page" class="page active">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:20px">
-                        <h2>Genel Bakış</h2>
-                        <button class="btn btn-primary" onclick="generatePDF()">📄 PDF Raporu</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h2 style="margin:0">Dashboard</h2>
+                        <button class="btn btn-primary" onclick="generatePDF()">🖨️ Rapor İndir (PDF)</button>
                     </div>
                     <div class="dash-container">
-                        <div class="card">
-                            <h3>💰 Bütçe Takibi</h3>
-                            <div style="display:flex; justify-content:space-between">
-                                <span id="dash-spent">Harcanan: $0</span>
-                                <span id="dash-budget">Hedef: $0</span>
+                        <div>
+                            <div class="card budget-container">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <h3>💰 Yıllık Bütçe</h3>
+                                    <button class="btn btn-sm" onclick="setBudget()">Hedef Belirle</button>
+                                </div>
+                                <div>Harcanan: <b id="bdg-spent" class="money">$0</b> / Hedef: <b id="bdg-total">$0</b></div>
+                                <div class="progress-bg"><div class="progress-fill" id="bdg-bar" style="width:0%"></div></div>
                             </div>
-                            <div class="progress-bg"><div id="dash-bar" class="progress-fill" style="width:0%"></div></div>
                         </div>
-                        <div class="card">
-                            <h3>🚀 Yaklaşan Fuarlar</h3>
-                            <div id="dash-upcoming">Yükleniyor...</div>
+                        <div class="card upcoming-card">
+                            <h3>🚨 Yaklaşan Fuarlar</h3>
+                            <div id="dash-upcoming-list">Yükleniyor...</div>
                         </div>
                     </div>
                 </div>
 
+                <div id="calendar-page" class="page"><div class="card"><div id="calendar"></div></div></div>
+                
                 <div id="stok-page" class="page">
-                    <div class="card">
-                        <h3>Hızlı Ürün Girişi</h3>
+                    <div class="card"><h3>Hızlı Ürün Girişi</h3>
                         <div class="form-grid">
                             <input type="text" id="pName" placeholder="Ürün Adı">
+                            <select id="pCat"><option>Promosyon</option><option>Basılı</option></select>
                             <select id="pWh"><option>Ankara</option><option>İstanbul</option></select>
                             <input type="number" id="pQty" placeholder="Adet">
-                            <button class="btn btn-primary" onclick="addProduct()">Ekle</button>
+                            <button class="btn btn-primary" onclick="addProduct()">Kaydet</button>
                         </div>
                     </div>
-                    <div class="card">
-                        <table id="stock-table">
-                            <thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlem</th></tr></thead>
-                            <tbody id="stockBody"></tbody>
-                        </table>
-                    </div>
+                    <div class="card"><table><thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th>İşlem</th></tr></thead><tbody id="stockBody"></tbody></table></div>
                 </div>
 
                 <div id="fuar-page" class="page">
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between">
-                            <h3>Fuar Planları</h3>
-                            <button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button>
-                        </div>
-                        <table>
-                            <thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th style="text-align:right">İşlem</th></tr></thead>
-                            <tbody id="fairBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="calendar-page" class="page">
-                    <div class="card"><div id="calendar"></div></div>
+                    <div class="card"><div style="display:flex; justify-content:space-between;"><h3>Fuar Yönetimi</h3><button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button></div>
+                    <table><thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th>İşlem</th></tr></thead><tbody id="fairBody"></tbody></table></div>
                 </div>
 
                 <div id="media-page" class="page">
-                    <div class="card">
-                        <h3>Medya Rehberi</h3>
+                    <div class="card"><h3>Medya Listesi</h3>
                         <div class="form-grid">
-                            <input id="mName" placeholder="İsim">
-                            <input id="mOutlet" placeholder="Kurum">
-                            <input id="mEmail" placeholder="E-posta">
-                            <button class="btn btn-primary" onclick="addMedia()">Kaydet</button>
+                            <input id="mName" placeholder="Ad Soyad"><input id="mOutlet" placeholder="Kurum"><input id="mEmail" placeholder="Email">
+                            <button class="btn btn-primary" onclick="addMedia()">Ekle</button>
                         </div>
-                        <table style="margin-top:20px">
-                            <thead><tr><th>İsim</th><th>Kurum</th><th>E-posta</th><th>Sil</th></tr></thead>
-                            <tbody id="mediaBody"></tbody>
-                        </table>
+                        <table><thead><tr><th>İsim</th><th>Kurum</th><th>Email</th><th>Sil</th></tr></thead><tbody id="mediaBody"></tbody></table>
                     </div>
                 </div>
+                
+                <div id="brand-page" class="page"><div class="card"><h3>Kurumsal Kimlik</h3><div id="brand-grid" class="asset-grid"></div></div></div>
+                <div id="content-page" class="page"><div class="card"><button class="btn btn-primary" onclick="openContentModal()">+ İçerik Planla</button><table><tbody id="contentBody"></tbody></table></div></div>
+                <div id="log-page" class="page"><div class="card"><h3>Loglar</h3><table><tbody id="logBody"></tbody></table></div></div>
 
-                <div id="content-page" class="page">
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between">
-                            <h3>Sosyal Medya Takvimi</h3>
-                            <button class="btn btn-primary" onclick="openModal('contentModal')">+ Planla</button>
-                        </div>
-                        <table style="margin-top:20px">
-                            <thead><tr><th>Tarih</th><th>Platform</th><th>Başlık</th><th>Durum</th><th>İşlem</th></tr></thead>
-                            <tbody id="contentBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="log-page" class="page">
-                    <div class="card">
-                        <h3>Sistem Kayıtları</h3>
-                        <table>
-                            <thead><tr><th>Zaman</th><th>Kullanıcı</th><th>İşlem</th></tr></thead>
-                            <tbody id="logBody"></tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
     <div id="fairModal" class="modal-overlay">
         <div class="modal-content">
-            <h3>Fuar Detayları</h3>
+            <div class="modal-header"><h3>Fuar Planlama</h3><button onclick="closeModal('fairModal')">X</button></div>
+            <input type="hidden" id="fEditId">
             <div class="form-grid">
                 <input type="text" id="fName" placeholder="Fuar Adı">
+                <input type="text" id="fCountry" placeholder="Ülke">
                 <input type="date" id="fDate">
-                <input type="text" id="fCountry" placeholder="Yer">
-                <input type="number" id="fRent" placeholder="Kira ($)">
+                <input type="number" id="fRent" placeholder="Kira $">
+                <input type="number" id="fConst" placeholder="Stant $">
             </div>
-            <div id="expenseList" style="margin-top:15px"></div>
-            <button class="btn" onclick="addExpenseRow()">+ Masraf Ekle</button>
-            <div style="text-align:right; margin-top:20px">
-                <button class="btn" onclick="closeModal('fairModal')">İptal</button>
-                <button class="btn btn-primary" onclick="saveFair()">Kaydet</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="contentModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>İçerik Planla</h3>
-            <div class="form-grid">
-                <input type="text" id="cTitle" placeholder="Başlık">
-                <input type="date" id="cDate">
-                <select id="cPlat"><option>LinkedIn</option><option>Twitter</option><option>Instagram</option></select>
-                <select id="cStatus"><option>Draft</option><option>Pending</option><option>Published</option></select>
-            </div>
-            <textarea id="cText" rows="4" placeholder="İçerik metni..." style="margin-top:10px"></textarea>
-            <div style="text-align:right; margin-top:20px">
-                <button class="btn" onclick="closeModal('contentModal')">İptal</button>
-                <button class="btn btn-primary" onclick="saveContent()">Kaydet</button>
-            </div>
+            <div id="expenseList"></div>
+            <button class="btn" onclick="addExpenseRow()">+ Gider Ekle</button>
+            <button class="btn btn-primary" onclick="saveFair()">Kaydet</button>
         </div>
     </div>
 
     <script>
-        // --- CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
             authDomain: "stokmasterbulut.firebaseapp.com",
@@ -260,225 +227,151 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
-        let appData = { inventory: {}, fairs: {}, media: {}, content: {}, logs: {} };
+        let data = { inventory:[], fairs:[], media:[], content:[], logs:[] };
         let calendar = null;
 
-        // --- AUTH ---
-        function login() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).catch(err => showToast(err.message, 'error'));
-        }
-        function logout() { auth.signOut(); }
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
+        // AUTH & BOOT
+        auth.onAuthStateChanged(u => {
+            if(u) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                initData();
-                initCalendar();
+                initListeners();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('app-screen').classList.add('hidden');
             }
         });
 
-        // --- DATA ENGINE ---
-        function initData() {
-            const nodes = ['inventory', 'fairs', 'media', 'content', 'logs'];
-            nodes.forEach(node => {
-                db.ref(node).on('value', snapshot => {
-                    appData[node] = snapshot.val() || {};
-                    renderNode(node);
-                    updateDashboard();
+        function login() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e,p).catch(err => alert(err.message));
+        }
+        function logout() { auth.signOut(); }
+
+        // LISTENERS - Veriler değiştikçe UI otomatik güncellenir
+        function initListeners() {
+            const paths = ['inventory', 'fairs', 'media', 'content', 'logs'];
+            paths.forEach(p => {
+                db.ref(p).on('value', snap => {
+                    const val = snap.val();
+                    data[p] = val ? Object.keys(val).map(k => ({...val[k], firebaseId: k})) : [];
+                    renderUI(p);
                 });
             });
         }
 
-        function renderNode(node) {
-            const body = document.getElementById(node + 'Body');
-            if (!body) return;
-            body.innerHTML = '';
-            const items = appData[node];
-
-            Object.keys(items).forEach(key => {
-                const item = items[key];
-                if (node === 'inventory') {
-                    body.innerHTML += `<tr>
-                        <td>${item.name}</td>
-                        <td><span class="tag tag-${item.wh}">${item.wh}</span></td>
-                        <td><b>${item.qty}</b></td>
-                        <td style="text-align:right">
-                            <button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('inventory','${key}')">🗑️</button>
-                        </td>
-                    </tr>`;
-                } else if (node === 'fairs') {
-                    body.innerHTML += `<tr>
-                        <td>${item.name}</td><td>${item.date}</td><td>$${item.rent}</td>
-                        <td style="text-align:right"><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('fairs','${key}')">🗑️</button></td>
-                    </tr>`;
-                } else if (node === 'media') {
-                    body.innerHTML += `<tr>
-                        <td>${item.name}</td><td>${item.outlet}</td><td>${item.email}</td>
-                        <td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('media','${key}')">🗑️</button></td>
-                    </tr>`;
-                } else if (node === 'content') {
-                    body.innerHTML += `<tr>
-                        <td>${item.date}</td><td>${item.plat}</td><td>${item.title}</td><td>${item.status}</td>
-                        <td><button class="btn-icon" style="background:var(--danger)" onclick="deleteItem('content','${key}')">🗑️</button></td>
-                    </tr>`;
-                }
-            });
-
-            if (node === 'logs') {
-                const logBody = document.getElementById('logBody');
-                logBody.innerHTML = '';
-                Object.values(items).reverse().slice(0, 20).forEach(l => {
-                    logBody.innerHTML += `<tr><td><small>${l.time}</small></td><td>${l.user}</td><td>${l.action}</td></tr>`;
-                });
-            }
+        function renderUI(p) {
+            if(p === 'inventory') renderStock();
+            if(p === 'fairs') { renderFairs(); updateDashboard(); }
+            if(p === 'media') renderMedia();
+            if(p === 'logs') renderLogs();
         }
 
-        // --- ACTIONS ---
+        // STOK İŞLEMLERİ
         function addProduct() {
-            const name = document.getElementById('pName').value;
-            const qty = document.getElementById('pQty').value;
-            if (!name || !qty) return showToast('Eksik bilgi', 'error');
-            
-            const newRef = db.ref('inventory').push();
-            newRef.set({ name, qty: parseInt(qty), wh: document.getElementById('pWh').value })
-                .then(() => {
-                    logAction('Stok Eklendi: ' + name);
-                    document.getElementById('pName').value = '';
-                });
+            const n = document.getElementById('pName').value;
+            const q = document.getElementById('pQty').value;
+            if(!n || !q) return;
+            db.ref('inventory').push({
+                name: n,
+                cat: document.getElementById('pCat').value,
+                wh: document.getElementById('pWh').value,
+                qty: parseInt(q),
+                id: Date.now()
+            });
+            showToast("Ürün Eklendi", "success");
         }
 
+        function renderStock() {
+            const b = document.getElementById('stockBody');
+            b.innerHTML = '';
+            data.inventory.forEach(i => {
+                b.innerHTML += `<tr>
+                    <td>${i.name}</td>
+                    <td><span class="tag tag-${i.wh}">${i.wh}</span></td>
+                    <td>${i.qty}</td>
+                    <td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('inventory', '${i.firebaseId}')">🗑️</button></td>
+                </tr>`;
+            });
+        }
+
+        // FUAR İŞLEMLERİ
         function saveFair() {
-            const name = document.getElementById('fName').value;
-            if (!name) return;
-            db.ref('fairs').push().set({
-                name, date: document.getElementById('fDate').value,
+            const id = document.getElementById('fEditId').value;
+            const payload = {
+                name: document.getElementById('fName').value,
                 country: document.getElementById('fCountry').value,
-                rent: document.getElementById('fRent').value || 0
-            }).then(() => {
-                closeModal('fairModal');
-                logAction('Fuar Eklendi: ' + name);
+                date: document.getElementById('fDate').value,
+                rent: document.getElementById('fRent').value || 0,
+                const: document.getElementById('fConst').value || 0
+            };
+            if(id) db.ref('fairs/' + id).update(payload);
+            else db.ref('fairs').push({...payload, id: Date.now()});
+            closeModal('fairModal');
+        }
+
+        function renderFairs() {
+            const b = document.getElementById('fairBody');
+            if(!b) return;
+            b.innerHTML = '';
+            data.fairs.forEach(f => {
+                b.innerHTML += `<tr>
+                    <td>${f.name}</td><td>${f.date}</td><td>$${f.rent}</td>
+                    <td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs', '${f.firebaseId}')">🗑️</button></td>
+                </tr>`;
             });
         }
 
-        function saveContent() {
-            const title = document.getElementById('cTitle').value;
-            if (!title) return;
-            db.ref('content').push().set({
-                title, date: document.getElementById('cDate').value,
-                plat: document.getElementById('cPlat').value,
-                status: document.getElementById('cStatus').value,
-                text: document.getElementById('cText').value
-            }).then(() => {
-                closeModal('contentModal');
-                logAction('İçerik Planlandı: ' + title);
+        // DASHBOARD GÜNCELLEME
+        function updateDashboard() {
+            let spent = 0;
+            data.fairs.forEach(f => spent += (parseFloat(f.rent) || 0));
+            document.getElementById('bdg-spent').innerText = "$" + spent.toLocaleString();
+            
+            const list = document.getElementById('dash-upcoming-list');
+            list.innerHTML = '';
+            data.fairs.slice(0,3).forEach(f => {
+                list.innerHTML += `<div class="alert-item"><b>${f.name}</b> <span>${f.date}</span></div>`;
             });
         }
 
-        function addMedia() {
-            const name = document.getElementById('mName').value;
-            if (!name) return;
-            db.ref('media').push().set({
-                name, outlet: document.getElementById('mOutlet').value, email: document.getElementById('mEmail').value
-            }).then(() => {
-                showToast('Medya Kaydedildi', 'success');
-                document.getElementById('mName').value = '';
-            });
-        }
-
-        function deleteItem(path, key) {
-            if (confirm('Silmek istediğine emin misin?')) {
-                db.ref(`${path}/${key}`).remove().then(() => {
-                    showToast('Silindi', 'success');
-                    logAction('Silme İşlemi: ' + path);
-                });
+        // YARDIMCI FONKSİYONLAR
+        function delItem(path, id) {
+            if(confirm("Silmek istediğinize emin misiniz?")) {
+                db.ref(path + '/' + id).remove();
             }
         }
 
-        // --- DASHBOARD & UTILS ---
-        function updateDashboard() {
-            let totalSpent = 0;
-            const fairs = Object.values(appData.fairs);
-            fairs.forEach(f => totalSpent += parseFloat(f.rent || 0));
-            
-            document.getElementById('dash-spent').innerText = 'Harcanan: $' + totalSpent.toLocaleString();
-            document.getElementById('dash-budget').innerText = 'Hedef: $50,000'; // Örnek hedef
-            document.getElementById('dash-bar').style.width = Math.min((totalSpent / 50000) * 100, 100) + '%';
-
-            const upcoming = document.getElementById('dash-upcoming');
-            upcoming.innerHTML = '';
-            fairs.slice(0, 3).forEach(f => {
-                upcoming.innerHTML += `<div style="padding:10px; border-bottom:1px solid var(--border)">
-                    <b>${f.name}</b> - <small>${f.date}</small>
-                </div>`;
-            });
+        function showPage(p, b) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+            document.getElementById(p).classList.add('active');
+            b.classList.add('active');
+            if(p === 'calendar-page') initCalendar();
         }
 
         function initCalendar() {
             const el = document.getElementById('calendar');
-            calendar = new FullCalendar.Calendar(el, {
-                initialView: 'dayGridMonth',
-                locale: 'tr',
-                height: 600,
-                events: function(info, successCallback) {
-                    const evs = [];
-                    Object.values(appData.fairs).forEach(f => evs.push({ title: '🏟️ ' + f.name, start: f.date, color: '#ef4444' }));
-                    Object.values(appData.content).forEach(c => evs.push({ title: '📱 ' + c.title, start: c.date, color: '#4f46e5' }));
-                    successCallback(evs);
-                }
-            });
-            calendar.render();
-        }
-
-        function logAction(msg) {
-            db.ref('logs').push().set({
-                time: new Date().toLocaleString('tr-TR'),
-                user: auth.currentUser.email,
-                action: msg
-            });
-        }
-
-        function showPage(id, btn) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
-            if (id === 'calendar-page') setTimeout(() => calendar.render(), 100);
+            if(!calendar) {
+                calendar = new FullCalendar.Calendar(el, { initialView: 'dayGridMonth', locale: 'tr' });
+                calendar.render();
+            }
+            calendar.removeAllEvents();
+            data.fairs.forEach(f => calendar.addEvent({title: f.name, start: f.date}));
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function toggleTheme() {
-            const body = document.body;
-            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-        }
         function showToast(m, t) {
             const d = document.createElement('div');
-            d.className = `toast ${t}`; d.innerText = m;
+            d.className = `toast ${t}`; d.innerHTML = m;
             document.getElementById('toast-container').appendChild(d);
             setTimeout(() => d.remove(), 3000);
         }
-
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Pavo Group ERP Raporu", 14, 20);
-            const rows = Object.values(appData.fairs).map(f => [f.name, f.date, f.country, f.rent]);
-            doc.autoTable({ head: [['Fuar', 'Tarih', 'Yer', 'Kira']], body: rows, startY: 30 });
-            doc.save("Pavo_ERP_Rapor.pdf");
-        }
-
-        function addExpenseRow() {
-            const container = document.getElementById('expenseList');
-            const div = document.createElement('div');
-            div.className = 'expense-row';
-            div.innerHTML = `<input placeholder="Gider"> <input type="number" placeholder="$"> <button onclick="this.parentElement.remove()">×</button>`;
-            container.appendChild(div);
+        function toggleTheme(){
+            const b = document.body;
+            b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
     </script>
 </body>
