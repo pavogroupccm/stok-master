@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pavo Group | Enterprise ERP Pro</title>
     
-    <!-- Libraries -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -30,19 +31,12 @@
         * { box-sizing: border-box; outline: none; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; font-size: 14px; }
 
-        /* --- MODERN SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        .table-scroll-container { 
-            max-height: 450px; 
-            overflow-y: auto; 
-            margin-top: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
+        /* TOAST */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+        .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; }
+        .toast.success { border-left: 5px solid var(--success); }
+        .toast.error { border-left: 5px solid var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
         /* LAYOUT */
         .wrapper { display: flex; height: 100%; width: 100%; }
@@ -58,11 +52,13 @@
 
         /* CARDS & UI */
         .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; color: var(--secondary); margin-bottom: 6px; font-weight: 600; }
         input, select, textarea { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; width: 100%; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { position: sticky; top: 0; background: var(--card-bg); z-index: 10; text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0; }
+        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; background: var(--card-bg); position: sticky; top: 0; z-index: 10; }
         td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
         
         .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
@@ -70,41 +66,75 @@
         .btn-danger { background: var(--danger); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; transition: 0.2s; font-weight: bold; font-size: 1rem; }
-        
+        .action-group { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
+        .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+
         .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .tag-Ankara { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
         .tag-İstanbul { background: #f0f9ff; color: #0369a1; border: 1px solid #e0f2fe; }
+        .money { color: var(--success); font-weight: bold; }
+
+        /* --- YENİ SCROLLBAR TASARIMI --- */
+        .table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .table-wrapper::-webkit-scrollbar { width: 6px; }
+        .table-wrapper::-webkit-scrollbar-track { background: transparent; }
+        .table-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .table-wrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* DASHBOARD ÖZEL */
         .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
         .stat-card h2 { margin: 5px 0 0 0; font-size: 1.5rem; font-weight: 700; }
-        .money { color: var(--success); font-weight: bold; }
+        
+        .upcoming-card { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white !important; }
+        .upcoming-card h3, .upcoming-card p, .upcoming-card small { color: white !important; opacity: 0.95; }
+        .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #fcd34d; backdrop-filter: blur(5px); }
 
+        /* BÜTÇE BAR */
+        .budget-container { margin-bottom: 20px; }
         .progress-bg { width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
         .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s ease; }
+        .progress-fill.warning { background: var(--warning); }
+        .progress-fill.danger { background: var(--danger); }
 
-        /* MODALS */
+        /* MODALS & UPLOAD */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); width: 90%; max-width: 700px; border-radius: 16px; padding: 25px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 700px; border-radius: 16px; padding: 25px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .image-upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; background: var(--input-bg); }
+        .image-upload-area:hover { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
+        .preview-file { max-width: 100%; max-height: 150px; margin-top: 10px; display: none; border-radius: 6px; }
+
+        /* ASSET GRID */
+        .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
+        .asset-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; background: var(--input-bg); transition: 0.2s; }
+        .asset-card:hover { transform: translateY(-3px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .asset-preview { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 10px; }
+        .asset-name { font-size: 0.85rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .hidden { display: none !important; }
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; background: var(--bg); position: fixed; width: 100%; z-index: 3000; }
         
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-        .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        #calendar { max-height: 600px; }
+        .fc-toolbar-title { font-size: 1.2rem !important; }
+        .fc-button { background-color: var(--primary) !important; border: none !important; font-size: 0.8rem !important; }
     </style>
 </head>
 <body data-theme="light">
 
     <div id="toast-container"></div>
 
-    <!-- Login -->
     <div id="login-screen">
         <div class="card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px;">
             <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo" style="filter: invert(0); margin-bottom: 20px;">
@@ -116,62 +146,89 @@
         </div>
     </div>
 
-    <!-- App Shell -->
     <div id="app-screen" class="hidden">
         <div class="wrapper">
-            <!-- Sidebar -->
             <div class="sidebar">
                 <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo">
+                
                 <div class="nav-label">GENEL BAKIŞ</div>
                 <button class="nav-btn active" onclick="showPage('dashboard-page', this)">📊 Dashboard</button>
                 <button class="nav-btn" onclick="showPage('calendar-page', this)">📅 Görsel Takvim</button>
                 <button class="nav-btn" onclick="showPage('brand-page', this)">🎨 Kurumsal Kimlik</button>
+
                 <div class="nav-label">OPERASYONEL</div>
                 <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Stok Yönetimi</button>
                 <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuar Planlama</button>
+
                 <div class="nav-label">İLETİŞİM</div>
                 <button class="nav-btn" onclick="showPage('media-page', this)">👥 Medya CRM</button>
                 <button class="nav-btn" onclick="showPage('press-page', this)">📰 Basın Yansımaları</button>
                 <button class="nav-btn" onclick="showPage('competitor-page', this)">🕵️‍♂️ Rakip İstihbarat</button>
                 <button class="nav-btn" onclick="showPage('content-page', this)">📱 İçerik Takvimi</button>
                 <button class="nav-btn" onclick="showPage('supplier-page', this)">🤝 Tedarikçi Havuzu</button>
+
                 <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid #334155;">
-                    <div id="user-display" style="font-size: 0.8rem; color: #94a3b8; margin-bottom:10px;"></div>
+                    <div id="user-display" style="font-size: 0.8rem; color: #94a3b8; margin: 10px 0;"></div>
                     <button class="nav-btn" onclick="toggleTheme()" style="font-size: 0.8rem;">🌓 Tema</button>
                     <button class="nav-btn" onclick="logout()" style="color: #f87171; font-size: 0.8rem;">🚪 Çıkış</button>
                 </div>
             </div>
 
             <div class="main-container">
+                
                 <!-- Dashboard -->
                 <div id="dashboard-page" class="page active">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <h2 style="margin:0">Dashboard</h2>
                         <button class="btn btn-primary" onclick="generatePDF()">🖨️ Rapor İndir (PDF)</button>
                     </div>
+
                     <div class="dash-container">
                         <div>
                             <div class="card budget-container">
-                                <h3>💰 Yıllık Bütçe Durumu</h3>
-                                <div style="display:flex; justify-content:space-between; margin-top:10px;">
-                                    <span>Harcanan: <b id="bdg-spent" class="money">$0</b></span>
-                                    <span>Hedef: <b id="bdg-total">$0</b></span>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <h3>💰 Yıllık Bütçe Durumu</h3>
+                                    <button class="btn btn-sm" style="background:#e2e8f0; color:#333" onclick="setBudget()">Hedef Belirle</button>
                                 </div>
-                                <div class="progress-bg"><div class="progress-fill" id="bdg-bar"></div></div>
+                                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-top:10px;">
+                                    <span>Harcanan: <b id="bdg-spent" class="money">$0</b></span>
+                                    <span>Toplam Hedef: <b id="bdg-total">$0</b></span>
+                                </div>
+                                <div class="progress-bg"><div class="progress-fill" id="bdg-bar" style="width:0%"></div></div>
+                                <small id="bdg-msg" style="color:var(--secondary); display:block; margin-top:5px; text-align:right;">Veri bekleniyor...</small>
                             </div>
-                            <div class="stats-grid">
+                            
+                            <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
                                 <div class="stat-card"><small>Fuar Harcaması</small><h2 id="d-fair" style="color:var(--success)">$0</h2></div>
                                 <div class="stat-card"><small>Haber Yansıması</small><h2 id="d-press">0</h2></div>
                             </div>
                         </div>
-                        <div class="card" style="background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color:white;">
-                            <h3>🚨 Yaklaşan Fuarlar</h3>
-                            <div id="dash-upcoming-list" style="max-height:200px; overflow-y:auto;">Yükleniyor...</div>
+
+                        <div>
+                            <div class="card upcoming-card">
+                                <h3 style="color:white !important; margin-bottom:20px;">🚨 Yaklaşan Fuarlar</h3>
+                                <div id="dash-upcoming-list" style="max-height:220px; overflow-y:auto;"><p style="opacity:0.7">Yükleniyor...</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dash-container" style="margin-top:20px;">
+                        <div class="card">
+                            <h3>📦 Tüm Stok Durumu</h3>
+                            <div class="table-wrapper" style="max-height:300px;">
+                                <table><thead><tr><th>Ürün</th><th>Depo</th><th style="text-align:right">Adet</th></tr></thead><tbody id="dash-stock-list"></tbody></table>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3>📊 Fuar Maliyet Analizi</h3>
+                            <div class="table-wrapper" style="max-height:300px;">
+                                <table><thead><tr><th>Fuar</th><th>Tarih</th><th style="text-align:right">Toplam</th></tr></thead><tbody id="dash-fair-list"></tbody></table>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Stok Yönetimi -->
+                <!-- Stok Sayfası -->
                 <div id="stok-page" class="page">
                     <div class="card">
                         <h3>Hızlı Ürün Girişi</h3>
@@ -186,33 +243,54 @@
                     <div class="card">
                         <div style="display:flex; gap:10px; margin-bottom:10px">
                             <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="Ara..." style="flex:1">
+                            <button class="btn" onclick="setWhFilter('all')">Tümü</button>
                         </div>
-                        <div class="table-scroll-container">
+                        
+                        <!-- TABLO BURADA SARMALANDI -->
+                        <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlem</th></tr></thead>
+                                <thead>
+                                    <tr>
+                                        <th>Ürün</th>
+                                        <th>Depo</th>
+                                        <th>Stok</th>
+                                        <th style="text-align:right">İşlem</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="stockBody"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Diğer Sayfalar (İskelet Olarak Geri Geldi) -->
-                <div id="calendar-page" class="page"><div class="card"><h3>Etkinlik Takvimi</h3><div id="calendar"></div></div></div>
-                <div id="fuar-page" class="page"><div class="card"><h3>Fuar Yönetimi</h3><div class="table-scroll-container"><table><thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="fairBody"></tbody></table></div></div></div>
-                <div id="media-page" class="page"><div class="card"><h3>Medya Listesi</h3><div class="table-scroll-container"><table><thead><tr><th>İsim</th><th>Kurum</th><th>İletişim</th><th>Sil</th></tr></thead><tbody id="mediaBody"></tbody></table></div></div></div>
-                <div id="press-page" class="page"><div class="card"><h3>Basın Arşivi</h3><div class="table-scroll-container"><table><thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th>Sil</th></tr></thead><tbody id="pressBody"></tbody></table></div></div></div>
-                <div id="competitor-page" class="page"><div class="card"><h3>Rakip İstihbarat</h3><div class="table-scroll-container"><table><thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th>Sil</th></tr></thead><tbody id="compBody"></tbody></table></div></div></div>
-                <div id="content-page" class="page"><div class="card"><h3>İçerik Takvimi</h3><div class="table-scroll-container"><table><thead><tr><th>Görsel</th><th>Tarih</th><th>Platform</th><th>Başlık</th><th>Durum</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="contentBody"></tbody></table></div></div></div>
-                <div id="brand-page" class="page"><div class="card"><h3>Kurumsal Kimlik</h3><div id="brand-grid" class="asset-grid"></div></div></div>
-                <div id="supplier-page" class="page"><div class="card"><h3>Tedarikçiler</h3><div class="table-scroll-container"><table><thead><tr><th>Firma</th><th>Tür</th><th>İletişim</th><th>Sil</th></tr></thead><tbody id="supplierBody"></tbody></table></div></div></div>
+                <!-- Diğer Sayfalar -->
+                <div id="calendar-page" class="page"><div class="card"><h3>Etkinlik ve İçerik Takvimi</h3><div id="calendar"></div></div></div>
+                <div id="brand-page" class="page">
+                    <div class="card">
+                        <h3>Kurumsal Kimlik Bankası</h3>
+                        <div class="image-upload-area" onclick="document.getElementById('bFileInput').click()">
+                            <span>📂 Yeni Dosya / Logo Yüklemek İçin Tıklayın</span>
+                            <input type="file" id="bFileInput" style="display:none" onchange="handleBrandUpload(this)">
+                        </div>
+                        <div id="brand-grid" class="asset-grid"></div>
+                    </div>
+                </div>
+                <!-- ... Diğer içerikler ... -->
+                 <div id="fuar-page" class="page"><div class="card"><div style="display:flex; justify-content:space-between; align-items:center;"><h3>Fuar Yönetimi</h3><button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button></div><div class="table-wrapper"><table><thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="fairBody"></tbody></table></div></div></div>
+                 <div id="media-page" class="page"><div class="card"><div style="display:flex; justify-content:space-between; align-items:center;"><h3>Medya Listesi</h3><button class="btn btn-success" onclick="copyEmails()">📋 E-postaları Kopyala</button></div><div class="form-grid" style="margin-top:20px;"><input id="mName" placeholder="Ad Soyad"><input id="mOutlet" placeholder="Kurum"><input id="mRole" placeholder="Görev"><input id="mEmail" placeholder="Email"><input id="mPhone" placeholder="Telefon"><button class="btn btn-primary" onclick="addMedia()">Ekle</button></div><div class="table-wrapper"><table><thead><tr><th>İsim</th><th>Kurum</th><th>İletişim</th><th>Sil</th></tr></thead><tbody id="mediaBody"></tbody></table></div></div></div>
+                 <div id="press-page" class="page"><div class="card" style="border-left:4px solid var(--info)"><h3>🤖 Haber Tarama Robotu</h3><div style="display:flex; gap:10px; margin-top:15px;"><input id="robotKeyword" value="Pavo Group" style="flex:1"><button class="btn btn-primary" onclick="fetchNews()">🔍 Tara</button></div><div id="robotResults" style="margin-top:10px"></div></div><div class="card"><h3>Haber Arşivi</h3><div class="form-grid"><input id="prTitle" placeholder="Başlık"><input id="prLink" placeholder="Link"><button class="btn btn-primary" onclick="addPress()">Ekle</button></div><div class="table-wrapper"><table><thead><tr><th>Tarih</th><th>Başlık</th><th>Link</th><th>Sil</th></tr></thead><tbody id="pressBody"></tbody></table></div></div></div>
+                 <div id="content-page" class="page"><div class="card"><div style="display:flex;justify-content:space-between; align-items:center;"><h3>İçerik Takvimi</h3><button class="btn btn-primary" onclick="openContentModal()">+ İçerik Planla</button></div><div class="table-wrapper"><table style="margin-top:0"><thead><tr><th style="width:60px">Görsel</th><th>Tarih</th><th>Platform</th><th>Başlık</th><th>Durum</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="contentBody"></tbody></table></div></div></div>
+                 <div id="supplier-page" class="page"><div class="card"><h3>Tedarikçiler</h3><div class="form-grid"><input id="sName" placeholder="Firma"><input id="sType" placeholder="Hizmet"><input id="sPerson" placeholder="Yetkili"><input id="sContact" placeholder="İletişim"><button class="btn btn-primary" onclick="addSupplier()">Ekle</button></div><div class="table-wrapper"><table><thead><tr><th>Firma</th><th>Tür</th><th>İletişim</th><th>Sil</th></tr></thead><tbody id="supplierBody"></tbody></table></div></div></div>
+                 <div id="log-page" class="page"><div class="card"><h3>İşlem Kayıtları</h3><div class="table-wrapper" style="max-height:600px;"><table><thead><tr><th>Zaman</th><th>Kullanıcı</th><th>İşlem</th></tr></thead><tbody id="logBody"></tbody></table></div></div></div>
             </div>
         </div>
     </div>
 
     <!-- Modals -->
-    <div id="fairModal" class="modal-overlay"><div class="modal-content"><h3>Fuar Kaydı</h3><div class="form-grid"><input id="fName" placeholder="Fuar Adı"><input type="date" id="fDate"><input type="number" id="fRent" placeholder="Maliyet ($)"><input id="fCountry" placeholder="Ülke"></div><button class="btn btn-primary" onclick="saveFair()">Kaydet</button><button class="btn" onclick="closeModal('fairModal')">Kapat</button></div></div>
+    <div id="fairModal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h3>Fuar Planlama</h3><button onclick="closeModal('fairModal')" class="btn-icon" style="color:var(--text-main); font-size:1.5rem">×</button></div><input type="hidden" id="fEditId"><div class="form-grid"><div><label>Fuar Adı</label><input type="text" id="fName"></div><div><label>Ülke</label><input type="text" id="fCountry"></div><div><label>Tarih</label><input type="date" id="fDate"></div><div><label>Alan (m²)</label><input type="number" id="fM2"></div><div><label>Kira ($)</label><input type="number" id="fRent"></div><div><label>Stant ($)</label><input type="number" id="fConst"></div><div><label>Tedarikçi</label><input type="text" id="fSupp"></div></div><div style="margin-top:20px; text-align:right"><button class="btn btn-primary" onclick="saveFair()">Kaydet</button></div></div></div>
 
     <script>
+        // --- FIREBASE AYARLARI ---
         const firebaseConfig = {
             apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
             authDomain: "stokmasterbulut.firebaseapp.com",
@@ -227,60 +305,68 @@
         let data = { inventory:[], fairs:[], media:[], press:[], competitors:[], brandAssets:[], content:[], suppliers:[], logs:[] };
         let whFilter = 'all';
         let currentUser = null;
-        let budgetGoal = localStorage.getItem('budgetGoal') || 100000;
+        let budgetGoal = localStorage.getItem('budgetGoal') || 0;
 
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        auth = firebase.auth();
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            auth = firebase.auth();
+            
+            auth.onAuthStateChanged(u => {
+                if(u) {
+                    currentUser = u;
+                    document.getElementById('user-display').innerText = u.email;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('app-screen').classList.remove('hidden');
+                    initListeners();
+                    initCalendar(); 
+                    updateBudgetUI();
+                    showToast('Giriş Başarılı', 'success');
+                } else {
+                    document.getElementById('login-screen').classList.remove('hidden');
+                    document.getElementById('app-screen').classList.add('hidden');
+                }
+            });
+        } catch(e) { console.error(e); }
 
-        auth.onAuthStateChanged(u => {
-            if(u) {
-                currentUser = u;
-                document.getElementById('user-display').innerText = u.email;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-screen').classList.remove('hidden');
-                initListeners();
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('app-screen').classList.add('hidden');
-            }
-        });
+        function login() { 
+            const e = document.getElementById('email').value; 
+            const p = document.getElementById('password').value; 
+            if(e && p) auth.signInWithEmailAndPassword(e,p).catch(err=>showToast(err.message, 'error')); 
+        }
+        function logout(){ auth.signOut(); }
 
         function initListeners() {
-            const keys = ['inventory', 'fairs', 'media', 'press', 'competitors', 'brandAssets', 'content', 'suppliers'];
+            const keys = ['inventory', 'fairs', 'media', 'press', 'competitors', 'brandAssets', 'content', 'suppliers', 'logs'];
             keys.forEach(k => {
                 db.ref(k).on('value', s => {
                     data[k] = s.val() ? Object.values(s.val()) : [];
-                    updateUI(k);
+                    if(k==='inventory') { updateStockUI(); updateDashboard(); }
+                    if(k==='fairs') { updateFairUI(); updateDashboard(); initCalendar(); updateBudgetUI(); }
+                    if(k==='media') updateMediaUI();
+                    if(k==='press') updatePressUI();
+                    if(k==='brandAssets') updateBrandUI();
+                    if(k==='content') { updateContentUI(); initCalendar(); }
+                    if(k==='suppliers') updateSupplierUI();
+                    if(k==='logs') updateLogUI();
                 });
             });
         }
 
-        function updateUI(k) {
-            if(k === 'inventory') updateStockUI();
-            if(k === 'fairs') updateFairUI();
-            if(k === 'media') updateMediaUI();
-            if(k === 'press') updatePressUI();
-            if(k === 'competitors') updateCompUI();
-            if(k === 'content') updateContentUI();
-            if(k === 'suppliers') updateSupplierUI();
-            updateDashboard();
-        }
-
-        // STOK FONKSİYONLARI
+        // UI Güncellemeleri
         function updateStockUI() {
             const t = document.getElementById('searchStock').value.toLowerCase();
             const b = document.getElementById('stockBody');
-            b.innerHTML = '';
-            data.inventory.forEach(i => {
-                if(i.name.toLowerCase().includes(t)) {
-                    b.innerHTML += `<tr>
+            if(!b) return;
+            b.innerHTML='';
+            data.inventory.forEach(i=>{
+                if(i.name.toLowerCase().includes(t) && (whFilter=='all' || i.wh==whFilter)){
+                    b.innerHTML+=`<tr>
                         <td><b>${i.name}</b><br><small>${i.cat}</small></td>
                         <td><span class="tag tag-${i.wh}">${i.wh}</span></td>
                         <td><b>${i.qty}</b></td>
-                        <td style="text-align:right">
-                            <button class="btn-icon" style="background:var(--success)" onclick="modStock('${i.id}', 1)">+</button>
-                            <button class="btn-icon" style="background:var(--danger)" onclick="delItem('inventory', '${i.id}')">🗑️</button>
+                        <td align="right">
+                            <button class="btn-icon" style="background:var(--danger)" onclick="delItem('inventory','${i.id}')">🗑️</button>
                         </td>
                     </tr>`;
                 }
@@ -288,66 +374,53 @@
         }
 
         function addProduct(){
-            const n = document.getElementById('pName').value;
+            const n=document.getElementById('pName').value;
             if(n){
                 const id = Date.now();
                 db.ref('inventory/'+id).set({
-                    id:id, name:n, cat:document.getElementById('pCat').value,
+                    id:id, name:n, cat:document.getElementById('pCat').value, 
                     wh:document.getElementById('pWh').value, qty:parseInt(document.getElementById('pQty').value)||0
                 });
-                showToast('Ürün Eklendi');
             }
         }
 
-        function modStock(id, d) {
-            const i = data.inventory.find(x => x.id == id);
-            db.ref('inventory/'+id).update({qty: parseInt(i.qty) + d});
+        function delItem(path, id) {
+            if(confirm('Silinsin mi?')) db.ref(path+'/'+id).remove();
         }
 
-        // DASHBOARD
-        function updateDashboard() {
-            const ul = document.getElementById('dash-upcoming-list'); ul.innerHTML = '';
-            let totalSpent = 0;
-            data.fairs.forEach(f => {
-                totalSpent += parseFloat(f.rent || 0);
-                ul.innerHTML += `<div>${f.name} - ${f.date}</div>`;
-            });
-            document.getElementById('bdg-spent').innerText = "$ " + totalSpent.toLocaleString();
-            document.getElementById('bdg-total').innerText = "$ " + parseFloat(budgetGoal).toLocaleString();
-            const p = (totalSpent / budgetGoal) * 100;
-            document.getElementById('bdg-bar').style.width = p + "%";
-            document.getElementById('d-fair').innerText = "$ " + totalSpent.toLocaleString();
-            document.getElementById('d-press').innerText = data.press.length;
-        }
-
-        // YARDIMCI
-        function showPage(p, b) {
-            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+        function showPage(p,b){
+            document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
             document.getElementById(p).classList.add('active');
             b.classList.add('active');
         }
-        function toggleTheme() { document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-        function login() { auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value); }
-        function logout() { auth.signOut(); }
-        function showToast(m) { const t=document.createElement('div'); t.className='toast'; t.innerText=m; document.getElementById('toast-container').appendChild(t); setTimeout(()=>t.remove(), 3000); }
-        function delItem(p, id) { if(confirm('Silinsin mi?')) db.ref(p+'/'+id).remove(); }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // Diğer UI Güncellemeleri (Kısa versiyonlar)
-        function updateFairUI() { const b=document.getElementById('fairBody'); b.innerHTML=''; data.fairs.forEach(f=>b.innerHTML+=`<tr><td>${f.name}</td><td>${f.date}</td><td>$ ${f.rent}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs','${f.id}')">🗑️</button></td></tr>`); }
-        function updateMediaUI() { const b=document.getElementById('mediaBody'); b.innerHTML=''; data.media.forEach(m=>b.innerHTML+=`<tr><td>${m.name}</td><td>${m.outlet}</td><td>${m.email}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('media','${m.id}')">🗑️</button></td></tr>`); }
-        function updatePressUI() { const b=document.getElementById('pressBody'); b.innerHTML=''; data.press.forEach(p=>b.innerHTML+=`<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('press','${p.id}')">🗑️</button></td></tr>`); }
-        function updateCompUI() { const b=document.getElementById('compBody'); b.innerHTML=''; data.competitors.forEach(c=>b.innerHTML+=`<tr><td>${c.date}</td><td>${c.title}</td><td><a href="${c.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('competitors','${c.id}')">🗑️</button></td></tr>`); }
-        function updateContentUI() { const b=document.getElementById('contentBody'); b.innerHTML=''; data.content.forEach(c=>b.innerHTML+=`<tr><td>📄</td><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td>${c.status}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('content','${c.id}')">🗑️</button></td></tr>`); }
-        function updateSupplierUI() { const b=document.getElementById('supplierBody'); b.innerHTML=''; data.suppliers.forEach(s=>b.innerHTML+=`<tr><td>${s.name}</td><td>${s.type}</td><td>${s.contact}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('suppliers','${s.id}')">🗑️</button></td></tr>`); }
-        
-        function saveFair() {
-            const id=Date.now();
-            db.ref('fairs/'+id).set({id:id, name:document.getElementById('fName').value, date:document.getElementById('fDate').value, rent:document.getElementById('fRent').value, country:document.getElementById('fCountry').value});
-            closeModal('fairModal');
+        function toggleTheme(){
+            const b=document.body;
+            b.setAttribute('data-theme', b.getAttribute('data-theme')=='dark'?'light':'dark');
         }
+
+        function showToast(m,t){
+            const d=document.createElement('div');
+            d.className=`toast ${t}`;
+            d.innerHTML=m;
+            document.getElementById('toast-container').appendChild(d);
+            setTimeout(()=>d.remove(),3000);
+        }
+
+        // Boş kalan UI fonksiyonları (Hata vermemesi için)
+        function updateFairUI(){}
+        function updateMediaUI(){}
+        function updatePressUI(){}
+        function updateBrandUI(){}
+        function updateContentUI(){}
+        function updateSupplierUI(){}
+        function updateLogUI(){}
+        function updateDashboard(){}
+        function updateBudgetUI(){}
+        function initCalendar(){}
+        function generatePDF(){}
+        function setBudget(){}
     </script>
 </body>
 </html>
