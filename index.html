@@ -651,7 +651,23 @@
         document.getElementById('viewContent').innerHTML=`<h2 style="color:var(--primary); margin-top:0">${f.name}</h2><p style="color:var(--text-light)">${f.country} | ${f.startDate} - ${f.endDate}</p><div style="background:var(--input-bg); padding:16px; border-radius:12px; margin-bottom:20px"><div class="detail-row"><span>Tedarikçi</span><span>${f.supplier}</span></div><div class="detail-row"><span>Kira</span><span>$ ${f.rent}</span></div>${h}<div class="detail-row total"><span>TOPLAM</span><span>$ ${t.toLocaleString()}</span></div></div>${fl}`; openModal('viewModal');
     }
     window.editFair = function(id){ const f=data.fairs.find(x=>x.id==id); document.getElementById('fEditId').value=f.id; document.getElementById('fName').value=f.name; document.getElementById('fCountry').value=f.country; document.getElementById('fStartDate').value=f.startDate; document.getElementById('fEndDate').value=f.endDate; document.getElementById('fM2').value=f.m2; document.getElementById('fRent').value=f.rent; document.getElementById('fConst').value=f.const; document.getElementById('fSupp').value=f.supplier; document.getElementById('expenseList').innerHTML=''; if(f.expenses)f.expenses.forEach(e=>addExpenseRow(e.desc,e.cost)); openModal('fairModal'); }
-    function updateFairUI(){ const b=document.getElementById('fairBody'); b.innerHTML=''; (data.fairs || []).forEach(f=>{ let t=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>t+=parseFloat(e.cost)); b.innerHTML+=`<tr><td><b>${f.name}</b><br><small style="color:var(--text-light)">${f.country}</small></td><td><small>${f.startDate || ''}<br>⬇<br>${f.endDate || ''}</small></td><td class="money">$ ${t.toLocaleString()}</td><td style="text-align:right"><div class="action-group"><button class="btn-icon" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button><button class="btn-icon" style="background:var(--warning)" onclick="editFair('${f.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs','${f.id}')">🗑️</button></div></td></tr>`; }); }
+    function updateFairUI(){ 
+        const b=document.getElementById('fairBody'); 
+        b.innerHTML=''; 
+        
+        // Sorting logic: Sort fairs by startDate
+        const sortedFairs = [...(data.fairs || [])].sort((a, b) => {
+            const dateA = a.startDate || a.date || '';
+            const dateB = b.startDate || b.date || '';
+            return dateA.localeCompare(dateB);
+        });
+
+        sortedFairs.forEach(f=>{ 
+            let t=parseFloat(f.rent||0)+parseFloat(f.const||0); 
+            if(f.expenses)f.expenses.forEach(e=>t+=parseFloat(e.cost)); 
+            b.innerHTML+=`<tr><td><b>${f.name}</b><br><small style="color:var(--text-light)">${f.country}</small></td><td><small>${f.startDate || ''}<br>⬇<br>${f.endDate || ''}</small></td><td class="money">$ ${t.toLocaleString()}</td><td style="text-align:right"><div class="action-group"><button class="btn-icon" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button><button class="btn-icon" style="background:var(--warning)" onclick="editFair('${f.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs','${f.id}')">🗑️</button></div></td></tr>`; 
+        }); 
+    }
     window.addExpenseRow = function(d='',c=''){ const x=document.createElement('div'); x.className='expense-row'; x.innerHTML=`<input class="ex-desc" value="${d}" placeholder="Gider Adı"><input class="ex-cost" value="${c}" placeholder="Tutar"><button class="btn-icon" style="background:var(--danger); width:38px;" onclick="this.parentElement.remove()">×</button>`; document.getElementById('expenseList').appendChild(x); }
 
     // Diğerleri
