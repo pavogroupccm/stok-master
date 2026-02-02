@@ -282,11 +282,12 @@
                 <div id="stok-page" class="page">
                     <div class="card"><h3>Hızlı Ürün Girişi</h3><div class="form-grid"><input type="text" id="pName" placeholder="Ürün Adı"><select id="pCat"><option>Promosyon</option><option>Basılı</option><option>Sarf</option><option>Demirbaş</option></select><select id="pWh"><option>Ankara</option><option>İstanbul</option></select><input type="number" id="pQty" placeholder="Adet"><button class="btn btn-primary" onclick="addProduct()">Kaydet</button></div></div>
                     <div class="card">
-                        <div style="display:flex; gap:10px; margin-bottom:10px">
+                        <div style="display:flex; gap:10px; margin-bottom:10px; align-items: center;">
                             <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="Ara..." style="flex:1">
                             <button class="btn filter-btn active" onclick="setWhFilter('all', this)">Tümü</button>
                             <button class="btn filter-btn" onclick="setWhFilter('Ankara', this)">Ankara</button>
                             <button class="btn filter-btn" onclick="setWhFilter('İstanbul', this)">İstanbul</button>
+                            <button class="btn btn-primary" onclick="generateStockPDF()" style="margin-left:auto;">🖨️ Stok Raporu</button>
                         </div>
                         <div class="table-wrapper">
                             <table><thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlem</th></tr></thead><tbody id="stockBody"></tbody></table>
@@ -824,6 +825,32 @@
     
     window.setBudget = function() { const v=prompt("Yıllık Bütçe Hedefi ($):",budgetGoal); if(v){budgetGoal=parseFloat(v); localStorage.setItem('budgetGoal',budgetGoal); updateBudgetUI();} }
     window.generatePDF = function() { const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFont("helvetica","bold"); doc.text("Pavo Group Raporu",14,20); doc.autoTable({startY:35, head:[['Metrik','Değer']], body:[['Stok',data.inventory.reduce((a,b)=>a+parseInt(b.qty),0)],['Fuar',data.fairs.length]]}); doc.save("Rapor.pdf"); }
+
+    window.generateStockPDF = function() {
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("Pavo Group - Stok Raporu", 14, 20);
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text("Tarih: " + new Date().toLocaleDateString('tr-TR'), 14, 28);
+        
+        const rows = (data.inventory || []).map(i => [i.name, i.cat, i.wh, i.qty]);
+        
+        doc.autoTable({
+            head: [['Urun', 'Kategori', 'Depo', 'Adet']],
+            body: rows,
+            startY: 35,
+            theme: 'grid',
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [79, 70, 229] }
+        });
+        
+        doc.save("Pavo_Stok_Raporu.pdf");
+    }
 
     function logAction(a,d){ if(currentUser) db.ref('logs/'+Date.now()).set({time:new Date().toLocaleString('tr-TR'), user:currentUser.email, action:a+' '+d}); }
     function showToast(m,t){ const d=document.createElement('div'); d.className=`toast ${t}`; d.innerHTML=m; document.getElementById('toast-container').appendChild(d); setTimeout(()=>d.remove(),3000); }
