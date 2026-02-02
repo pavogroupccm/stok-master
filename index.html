@@ -360,7 +360,11 @@
         const keys = ['inventory', 'fairs', 'media', 'press', 'competitors', 'brandAssets', 'content', 'suppliers', 'logs'];
         keys.forEach(k => {
             db.ref(k).on('value', s => {
-                data[k] = s.val() ? Object.values(s.val()) : [];
+                const val = s.val();
+                // FIX: Map keys to IDs to ensure every item has an ID (Robust ID Handling)
+                // This ensures buttons work even if 'id' field inside the object is missing
+                data[k] = val ? Object.entries(val).map(([key, item]) => ({ ...item, id: key })) : [];
+                
                 if(k==='inventory') { updateStockUI(); updateDashboard(); }
                 if(k==='fairs') { updateFairUI(); updateDashboard(); initCalendar(); updateBudgetUI(); }
                 if(k==='media') updateMediaUI();
@@ -384,7 +388,7 @@
         b.innerHTML='';
         
         (data.inventory || []).forEach(i=>{
-            // Güvenli erişim (Safe access)
+            // Safe access
             const name = i.name ? i.name.toLowerCase() : "";
             const cat = i.cat ? i.cat.toLowerCase() : "";
 
@@ -411,28 +415,37 @@
     window.modStock = function(id,d){ 
         if(!db) return;
         const i=data.inventory.find(x=>x.id==id); 
-        if(!i) return;
-        const v=parseInt(document.getElementById('q-'+id).value)||1; 
-        if(d===-1 && i.qty < v) return showToast('Yetersiz Stok','error'); 
-        db.ref('inventory/'+id).update({qty:parseInt(i.qty)+(v*d)}); 
+        if(!i) { console.error("Ürün bulunamadı:", id); return; }
+        
+        const qtyInput = document.getElementById('q-'+id);
+        const v = qtyInput ? (parseInt(qtyInput.value)||1) : 1;
+        
+        if(d===-1 && parseInt(i.qty) < v) return showToast('Yetersiz Stok','error'); 
+        
+        db.ref('inventory/'+id).update({qty: parseInt(i.qty) + (v*d)}); 
         logAction(d>0?'Giriş':'Çıkış',`${i.name} (${v})`); 
     }
 
     window.transStock = function(id){ 
         if(!db) return;
         const i=data.inventory.find(x=>x.id==id); 
-        if(!i) return;
-        const v=parseInt(document.getElementById('q-'+id).value)||1; 
+        if(!i) { console.error("Ürün bulunamadı:", id); return; }
+        
+        const qtyInput = document.getElementById('q-'+id);
+        const v = qtyInput ? (parseInt(qtyInput.value)||1) : 1;
+        
         const tWh = i.wh == 'Ankara' ? 'İstanbul' : 'Ankara'; 
-        if(i.qty < v) return showToast('Yetersiz Stok','error'); 
+        if(parseInt(i.qty) < v) return showToast('Yetersiz Stok','error'); 
         
-        db.ref('inventory/'+id).update({qty: i.qty - v}); 
+        // Kaynaktan düş
+        db.ref('inventory/'+id).update({qty: parseInt(i.qty) - v}); 
         
-        const ti = data.inventory.find(x => x.name == i.name && x.wh == tWh); 
+        // Hedefe ekle
+        const ti = data.inventory.find(x => (x.name||"").trim() == (i.name||"").trim() && x.wh == tWh); 
         if(ti) {
             db.ref('inventory/'+ti.id).update({qty: parseInt(ti.qty) + v}); 
         } else {
-            const newId = Date.now();
+            const newId = Date.now().toString(); // Ensure string ID
             db.ref('inventory/'+newId).set({id:newId, name:i.name, cat:i.cat, wh:tWh, qty:v}); 
         }
         
@@ -442,14 +455,22 @@
 
     window.addProduct = function(){ 
         if(!db) return;
-        const n=document.getElementById('pName').value; 
+        const nElement = document.getElementById('pName');
+        const n = nElement.value;
+        const cat = document.getElementById('pCat').value;
+        const wh = document.getElementById('pWh').value;
+        const qtyElement = document.getElementById('pQty');
+        const qty = parseInt(qtyElement.value)||0;
+
         if(n){ 
-            const id = Date.now(); 
+            const id = Date.now().toString(); 
             db.ref('inventory/'+id).set({
-                id:id, name:n, cat:document.getElementById('pCat').value, 
-                wh:document.getElementById('pWh').value, qty:parseInt(document.getElementById('pQty').value)||0
+                id:id, name:n, cat:cat, wh:wh, qty:qty
             }); 
             showToast('Eklendi','success'); 
+            // Formu temizle
+            nElement.value = '';
+            qtyElement.value = '';
         } 
     }
 
