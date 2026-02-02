@@ -298,6 +298,39 @@
 
     <div id="contentModal" class="modal-overlay"><div class="modal-content" style="max-width:850px"><div class="modal-header"><h3>İçerik Planla</h3><button onclick="closeModal('contentModal')" class="btn-icon" style="color:var(--text-main); font-size:1.5rem">×</button></div><input type="hidden" id="cEditId"><div style="display:grid; grid-template-columns:1fr 1fr; gap:24px"><div><label>Başlık</label><input type="text" id="cTitle" placeholder="Örn: Ürün Lansmanı" style="margin-bottom:16px"><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px"><div><label>Tarih</label><input type="date" id="cDate"></div><div><label>Platform</label><select id="cPlatform"><option>LinkedIn</option><option>Twitter</option><option>Instagram</option></select></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px"><div><label>Format</label><select id="cFormat"><option>Post</option><option>Video</option><option>Story</option></select></div><div><label>Durum</label><select id="cStatus"><option value="Draft">Taslak</option><option value="Pending">Onay Bekliyor</option><option value="Published">Yayında</option></select></div></div><label>Metin</label><textarea id="cCaption" rows="6" placeholder="Paylaşım metni..." style="width:100%"></textarea></div><div><label style="display:block; margin-bottom:8px;">Görsel Medya</label><div class="image-upload-area" onclick="document.getElementById('cImageInput').click()"><span>📷 Görsel Seçmek İçin Tıkla</span><input type="file" id="cImageInput" accept="image/*" style="display:none" onchange="handleImage(this)"><img id="preview-image" class="preview-file"></div></div></div><div style="margin-top:30px; text-align:right"><button class="btn btn-primary" onclick="saveContent()">Kaydet</button></div></div></div>
 
+    <div id="editStockModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ürün Düzenle</h3>
+                <button onclick="closeModal('editStockModal')" class="btn-icon" style="color:var(--text-main); font-size:1.5rem">×</button>
+            </div>
+            <input type="hidden" id="editStockId">
+            <div class="form-grid">
+                <div><label>Ürün Adı</label><input type="text" id="editStockName"></div>
+                <div>
+                    <label>Kategori</label>
+                    <select id="editStockCat">
+                        <option>Promosyon</option>
+                        <option>Basılı</option>
+                        <option>Sarf</option>
+                        <option>Demirbaş</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Depo</label>
+                    <select id="editStockWh">
+                        <option>Ankara</option>
+                        <option>İstanbul</option>
+                    </select>
+                </div>
+                <div><label>Adet</label><input type="number" id="editStockQty"></div>
+            </div>
+            <div style="margin-top:20px; text-align:right">
+                <button class="btn btn-primary" onclick="saveStockEdit()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     // Config
     const firebaseConfig = {
@@ -404,12 +437,44 @@
                             <button class="btn-icon" style="background:var(--success)" onclick="modStock('${i.id}',1)" title="Giriş">+</button>
                             <button class="btn-icon" style="background:var(--danger)" onclick="modStock('${i.id}',-1)" title="Çıkış">-</button>
                             <button class="btn-icon" style="background:var(--info)" onclick="transStock('${i.id}')" title="Depo Transferi">⇄</button>
+                            <button class="btn-icon" style="background:var(--warning)" onclick="openEditStockModal('${i.id}')" title="Düzenle">✏️</button>
                             <button class="btn-icon" style="background:var(--secondary)" onclick="delItem('inventory', '${i.id}')" title="Sil">🗑️</button>
                         </div>
                     </td>
                 </tr>`;
             }
         });
+    }
+
+    window.openEditStockModal = function(id) {
+        const i = data.inventory.find(x => x.id == id);
+        if (!i) return;
+        document.getElementById('editStockId').value = i.id;
+        document.getElementById('editStockName').value = i.name;
+        document.getElementById('editStockCat').value = i.cat;
+        document.getElementById('editStockWh').value = i.wh;
+        document.getElementById('editStockQty').value = i.qty;
+        openModal('editStockModal');
+    }
+
+    window.saveStockEdit = function() {
+        if (!db) return;
+        const id = document.getElementById('editStockId').value;
+        const name = document.getElementById('editStockName').value;
+        const cat = document.getElementById('editStockCat').value;
+        const wh = document.getElementById('editStockWh').value;
+        const qty = parseInt(document.getElementById('editStockQty').value) || 0;
+
+        if (name && id) {
+            db.ref('inventory/' + id).update({
+                name: name,
+                cat: cat,
+                wh: wh,
+                qty: qty
+            });
+            showToast('Ürün Güncellendi', 'success');
+            closeModal('editStockModal');
+        }
     }
 
     window.modStock = function(id,d){ 
