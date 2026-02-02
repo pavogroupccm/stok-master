@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pavo Group | Enterprise ERP Pro</title>
     
-    <!-- Hata Ayıklama için crossorigin eklendi -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js" crossorigin="anonymous"></script>
+    <!-- Firebase Libraries (Crossorigin kaldırıldı) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js" crossorigin="anonymous"></script>
+    <!-- Diğer Kütüphaneler -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -135,9 +136,7 @@
 
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
-            // Hata ayıklama için konsola detaylı yaz
             console.error("Hata Detayı:", message, source, lineno, error);
-            // Kullanıcıya basit mesaj göster (Script error genelde önemsiz cross-origin hatasıdır)
             if(message !== 'Script error.') {
                 alert("Sistem Hatası: " + message);
             }
@@ -300,6 +299,7 @@
     <div id="contentModal" class="modal-overlay"><div class="modal-content" style="max-width:850px"><div class="modal-header"><h3>İçerik Planla</h3><button onclick="closeModal('contentModal')" class="btn-icon" style="color:var(--text-main); font-size:1.5rem">×</button></div><input type="hidden" id="cEditId"><div style="display:grid; grid-template-columns:1fr 1fr; gap:24px"><div><label>Başlık</label><input type="text" id="cTitle" placeholder="Örn: Ürün Lansmanı" style="margin-bottom:16px"><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px"><div><label>Tarih</label><input type="date" id="cDate"></div><div><label>Platform</label><select id="cPlatform"><option>LinkedIn</option><option>Twitter</option><option>Instagram</option></select></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px"><div><label>Format</label><select id="cFormat"><option>Post</option><option>Video</option><option>Story</option></select></div><div><label>Durum</label><select id="cStatus"><option value="Draft">Taslak</option><option value="Pending">Onay Bekliyor</option><option value="Published">Yayında</option></select></div></div><label>Metin</label><textarea id="cCaption" rows="6" placeholder="Paylaşım metni..." style="width:100%"></textarea></div><div><label style="display:block; margin-bottom:8px;">Görsel Medya</label><div class="image-upload-area" onclick="document.getElementById('cImageInput').click()"><span>📷 Görsel Seçmek İçin Tıkla</span><input type="file" id="cImageInput" accept="image/*" style="display:none" onchange="handleImage(this)"><img id="preview-image" class="preview-file"></div></div></div><div style="margin-top:30px; text-align:right"><button class="btn btn-primary" onclick="saveContent()">Kaydet</button></div></div></div>
 
 <script>
+    // Config
     const firebaseConfig = {
       apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
       authDomain: "stokmasterbulut.firebaseapp.com",
@@ -317,6 +317,7 @@
     let tempImageBase64 = "", tempFileBase64 = "";
     let budgetGoal = localStorage.getItem('budgetGoal') || 0;
 
+    // Firebase Init
     try {
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
@@ -343,13 +344,16 @@
         alert("Başlatma Hatası: " + e.message);
     }
 
-    function login() { 
+    // --- GLOBAL FUNCTIONS (WINDOW SCOPE) ---
+    
+    // Auth
+    window.login = function() { 
         const e = document.getElementById('email').value; 
         const p = document.getElementById('password').value; 
         if(e && p) auth.signInWithEmailAndPassword(e,p).catch(err=>showToast(err.message, 'error')); 
     }
     
-    function logout(){ auth.signOut(); }
+    window.logout = function(){ auth.signOut(); }
 
     function initListeners() {
         if(!db) return;
@@ -371,13 +375,13 @@
     }
 
     // --- STOK YÖNETİMİ ---
-    function updateStockUI() {
+    window.updateStockUI = function() {
         const t = document.getElementById('searchStock').value.toLowerCase(); 
         const b = document.getElementById('stockBody'); 
         if(!b) return;
         b.innerHTML='';
         
-        data.inventory.forEach(i=>{
+        (data.inventory || []).forEach(i=>{
             if((i.name.toLowerCase().includes(t)||i.cat.toLowerCase().includes(t))&&(whFilter=='all'||i.wh==whFilter)){
                 b.innerHTML+=`
                 <tr>
@@ -398,16 +402,20 @@
         });
     }
 
-    function modStock(id,d){ 
+    window.modStock = function(id,d){ 
+        if(!db) return;
         const i=data.inventory.find(x=>x.id==id); 
+        if(!i) return;
         const v=parseInt(document.getElementById('q-'+id).value)||1; 
         if(d===-1 && i.qty < v) return showToast('Yetersiz Stok','error'); 
         db.ref('inventory/'+id).update({qty:parseInt(i.qty)+(v*d)}); 
         logAction(d>0?'Giriş':'Çıkış',`${i.name} (${v})`); 
     }
 
-    function transStock(id){ 
+    window.transStock = function(id){ 
+        if(!db) return;
         const i=data.inventory.find(x=>x.id==id); 
+        if(!i) return;
         const v=parseInt(document.getElementById('q-'+id).value)||1; 
         const tWh = i.wh == 'Ankara' ? 'İstanbul' : 'Ankara'; 
         if(i.qty < v) return showToast('Yetersiz Stok','error'); 
@@ -426,7 +434,8 @@
         showToast('Transfer Başarılı','success');
     }
 
-    function addProduct(){ 
+    window.addProduct = function(){ 
+        if(!db) return;
         const n=document.getElementById('pName').value; 
         if(n){ 
             const id = Date.now(); 
@@ -438,7 +447,7 @@
         } 
     }
 
-    function setWhFilter(v, btn){
+    window.setWhFilter = function(v, btn){
         whFilter = v; 
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
@@ -446,8 +455,7 @@
     }
 
     // --- DİĞER MODÜLLER ---
-    // Rakip Haberleri
-    async function fetchCompNews() {
+    window.fetchCompNews = async function() {
         const q=document.getElementById('compKeyword').value;
         const source=document.getElementById('compSource').value;
         const quickTw = document.getElementById('quickTwitter');
@@ -465,11 +473,12 @@
             j.items.slice(0,5).forEach(n=>{ c.innerHTML+=`<div class="robot-item"><div class="robot-info"><h4>${n.title}</h4></div><button class="btn-icon" style="background:var(--danger)" onclick="saveComp('${encodeURIComponent(n.title)}','${n.link}')">+</button></div>`; }); 
         } catch(e){ console.error(e); }
     }
-    function saveComp(t,l){ db.ref('competitors/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), link:l, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); }
-    function updateCompUI(){ const b=document.getElementById('compBody'); b.innerHTML=''; data.competitors.forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('competitors','${p.id}')">🗑️</button></td></tr>`; }); }
+    
+    window.saveComp = function(t,l){ if(!db) return; db.ref('competitors/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), link:l, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); }
+    function updateCompUI(){ const b=document.getElementById('compBody'); b.innerHTML=''; (data.competitors || []).forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td>${p.title}</td><td><a href="${p.link}" target="_blank">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('competitors','${p.id}')">🗑️</button></td></tr>`; }); }
 
-    // Medya & Basın
-    async function fetchNews(){ 
+    // Medya
+    window.fetchNews = async function(){ 
         const q=document.getElementById('robotKeyword').value; 
         try{ 
             const r=await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=tr-TR&gl=TR&ceid=TR:tr`)}`); 
@@ -478,91 +487,95 @@
             j.items.slice(0,5).forEach(n=>{ c.innerHTML+=`<div class="robot-item"><div class="robot-info"><h4>${n.title}</h4><a href="${n.link}" target="_blank">Git</a></div><button class="btn-icon" style="background:var(--success)" onclick="saveNews('${encodeURIComponent(n.title)}','${n.link}')">+</button></div>`; }); 
         }catch(e){} 
     }
-    function saveNews(t,l){ db.ref('press/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), link:l, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); }
-    function addPress(){ const t=document.getElementById('prTitle').value; if(t){ db.ref('press/'+Date.now()).set({id:Date.now(), title:t, link:document.getElementById('prLink').value, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); } }
-    function addMedia(){ const n=document.getElementById('mName').value; if(n){ db.ref('media/'+Date.now()).set({id:Date.now(), name:n, outlet:document.getElementById('mOutlet').value, role:document.getElementById('mRole').value, email:document.getElementById('mEmail').value, phone:document.getElementById('mPhone').value}); showToast('Eklendi','success'); } }
-    function copyEmails() { navigator.clipboard.writeText(data.media.map(m=>m.email).join('; ')).then(()=>alert("Kopyalandı!")); }
-    function updateMediaUI(){ const b=document.getElementById('mediaBody'); b.innerHTML=''; data.media.forEach(m=>{ b.innerHTML+=`<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td><td>${m.email}<br>${m.phone||''}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('media','${m.id}')">🗑️</button></td></tr>`; }); }
-    function updatePressUI(){ const b=document.getElementById('pressBody'); b.innerHTML=''; data.press.forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td><b>${p.title}</b></td><td><a href="${p.link}" target="_blank" style="color:var(--primary)">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('press','${p.id}')">🗑️</button></td></tr>`; }); }
+    window.saveNews = function(t,l){ if(!db) return; db.ref('press/'+Date.now()).set({id:Date.now(), title:decodeURIComponent(t), link:l, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); }
+    window.addPress = function(){ const t=document.getElementById('prTitle').value; if(t && db){ db.ref('press/'+Date.now()).set({id:Date.now(), title:t, link:document.getElementById('prLink').value, date:new Date().toISOString().split('T')[0]}); showToast('Eklendi','success'); } }
+    window.addMedia = function(){ const n=document.getElementById('mName').value; if(n && db){ db.ref('media/'+Date.now()).set({id:Date.now(), name:n, outlet:document.getElementById('mOutlet').value, role:document.getElementById('mRole').value, email:document.getElementById('mEmail').value, phone:document.getElementById('mPhone').value}); showToast('Eklendi','success'); } }
+    window.copyEmails = function() { navigator.clipboard.writeText(data.media.map(m=>m.email).join('; ')).then(()=>alert("Kopyalandı!")); }
+    function updateMediaUI(){ const b=document.getElementById('mediaBody'); b.innerHTML=''; (data.media || []).forEach(m=>{ b.innerHTML+=`<tr><td><b>${m.name}</b><br><small>${m.role}</small></td><td>${m.outlet}</td><td>${m.email}<br>${m.phone||''}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('media','${m.id}')">🗑️</button></td></tr>`; }); }
+    function updatePressUI(){ const b=document.getElementById('pressBody'); b.innerHTML=''; (data.press || []).forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td><b>${p.title}</b></td><td><a href="${p.link}" target="_blank" style="color:var(--primary)">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('press','${p.id}')">🗑️</button></td></tr>`; }); }
 
-    // Fuar & Modal İşlemleri
-    function saveFair() {
+    // Fuar
+    window.saveFair = function() {
+        if(!db) return;
         const id=document.getElementById('fEditId').value||Date.now().toString();
         const ex=[]; document.querySelectorAll('.expense-row').forEach(r=>ex.push({desc:r.querySelector('.ex-desc').value, cost:r.querySelector('.ex-cost').value}));
         const obj={id, name:document.getElementById('fName').value, country:document.getElementById('fCountry').value, date:document.getElementById('fDate').value, m2:document.getElementById('fM2').value, rent:document.getElementById('fRent').value, const:document.getElementById('fConst').value, supplier:document.getElementById('fSupp').value, expenses:ex, file:tempFileBase64};
         if(obj.name){ db.ref('fairs/'+id).update(obj); showToast('Kaydedildi','success'); closeModal('fairModal'); }
     }
-    function viewFair(id){
+    window.viewFair = function(id){
         const f=data.fairs.find(x=>x.id==id); let t=parseFloat(f.rent||0)+parseFloat(f.const||0); let h=''; if(f.expenses)f.expenses.forEach(e=>{t+=parseFloat(e.cost); h+=`<div class="detail-row"><span>${e.desc}</span><span>$ ${e.cost}</span></div>`});
         const fl=f.file?`<div style="margin-top:15px;padding:12px;background:var(--input-bg);border-radius:8px"><a href="${f.file}" download="Dosya" style="text-decoration:none;color:var(--primary)">📎 Dosyayı İndir</a></div>`:'';
         document.getElementById('viewContent').innerHTML=`<h2 style="color:var(--primary); margin-top:0">${f.name}</h2><p style="color:var(--text-light)">${f.country} | ${f.date}</p><div style="background:var(--input-bg); padding:16px; border-radius:12px; margin-bottom:20px"><div class="detail-row"><span>Tedarikçi</span><span>${f.supplier}</span></div><div class="detail-row"><span>Kira</span><span>$ ${f.rent}</span></div>${h}<div class="detail-row total"><span>TOPLAM</span><span>$ ${t.toLocaleString()}</span></div></div>${fl}`; openModal('viewModal');
     }
-    function editFair(id){ const f=data.fairs.find(x=>x.id==id); document.getElementById('fEditId').value=f.id; document.getElementById('fName').value=f.name; document.getElementById('fCountry').value=f.country; document.getElementById('fDate').value=f.date; document.getElementById('fM2').value=f.m2; document.getElementById('fRent').value=f.rent; document.getElementById('fConst').value=f.const; document.getElementById('fSupp').value=f.supplier; document.getElementById('expenseList').innerHTML=''; if(f.expenses)f.expenses.forEach(e=>addExpenseRow(e.desc,e.cost)); openModal('fairModal'); }
-    function updateFairUI(){ const b=document.getElementById('fairBody'); b.innerHTML=''; data.fairs.forEach(f=>{ let t=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>t+=parseFloat(e.cost)); b.innerHTML+=`<tr><td><b>${f.name}</b><br><small style="color:var(--text-light)">${f.country}</small></td><td>${f.date}</td><td class="money">$ ${t.toLocaleString()}</td><td style="text-align:right"><div class="action-group"><button class="btn-icon" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button><button class="btn-icon" style="background:var(--warning)" onclick="editFair('${f.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs','${f.id}')">🗑️</button></div></td></tr>`; }); }
-    function addExpenseRow(d='',c=''){ const x=document.createElement('div'); x.className='expense-row'; x.innerHTML=`<input class="ex-desc" value="${d}" placeholder="Gider Adı"><input class="ex-cost" value="${c}" placeholder="Tutar"><button class="btn-icon" style="background:var(--danger); width:38px;" onclick="this.parentElement.remove()">×</button>`; document.getElementById('expenseList').appendChild(x); }
+    window.editFair = function(id){ const f=data.fairs.find(x=>x.id==id); document.getElementById('fEditId').value=f.id; document.getElementById('fName').value=f.name; document.getElementById('fCountry').value=f.country; document.getElementById('fDate').value=f.date; document.getElementById('fM2').value=f.m2; document.getElementById('fRent').value=f.rent; document.getElementById('fConst').value=f.const; document.getElementById('fSupp').value=f.supplier; document.getElementById('expenseList').innerHTML=''; if(f.expenses)f.expenses.forEach(e=>addExpenseRow(e.desc,e.cost)); openModal('fairModal'); }
+    function updateFairUI(){ const b=document.getElementById('fairBody'); b.innerHTML=''; (data.fairs || []).forEach(f=>{ let t=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>t+=parseFloat(e.cost)); b.innerHTML+=`<tr><td><b>${f.name}</b><br><small style="color:var(--text-light)">${f.country}</small></td><td>${f.date}</td><td class="money">$ ${t.toLocaleString()}</td><td style="text-align:right"><div class="action-group"><button class="btn-icon" style="background:var(--info)" onclick="viewFair('${f.id}')">👁️</button><button class="btn-icon" style="background:var(--warning)" onclick="editFair('${f.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs','${f.id}')">🗑️</button></div></td></tr>`; }); }
+    window.addExpenseRow = function(d='',c=''){ const x=document.createElement('div'); x.className='expense-row'; x.innerHTML=`<input class="ex-desc" value="${d}" placeholder="Gider Adı"><input class="ex-cost" value="${c}" placeholder="Tutar"><button class="btn-icon" style="background:var(--danger); width:38px;" onclick="this.parentElement.remove()">×</button>`; document.getElementById('expenseList').appendChild(x); }
 
     // Diğerleri
-    function addSupplier(){ const n=document.getElementById('sName').value; if(n){ db.ref('suppliers/'+Date.now()).set({id:Date.now(), name:n, type:document.getElementById('sType').value, person:document.getElementById('sPerson').value, contact:document.getElementById('sContact').value}); showToast('Eklendi','success'); } }
-    function updateSupplierUI(){ const b=document.getElementById('supplierBody'); b.innerHTML=''; data.suppliers.forEach(s=>{ b.innerHTML+=`<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('suppliers','${s.id}')">🗑️</button></td></tr>`; }); }
-    function updateLogUI(){ const b=document.getElementById('logBody'); b.innerHTML=''; [...data.logs].reverse().slice(0,50).forEach(l=>{ b.innerHTML+=`<tr><td><small>${l.time}</small></td><td>${l.user}</td><td>${l.action}</td></tr>`; }); }
+    window.addSupplier = function(){ const n=document.getElementById('sName').value; if(n && db){ db.ref('suppliers/'+Date.now()).set({id:Date.now(), name:n, type:document.getElementById('sType').value, person:document.getElementById('sPerson').value, contact:document.getElementById('sContact').value}); showToast('Eklendi','success'); } }
+    function updateSupplierUI(){ const b=document.getElementById('supplierBody'); b.innerHTML=''; (data.suppliers || []).forEach(s=>{ b.innerHTML+=`<tr><td><b>${s.name}</b></td><td>${s.type}</td><td>${s.contact}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('suppliers','${s.id}')">🗑️</button></td></tr>`; }); }
+    function updateLogUI(){ const b=document.getElementById('logBody'); b.innerHTML=''; [...(data.logs || [])].reverse().slice(0,50).forEach(l=>{ b.innerHTML+=`<tr><td><small>${l.time}</small></td><td>${l.user}</td><td>${l.action}</td></tr>`; }); }
     
-    function saveContent() { const id=document.getElementById('cEditId').value||Date.now().toString(); const obj={id, title:document.getElementById('cTitle').value, date:document.getElementById('cDate').value, plat:document.getElementById('cPlatform').value, format:document.getElementById('cFormat').value, status:document.getElementById('cStatus').value, caption:document.getElementById('cCaption').value, image:tempImageBase64}; if(obj.title){ db.ref('content/'+id).update(obj); showToast('Kaydedildi','success'); closeModal('contentModal'); } }
-    function openContentModal(id){ document.getElementById('cEditId').value=''; document.getElementById('cTitle').value=''; tempImageBase64=""; document.getElementById('preview-image').style.display='none'; if(id){const c=data.content.find(x=>x.id==id); document.getElementById('cEditId').value=c.id; document.getElementById('cTitle').value=c.title; document.getElementById('cDate').value=c.date; document.getElementById('cPlatform').value=c.plat; document.getElementById('cFormat').value=c.format; document.getElementById('cStatus').value=c.status; document.getElementById('cCaption').value=c.caption; if(c.image){document.getElementById('preview-image').src=c.image; document.getElementById('preview-image').style.display='block'; tempImageBase64=c.image;}} openModal('contentModal'); }
-    function updateContentUI(){ const b=document.getElementById('contentBody'); b.innerHTML=''; data.content.forEach(c=>{ const i=c.image?`<img src="${c.image}" class="content-thumbnail" onclick="openContentModal('${c.id}')">`:'<div class="content-thumbnail" style="display:flex;align-items:center;justify-content:center;background:var(--border)">📄</div>'; b.innerHTML+=`<tr><td>${i}</td><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td><span class="status-badge status-${c.status}">${c.status}</span></td><td style="text-align:right"><div class="action-group"><button class="btn-icon" style="background:var(--warning)" onclick="openContentModal('${c.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('content','${c.id}')">🗑️</button></div></td></tr>`; }); }
+    window.saveContent = function() { if(!db) return; const id=document.getElementById('cEditId').value||Date.now().toString(); const obj={id, title:document.getElementById('cTitle').value, date:document.getElementById('cDate').value, plat:document.getElementById('cPlatform').value, format:document.getElementById('cFormat').value, status:document.getElementById('cStatus').value, caption:document.getElementById('cCaption').value, image:tempImageBase64}; if(obj.title){ db.ref('content/'+id).update(obj); showToast('Kaydedildi','success'); closeModal('contentModal'); } }
+    window.openContentModal = function(id){ document.getElementById('cEditId').value=''; document.getElementById('cTitle').value=''; tempImageBase64=""; document.getElementById('preview-image').style.display='none'; if(id){const c=data.content.find(x=>x.id==id); document.getElementById('cEditId').value=c.id; document.getElementById('cTitle').value=c.title; document.getElementById('cDate').value=c.date; document.getElementById('cPlatform').value=c.plat; document.getElementById('cFormat').value=c.format; document.getElementById('cStatus').value=c.status; document.getElementById('cCaption').value=c.caption; if(c.image){document.getElementById('preview-image').src=c.image; document.getElementById('preview-image').style.display='block'; tempImageBase64=c.image;}} openModal('contentModal'); }
+    function updateContentUI(){ const b=document.getElementById('contentBody'); b.innerHTML=''; (data.content || []).forEach(c=>{ const i=c.image?`<img src="${c.image}" class="content-thumbnail" onclick="openContentModal('${c.id}')">`:'<div class="content-thumbnail" style="display:flex;align-items:center;justify-content:center;background:var(--border)">📄</div>'; b.innerHTML+=`<tr><td>${i}</td><td>${c.date}</td><td>${c.plat}</td><td>${c.title}</td><td><span class="status-badge status-${c.status}">${c.status}</span></td><td style="text-align:right"><div class="action-group"><button class="btn-icon" style="background:var(--warning)" onclick="openContentModal('${c.id}')">✏️</button><button class="btn-icon" style="background:var(--danger)" onclick="delItem('content','${c.id}')">🗑️</button></div></td></tr>`; }); }
 
-    function handleFile(i,p){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{tempFileBase64=e.target.result; document.getElementById(p).innerText="Dosya Hazır";}; r.readAsDataURL(i.files[0]);}}
-    function handleImage(i){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{const img=new Image(); img.src=e.target.result; img.onload=()=>{const c=document.createElement('canvas'); const s=500/img.width; c.width=500; c.height=img.height*s; c.getContext('2d').drawImage(img,0,0,c.width,c.height); tempImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('preview-image').src=tempImageBase64; document.getElementById('preview-image').style.display='block';}}; r.readAsDataURL(i.files[0]);}}
-    function handleBrandUpload(input) { if(input.files[0]) { const n = prompt("Dosya adı ne olsun?"); if(!n) return; const r = new FileReader(); r.onload=e=>{ db.ref('brandAssets/'+Date.now()).set({id:Date.now(), name:n, file:e.target.result}); showToast('Yüklendi','success'); }; r.readAsDataURL(input.files[0]); } }
-    function updateBrandUI() { const g = document.getElementById('brand-grid'); g.innerHTML=''; data.brandAssets.forEach(a => { const isImg = a.file.startsWith('data:image'); g.innerHTML += `<div class="asset-card"><div class="asset-preview">${isImg ? `<img src="${a.file}" style="max-height:100%;max-width:100%;border-radius:4px">` : '📄'}</div><div class="asset-name">${a.name}</div><a href="${a.file}" download="${a.name}" class="btn-sm" style="display:block;margin-top:10px;text-decoration:none;background:var(--primary);color:white">İndir</a></div>`; }); }
+    window.handleFile = function(i,p){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{tempFileBase64=e.target.result; document.getElementById(p).innerText="Dosya Hazır";}; r.readAsDataURL(i.files[0]);}}
+    window.handleImage = function(i){ if(i.files[0]){const r=new FileReader(); r.onload=e=>{const img=new Image(); img.src=e.target.result; img.onload=()=>{const c=document.createElement('canvas'); const s=500/img.width; c.width=500; c.height=img.height*s; c.getContext('2d').drawImage(img,0,0,c.width,c.height); tempImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('preview-image').src=tempImageBase64; document.getElementById('preview-image').style.display='block';}}; r.readAsDataURL(i.files[0]);}}
+    window.handleBrandUpload = function(input) { if(input.files[0]) { const n = prompt("Dosya adı ne olsun?"); if(!n) return; const r = new FileReader(); r.onload=e=>{ db.ref('brandAssets/'+Date.now()).set({id:Date.now(), name:n, file:e.target.result}); showToast('Yüklendi','success'); }; r.readAsDataURL(input.files[0]); } }
+    function updateBrandUI() { const g = document.getElementById('brand-grid'); g.innerHTML=''; (data.brandAssets || []).forEach(a => { const isImg = a.file.startsWith('data:image'); g.innerHTML += `<div class="asset-card"><div class="asset-preview">${isImg ? `<img src="${a.file}" style="max-height:100%;max-width:100%;border-radius:4px">` : '📄'}</div><div class="asset-name">${a.name}</div><a href="${a.file}" download="${a.name}" class="btn-sm" style="display:block;margin-top:10px;text-decoration:none;background:var(--primary);color:white">İndir</a></div>`; }); }
 
     function updateDashboard() {
         const ul = document.getElementById('dash-upcoming-list'); ul.innerHTML = '';
         const sl = document.getElementById('dash-stock-list'); sl.innerHTML = '';
         const fl = document.getElementById('dash-fair-list'); fl.innerHTML = '';
         const now = new Date();
-        data.fairs.forEach(f => {
+        
+        (data.fairs || []).forEach(f => {
             const d = Math.ceil((new Date(f.date)-now)/86400000);
             if(d>=0 && d<=30) ul.innerHTML+=`<div class="alert-item"><div><strong>${f.name}</strong></div><div>${d} Gün</div></div>`;
             let t=parseFloat(f.rent||0)+parseFloat(f.const||0);
             fl.innerHTML+=`<tr><td>${f.name}</td><td>${f.date}</td><td align="right">$ ${t.toLocaleString()}</td></tr>`;
         });
-        data.inventory.slice(0, 10).forEach(i => {
+        
+        (data.inventory || []).slice(0, 10).forEach(i => {
             sl.innerHTML+=`<tr><td>${i.name}</td><td>${i.wh}</td><td align="right"><b>${i.qty}</b></td></tr>`;
         });
+        
         document.getElementById('d-fair').innerText=document.getElementById('bdg-spent').innerText;
-        document.getElementById('d-press').innerText=data.press.length;
+        document.getElementById('d-press').innerText=(data.press || []).length;
         updateBudgetUI();
     }
 
     function initCalendar() {
         const el = document.getElementById('calendar'); if(!el)return;
         let evs = [];
-        data.fairs.forEach(f=>evs.push({title:"🏟️ "+f.name, start:f.date, color:'#ef4444'}));
-        data.content.forEach(c=>evs.push({title:"📱 "+c.title, start:c.date, color:'#4f46e5'}));
+        (data.fairs || []).forEach(f=>evs.push({title:"🏟️ "+f.name, start:f.date, color:'#ef4444'}));
+        (data.content || []).forEach(c=>evs.push({title:"📱 "+c.title, start:c.date, color:'#4f46e5'}));
         el.innerHTML = "";
         new FullCalendar.Calendar(el, {initialView:'dayGridMonth', locale:'tr', events:evs, height: 600}).render();
     }
 
     function updateBudgetUI() {
-        let s=0; data.fairs.forEach(f=>{ s+=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>s+=parseFloat(e.cost||0)); });
+        let s=0; (data.fairs || []).forEach(f=>{ s+=parseFloat(f.rent||0)+parseFloat(f.const||0); if(f.expenses)f.expenses.forEach(e=>s+=parseFloat(e.cost||0)); });
         const p=budgetGoal>0?(s/budgetGoal)*100:0;
         document.getElementById('bdg-spent').innerText="$ "+s.toLocaleString(); 
         document.getElementById('bdg-total').innerText="$ "+parseFloat(budgetGoal).toLocaleString();
         const bar=document.getElementById('bdg-bar'); bar.style.width=p+"%";
         document.getElementById('d-fair').innerText="$ "+s.toLocaleString();
-        document.getElementById('d-press').innerText=data.press.length;
+        document.getElementById('d-press').innerText=(data.press || []).length;
     }
     
-    function setBudget() { const v=prompt("Yıllık Bütçe Hedefi ($):",budgetGoal); if(v){budgetGoal=parseFloat(v); localStorage.setItem('budgetGoal',budgetGoal); updateBudgetUI();} }
-    function generatePDF() { const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFont("helvetica","bold"); doc.text("Pavo Group Raporu",14,20); doc.autoTable({startY:35, head:[['Metrik','Değer']], body:[['Stok',data.inventory.reduce((a,b)=>a+parseInt(b.qty),0)],['Fuar',data.fairs.length]]}); doc.save("Rapor.pdf"); }
+    window.setBudget = function() { const v=prompt("Yıllık Bütçe Hedefi ($):",budgetGoal); if(v){budgetGoal=parseFloat(v); localStorage.setItem('budgetGoal',budgetGoal); updateBudgetUI();} }
+    window.generatePDF = function() { const {jsPDF}=window.jspdf; const doc=new jsPDF(); doc.setFont("helvetica","bold"); doc.text("Pavo Group Raporu",14,20); doc.autoTable({startY:35, head:[['Metrik','Değer']], body:[['Stok',data.inventory.reduce((a,b)=>a+parseInt(b.qty),0)],['Fuar',data.fairs.length]]}); doc.save("Rapor.pdf"); }
 
     function logAction(a,d){ if(currentUser) db.ref('logs/'+Date.now()).set({time:new Date().toLocaleString('tr-TR'), user:currentUser.email, action:a+' '+d}); }
     function showToast(m,t){ const d=document.createElement('div'); d.className=`toast ${t}`; d.innerHTML=m; document.getElementById('toast-container').appendChild(d); setTimeout(()=>d.remove(),3000); }
-    function delItem(p, id) { if(confirm('Emin misiniz?')) db.ref(p+'/'+id).remove(); }
-    function showPage(p,b){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); document.getElementById(p).classList.add('active'); b.classList.add('active'); if(p==='calendar-page') setTimeout(()=>window.dispatchEvent(new Event('resize')), 100); }
-    function closeModal(id){ document.getElementById(id).style.display='none'; }
-    function openModal(id){ document.getElementById(id).style.display='flex'; }
-    function toggleTheme(){ const b=document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')=='dark'?'light':'dark'); }
+    window.delItem = function(p, id) { if(confirm('Emin misiniz?')) db.ref(p+'/'+id).remove(); }
+    window.showPage = function(p,b){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); document.getElementById(p).classList.add('active'); b.classList.add('active'); if(p==='calendar-page') setTimeout(()=>window.dispatchEvent(new Event('resize')), 100); }
+    window.closeModal = function(id){ document.getElementById(id).style.display='none'; }
+    window.openModal = function(id){ document.getElementById(id).style.display='flex'; }
+    window.toggleTheme = function(){ const b=document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')=='dark'?'light':'dark'); }
 </script>
 
 </body>
