@@ -1,132 +1,360 @@
-<div id="stok-page" class="page">
-    <div class="card">
-        <h3>Hızlı Ürün Girişi</h3>
-        <div class="form-grid">
-            <input type="text" id="pName" placeholder="Ürün Adı">
-            <select id="pCat">
-                <option>Promosyon</option>
-                <option>Basılı</option>
-                <option>Sarf</option>
-                <option>Demirbaş</option>
-            </select>
-            <select id="pWh">
-                <option>Ankara</option>
-                <option>İstanbul</option>
-            </select>
-            <input type="number" id="pQty" placeholder="Adet">
-            <button class="btn btn-primary" onclick="addProduct()">Kaydet</button>
-        </div>
-    </div>
-
-    <div class="card">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px;">
-            <div style="display:flex; gap: 8px;">
-                <button class="btn btn-sm filter-btn active" id="btn-all" onclick="setWhFilter('all')">🌐 Tümü</button>
-                <button class="btn btn-sm filter-btn" id="btn-ankara" onclick="setWhFilter('Ankara')">📍 Ankara</button>
-                <button class="btn btn-sm filter-btn" id="btn-istanbul" onclick="setWhFilter('İstanbul')">📍 İstanbul</button>
-            </div>
-            <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="Ürün veya kategori ara..." style="max-width: 300px; margin-bottom: 0;">
-        </div>
-
-        <div style="max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
-            <table style="margin-top:0">
-                <thead style="position: sticky; top: 0; background: var(--card-bg); z-index: 10;">
-                    <tr>
-                        <th>Ürün</th>
-                        <th>Depo</th>
-                        <th>Stok</th>
-                        <th style="text-align:right">İşlem</th>
-                    </tr>
-                </thead>
-                <tbody id="stockBody"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Mevcut script'ine eklemen veya güncellemen gereken fonksiyonlar:
-
-    // 1. Filtreleme Fonksiyonu
-    function setWhFilter(v) {
-        whFilter = v;
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pavo Group | Enterprise ERP Pro</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --primary: #4f46e5; --secondary: #64748b; 
+            --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #0ea5e9;
+            --bg: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; --border: #e2e8f0; 
+            --input-bg: #f8fafc; --sidebar-bg: #1e293b;
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a; --card-bg: #1e293b; --text-main: #f1f5f9;
+            --border: #334155; --input-bg: #334155; --secondary: #94a3b8; --sidebar-bg: #020617;
+        }
         
-        // Butonların aktiflik durumunu görsel olarak değiştir
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('btn-primary');
-            btn.style.background = '#e2e8f0';
-            btn.style.color = '#333';
-        });
+        * { box-sizing: border-box; outline: none; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; font-size: 14px; }
 
-        const activeBtn = v === 'all' ? 'btn-all' : (v === 'Ankara' ? 'btn-ankara' : 'btn-istanbul');
-        const target = document.getElementById(activeBtn);
-        target.style.background = 'var(--primary)';
-        target.style.color = 'white';
+        /* TOAST */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+        .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; }
+        .toast.success { border-left: 5px solid var(--success); }
+        .toast.error { border-left: 5px solid var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        updateStockUI();
-    }
+        /* LAYOUT */
+        .wrapper { display: flex; height: 100%; width: 100%; }
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+        .main-container { flex-grow: 1; overflow-y: auto; padding: 25px; position: relative; scroll-behavior: smooth; }
+        .brand-logo { width: 100%; max-width: 160px; margin-bottom: 30px; filter: brightness(0) invert(1); display: block; margin-left: auto; margin-right: auto; }
+        
+        .nav-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin: 15px 0 5px 10px; font-weight: 700; letter-spacing: 0.5px; }
+        .nav-btn { width: 100%; background: transparent; color: #cbd5e1; padding: 10px; border-radius: 8px; margin-bottom: 2px; cursor: pointer; border: none; text-align: left; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-size: 0.9rem; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-    // 2. Stok Arayüzü Güncelleme (Filtreleme desteğiyle)
-    function updateStockUI() {
-        const searchTxt = document.getElementById('searchStock').value.toLowerCase();
-        const b = document.getElementById('stockBody');
-        b.innerHTML = '';
+        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        input, select, textarea { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; width: 100%; }
 
-        data.inventory.forEach(i => {
-            const matchesSearch = i.name.toLowerCase().includes(searchTxt) || i.cat.toLowerCase().includes(searchTxt);
-            const matchesWh = whFilter === 'all' || i.wh === whFilter;
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; position: sticky; top: 0; background: var(--card-bg); z-index: 5; }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; }
+        .action-group { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
+        .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
 
-            if (matchesSearch && matchesWh) {
-                b.innerHTML += `
-                <tr>
-                    <td><b>${i.name}</b><br><small>${i.cat}</small></td>
-                    <td><span class="tag tag-${i.wh}">${i.wh}</span></td>
-                    <td><b style="font-size:1.1rem">${i.qty}</b></td>
-                    <td style="text-align:right">
-                        <div class="action-group">
-                            <input type="number" id="q-${i.id}" value="1" style="width:50px; text-align:center; padding:6px; border:1px solid var(--border); border-radius:6px; margin-right:5px;">
-                            <button class="btn-icon" style="background:var(--success)" onclick="modStock('${i.id}',1)">+</button>
-                            <button class="btn-icon" style="background:var(--danger)" onclick="modStock('${i.id}',-1)">-</button>
-                            <button class="btn-icon" style="background:var(--info)" onclick="transStock('${i.id}')">⇄</button>
-                            <button class="btn-icon" style="background:var(--secondary)" onclick="delItem('inventory', '${i.id}')">🗑️</button>
+        .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .tag-Ankara { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+        .tag-İstanbul { background: #f0f9ff; color: #0369a1; border: 1px solid #e0f2fe; }
+        .money { color: var(--success); font-weight: bold; }
+
+        /* SCROLL BAR CUSTOM */
+        .scroll-container { max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px; }
+        .scroll-container::-webkit-scrollbar { width: 6px; }
+        .scroll-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .hidden { display: none !important; }
+        #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; background: var(--bg); position: fixed; width: 100%; z-index: 3000; }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 700px; border-radius: 16px; padding: 25px; max-height: 90vh; overflow-y: auto; }
+
+        /* DASHBOARD STYLES */
+        .progress-bg { width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s ease; }
+        .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(0,0,0,0.05); border-radius: 8px; margin-bottom: 8px; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div id="toast-container"></div>
+
+    <div id="login-screen">
+        <div class="card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px;">
+            <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo" style="filter: invert(0); margin-bottom: 20px;">
+            <h2>Yönetim Paneli</h2>
+            <input type="email" id="email" placeholder="E-Posta" style="margin-bottom: 15px;">
+            <input type="password" id="password" placeholder="Şifre" style="margin-bottom: 25px;">
+            <button class="btn btn-primary" style="width: 100%;" onclick="login()">Giriş Yap</button>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden">
+        <div class="wrapper">
+            <div class="sidebar">
+                <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo">
+                <div class="nav-label">GENEL BAKIŞ</div>
+                <button class="nav-btn active" onclick="showPage('dashboard-page', this)">📊 Dashboard</button>
+                <button class="nav-btn" onclick="showPage('calendar-page', this)">📅 Görsel Takvim</button>
+                <div class="nav-label">OPERASYONEL</div>
+                <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Stok Yönetimi</button>
+                <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuar Planlama</button>
+                <div class="nav-label">İLETİŞİM</div>
+                <button class="nav-btn" onclick="showPage('media-page', this)">👥 Medya CRM</button>
+                <button class="nav-btn" onclick="showPage('press-page', this)">📰 Basın Yansımaları</button>
+                <button class="nav-btn" onclick="showPage('content-page', this)">📱 İçerik Takvimi</button>
+                <div style="margin-top: auto; padding-top: 15px;">
+                    <div id="user-display" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px;"></div>
+                    <button class="nav-btn" onclick="toggleTheme()">🌓 Tema</button>
+                    <button class="nav-btn" onclick="logout()" style="color: #f87171;">🚪 Çıkış</button>
+                </div>
+            </div>
+
+            <div class="main-container">
+                <div id="dashboard-page" class="page active">
+                    <h2>Dashboard</h2>
+                    <div class="dash-container">
+                        <div class="card">
+                            <h3>💰 Bütçe Durumu</h3>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span id="bdg-spent">$0</span> / <span id="bdg-total">$0</span>
+                            </div>
+                            <div class="progress-bg"><div id="bdg-bar" class="progress-fill" style="width:0%"></div></div>
                         </div>
-                    </td>
-                </tr>`;
+                        <div class="card">
+                            <h3>🚨 Yaklaşan Fuarlar</h3>
+                            <div id="dash-upcoming-list">Yükleniyor...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="stok-page" class="page">
+                    <div class="card">
+                        <h3>Hızlı Ürün Girişi</h3>
+                        <div class="form-grid">
+                            <input type="text" id="pName" placeholder="Ürün Adı">
+                            <select id="pCat"><option>Promosyon</option><option>Basılı</option><option>Sarf</option></select>
+                            <select id="pWh"><option>Ankara</option><option>İstanbul</option></select>
+                            <input type="number" id="pQty" placeholder="Adet">
+                            <button class="btn btn-primary" onclick="addProduct()">Kaydet</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
+                            <div style="display:flex; gap: 5px;">
+                                <button class="btn btn-sm filter-btn active" id="f-all" onclick="setWhFilter('all')">🌐 Tümü</button>
+                                <button class="btn btn-sm filter-btn" id="f-Ankara" onclick="setWhFilter('Ankara')">📍 Ankara</button>
+                                <button class="btn btn-sm filter-btn" id="f-İstanbul" onclick="setWhFilter('İstanbul')">📍 İstanbul</button>
+                            </div>
+                            <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="Ara..." style="max-width:250px;">
+                        </div>
+
+                        <div class="scroll-container">
+                            <table>
+                                <thead>
+                                    <tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlem</th></tr>
+                                </thead>
+                                <tbody id="stockBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fuar-page" class="page"><div class="card"><h3>Fuar Yönetimi</h3><button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button><table><thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th>Sil</th></tr></thead><tbody id="fairBody"></tbody></table></div></div>
+                <div id="calendar-page" class="page"><div class="card"><div id="calendar"></div></div></div>
+                <div id="media-page" class="page"><div class="card"><h3>Medya CRM</h3><tbody id="mediaBody"></tbody></div></div>
+                <div id="press-page" class="page"><div class="card"><h3>Basın Yansımaları</h3><tbody id="pressBody"></tbody></div></div>
+                <div id="content-page" class="page"><div class="card"><h3>İçerik Takvimi</h3><tbody id="contentBody"></tbody></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fairModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Fuar Planlama</h3>
+            <div class="form-grid">
+                <input type="text" id="fName" placeholder="Fuar Adı">
+                <input type="text" id="fCountry" placeholder="Ülke">
+                <input type="date" id="fDate">
+                <input type="number" id="fRent" placeholder="Kira $">
+            </div>
+            <div style="text-align:right; margin-top:20px;">
+                <button class="btn" onclick="closeModal('fairModal')">Kapat</button>
+                <button class="btn btn-primary" onclick="saveFair()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
+            authDomain: "stokmasterbulut.firebaseapp.com",
+            databaseURL: "https://stokmasterbulut-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "stokmasterbulut",
+            storageBucket: "stokmasterbulut.firebasestorage.app",
+            messagingSenderId: "623117556073",
+            appId: "1:623117556073:web:b082fb0567879ac71d45f8"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        
+        let data = { inventory:[], fairs:[], media:[], content:[], logs:[] };
+        let whFilter = 'all';
+        let budgetGoal = 50000;
+
+        // --- AUTH ---
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                document.getElementById('user-display').innerText = user.email;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                initListeners();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
             }
         });
-    }
 
-    // 3. Firebase'den veri çekme dinleyicisi (ID hatasını önlemek için)
-    // Verileri çekerken firebaseId yerine senin oluşturduğun 'id'yi kullandığından emin ol
-    function initListeners() {
-        if(!db) return;
-        const keys = ['inventory', 'fairs', 'media', 'press', 'competitors', 'brandAssets', 'content', 'suppliers', 'logs'];
-        keys.forEach(k => {
-            db.ref(k).on('value', s => {
-                const val = s.val();
-                // Objeyi array'e çevirirken key'leri de saklayalım (silme işlemi için lazım)
-                data[k] = val ? Object.keys(val).map(key => ({...val[key], firebaseId: key})) : [];
-                
-                if(k==='inventory') { updateStockUI(); updateDashboard(); }
-                // ... diğerleri aynı kalabilir
+        function login() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
+        }
+        function logout() { auth.signOut(); }
+
+        // --- LISTENERS ---
+        function initListeners() {
+            const paths = ['inventory', 'fairs', 'media', 'content'];
+            paths.forEach(p => {
+                db.ref(p).on('value', snap => {
+                    const val = snap.val();
+                    data[p] = val ? Object.keys(val).map(k => ({...val[k], firebaseId: k})) : [];
+                    renderPage(p);
+                });
             });
-        });
-    }
+        }
 
-    // 4. Silme fonksiyonunu Firebase'in benzersiz anahtarıyla (firebaseId) çalışacak şekilde güncelle
-    function delItem(p, id) { 
-        // Burada id parametresi aslında i.id (Date.now) idi. 
-        // Eğer veriyi silerken sorun yaşıyorsan db.ref(p).child(id).remove() yapmalısın.
-        const item = data[p].find(x => x.id == id || x.firebaseId == id);
-        const targetId = item.firebaseId || id;
+        function renderPage(p) {
+            if(p === 'inventory') updateStockUI();
+            if(p === 'fairs') { renderFairs(); updateDashboard(); }
+        }
 
-        if(confirm('Bu kaydı silmek istediğinize emin misiniz?')) { 
-            db.ref(p).child(targetId).remove()
-            .then(() => {
-                showToast('Silindi','success'); 
-                logAction('Silme', p);
-            })
-            .catch(err => showToast('Hata: ' + err.message, 'error'));
-        } 
-    }
-</script>
+        // --- STOK LOGIC (TAM ENTEGRE) ---
+        function addProduct() {
+            const name = document.getElementById('pName').value;
+            const qty = document.getElementById('pQty').value;
+            if(!name || !qty) return;
+
+            db.ref('inventory').push({
+                id: Date.now(),
+                name: name,
+                cat: document.getElementById('pCat').value,
+                wh: document.getElementById('pWh').value,
+                qty: parseInt(qty)
+            });
+            document.getElementById('pName').value = '';
+        }
+
+        function setWhFilter(v) {
+            whFilter = v;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active', 'btn-primary'));
+            document.getElementById('f-' + v).classList.add('active', 'btn-primary');
+            updateStockUI();
+        }
+
+        function updateStockUI() {
+            const search = document.getElementById('searchStock').value.toLowerCase();
+            const body = document.getElementById('stockBody');
+            body.innerHTML = '';
+
+            data.inventory.forEach(i => {
+                const matchSearch = i.name.toLowerCase().includes(search);
+                const matchWh = whFilter === 'all' || i.wh === whFilter;
+
+                if(matchSearch && matchWh) {
+                    body.innerHTML += `
+                    <tr>
+                        <td><b>${i.name}</b><br><small>${i.cat}</small></td>
+                        <td><span class="tag tag-${i.wh}">${i.wh}</span></td>
+                        <td><b>${i.qty}</b></td>
+                        <td style="text-align:right">
+                            <div class="action-group">
+                                <button class="btn-icon" style="background:var(--danger)" onclick="delItem('inventory','${i.firebaseId}')">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                }
+            });
+        }
+
+        // --- FUAR & DASHBOARD ---
+        function saveFair() {
+            db.ref('fairs').push({
+                name: document.getElementById('fName').value,
+                date: document.getElementById('fDate').value,
+                rent: document.getElementById('fRent').value || 0
+            });
+            closeModal('fairModal');
+        }
+
+        function renderFairs() {
+            const b = document.getElementById('fairBody'); if(!b) return;
+            b.innerHTML = '';
+            data.fairs.forEach(f => {
+                b.innerHTML += `<tr><td>${f.name}</td><td>${f.date}</td><td>$${f.rent}</td><td><button onclick="delItem('fairs','${f.firebaseId}')">X</button></td></tr>`;
+            });
+        }
+
+        function updateDashboard() {
+            let spent = 0;
+            data.fairs.forEach(f => spent += parseFloat(f.rent || 0));
+            document.getElementById('bdg-spent').innerText = "$" + spent.toLocaleString();
+            document.getElementById('bdg-total').innerText = "$" + budgetGoal.toLocaleString();
+            document.getElementById('bdg-bar').style.width = Math.min((spent/budgetGoal)*100, 100) + "%";
+
+            const list = document.getElementById('dash-upcoming-list');
+            list.innerHTML = '';
+            data.fairs.slice(0,3).forEach(f => {
+                list.innerHTML += `<div class="alert-item"><b>${f.name}</b> <span>${f.date}</span></div>`;
+            });
+        }
+
+        // --- UTILS ---
+        function delItem(p, fid) {
+            if(confirm('Silinsin mi?')) db.ref(p).child(fid).remove();
+        }
+
+        function showPage(p, btn) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+            document.getElementById(p).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function toggleTheme() {
+            const b = document.body;
+            b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        }
+    </script>
+</body>
+</html>
