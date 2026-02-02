@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
@@ -30,68 +29,51 @@
         * { box-sizing: border-box; outline: none; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; font-size: 14px; }
 
-        /* TOAST SYSTEM */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
         .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; }
         .toast.success { border-left: 5px solid var(--success); }
         .toast.error { border-left: 5px solid var(--danger); }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        /* LAYOUT */
         .wrapper { display: flex; height: 100%; width: 100%; }
         .sidebar { width: 260px; background: var(--sidebar-bg); color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
         .main-container { flex-grow: 1; overflow-y: auto; padding: 25px; position: relative; scroll-behavior: smooth; }
-        .brand-logo { width: 100%; max-width: 160px; margin-bottom: 30px; filter: brightness(0) invert(1); display: block; margin: 0 auto 30px auto; }
+        .brand-logo { width: 100%; max-width: 160px; margin: 0 auto 30px auto; filter: brightness(0) invert(1); display: block; }
         
-        /* NAVIGATION */
-        .nav-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin: 15px 0 5px 10px; font-weight: 700; letter-spacing: 0.5px; }
-        .nav-btn { width: 100%; background: transparent; color: #cbd5e1; padding: 10px; border-radius: 8px; margin-bottom: 2px; cursor: pointer; border: none; text-align: left; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-size: 0.9rem; }
+        .nav-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; margin: 15px 0 5px 10px; font-weight: 700; }
+        .nav-btn { width: 100%; background: transparent; color: #cbd5e1; padding: 10px; border-radius: 8px; margin-bottom: 2px; cursor: pointer; border: none; text-align: left; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
         .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
         .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-        /* UI COMPONENTS */
-        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        input, select, textarea { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; width: 100%; }
-        
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
-        
-        /* ACTION BUTTONS */
-        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; cursor: pointer; color: white; transition: 0.2s; font-weight: bold; }
-        .btn-icon:hover { opacity: 0.8; transform: scale(1.1); }
-        
-        /* STOCK EXTRAS */
-        .scroll-container { max-height: 400px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; margin-top: 10px; }
-        .scroll-container::-webkit-scrollbar { width: 6px; }
-        .scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .tag-Ankara { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
-        .tag-İstanbul { background: #f0f9ff; color: #0369a1; border: 1px solid #e0f2fe; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        input, select, textarea { background: var(--input-bg); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 8px; width: 100%; }
 
-        /* DASHBOARD GRID */
-        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-card h2 { margin: 5px 0 0 0; font-size: 1.5rem; }
-        .upcoming-card { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white !important; }
-        .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #fcd34d; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; color: var(--secondary); border-bottom: 2px solid var(--border); font-size: 0.8rem; text-transform: uppercase; position: sticky; top: 0; background: var(--card-bg); z-index: 5; }
+        td { padding: 12px; border-bottom: 1px solid var(--border); }
         
-        .progress-bg { width: 100%; background: #e2e8f0; height: 8px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; color: white; border: none; }
+
+        .tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .tag-Ankara { background: #fff7ed; color: #c2410c; }
+        .tag-İstanbul { background: #f0f9ff; color: #0369a1; }
+
+        .scroll-list { max-height: 400px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; }
+
+        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .upcoming-card { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white !important; }
+        .progress-bg { width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; margin-top: 10px; }
         .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s; }
 
-        /* PAGES */
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; align-items: center; justify-content: center; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--card-bg); width: 90%; max-width: 700px; padding: 25px; border-radius: 16px; max-height: 90vh; overflow-y: auto; }
+        #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body data-theme="light">
@@ -100,11 +82,11 @@
 
     <div id="login-screen">
         <div class="card" style="width: 350px; text-align: center;">
-            <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" style="width: 150px; margin-bottom: 20px;">
+            <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" style="width:140px; margin-bottom:20px;">
             <h3>Yönetim Paneli</h3>
-            <input type="email" id="email" placeholder="E-Posta" style="margin-bottom: 10px;">
-            <input type="password" id="password" placeholder="Şifre" style="margin-bottom: 20px;">
-            <button class="btn btn-primary" style="width: 100%;" onclick="login()">Giriş Yap</button>
+            <input type="email" id="email" placeholder="E-Posta" style="margin-bottom:10px">
+            <input type="password" id="password" placeholder="Şifre" style="margin-bottom:20px">
+            <button class="btn btn-primary" style="width:100%" onclick="login()">Giriş Yap</button>
         </div>
     </div>
 
@@ -112,72 +94,40 @@
         <div class="wrapper">
             <div class="sidebar">
                 <img src="https://www.pavo-group.com/wp-content/uploads/2024/sign/img/logo.png" class="brand-logo">
-                
-                <div class="nav-label">GENEL BAKIŞ</div>
+                <div class="nav-label">MENÜ</div>
                 <button class="nav-btn active" onclick="showPage('dashboard-page', this)">📊 Dashboard</button>
-                <button class="nav-btn" onclick="showPage('calendar-page', this)">📅 Görsel Takvim</button>
-                
-                <div class="nav-label">OPERASYONEL</div>
                 <button class="nav-btn" onclick="showPage('stok-page', this)">📦 Stok Yönetimi</button>
                 <button class="nav-btn" onclick="showPage('fuar-page', this)">🏟️ Fuar Planlama</button>
-                
-                <div class="nav-label">İLETİŞİM</div>
-                <button class="nav-btn" onclick="showPage('media-page', this)">👥 Medya CRM</button>
-                <button class="nav-btn" onclick="showPage('content-page', this)">📱 İçerik Takvimi</button>
-                
-                <div style="margin-top: auto; padding-top: 20px;">
-                    <div id="user-display" style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px;"></div>
-                    <button class="nav-btn" onclick="toggleTheme()">🌓 Tema Değiştir</button>
-                    <button class="nav-btn" onclick="logout()" style="color: #f87171;">🚪 Güvenli Çıkış</button>
+                <div style="margin-top:auto">
+                    <div id="user-info" style="font-size:11px; color:var(--secondary); margin-bottom:10px"></div>
+                    <button class="nav-btn" onclick="toggleTheme()">🌓 Tema</button>
+                    <button class="nav-btn" onclick="logout()" style="color:var(--danger)">🚪 Çıkış</button>
                 </div>
             </div>
 
             <div class="main-container">
-                
                 <div id="dashboard-page" class="page active">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2 style="margin:0">Dashboard</h2>
-                        <button class="btn btn-primary" onclick="generatePDF()">🖨️ Rapor İndir (PDF)</button>
-                    </div>
-
+                    <h2>Dashboard</h2>
                     <div class="dash-container">
-                        <div>
-                            <div class="card">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <h3>💰 Yıllık Bütçe</h3>
-                                    <button class="btn btn-sm" onclick="setBudget()">Hedef Belirle</button>
-                                </div>
-                                <div style="margin-top:10px;">Harcanan: <b id="bdg-spent" class="money">$0</b> / Hedef: <b id="bdg-total">$0</b></div>
-                                <div class="progress-bg"><div id="bdg-bar" class="progress-fill" style="width: 0%;"></div></div>
+                        <div class="card">
+                            <h3>💰 Bütçe Analizi</h3>
+                            <div style="display:flex; justify-content:space-between">
+                                <span id="spent-label">$0</span> / <span id="goal-label">$0</span>
                             </div>
-                            <div class="stats-grid">
-                                <div class="stat-card"><small>Fuar Sayısı</small><h2 id="d-fair-count">0</h2></div>
-                                <div class="stat-card"><small>Stok Çeşitliliği</small><h2 id="d-stock-count">0</h2></div>
-                            </div>
+                            <div class="progress-bg"><div id="budget-bar" class="progress-fill" style="width:0%"></div></div>
                         </div>
                         <div class="card upcoming-card">
                             <h3>🚨 Yaklaşan Fuarlar</h3>
-                            <div id="dash-upcoming-list">Yükleniyor...</div>
-                        </div>
-                    </div>
-
-                    <div class="card" style="margin-top:20px;">
-                        <h3>📦 Kritik Stok Seviyeleri</h3>
-                        <div class="scroll-container" style="max-height: 250px;">
-                            <table>
-                                <thead><tr><th>Ürün</th><th>Depo</th><th>Adet</th></tr></thead>
-                                <tbody id="dash-stock-list"></tbody>
-                            </table>
+                            <div id="dash-upcoming">Veri yok...</div>
                         </div>
                     </div>
                 </div>
 
                 <div id="stok-page" class="page">
                     <div class="card">
-                        <h3>Ürün Ekle</h3>
+                        <h3>Ürün Kayıt</h3>
                         <div class="form-grid">
                             <input type="text" id="pName" placeholder="Ürün Adı">
-                            <select id="pCat"><option>Promosyon</option><option>Basılı</option><option>Sarf</option><option>Demirbaş</option></select>
                             <select id="pWh"><option>Ankara</option><option>İstanbul</option></select>
                             <input type="number" id="pQty" placeholder="Adet">
                             <button class="btn btn-primary" onclick="addProduct()">➕ Kaydet</button>
@@ -185,25 +135,17 @@
                     </div>
 
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
-                            <div style="display:flex; gap:8px;">
-                                <button class="btn btn-sm f-btn active" id="btn-all" onclick="setWhFilter('all')">🌐 Tümü</button>
-                                <button class="btn btn-sm f-btn" id="btn-Ankara" onclick="setWhFilter('Ankara')">📍 Ankara</button>
-                                <button class="btn btn-sm f-btn" id="btn-İstanbul" onclick="setWhFilter('İstanbul')">📍 İstanbul</button>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                            <div style="display:flex; gap:8px">
+                                <button class="btn btn-sm" id="f-all" onclick="setWhFilter('all')" style="background:var(--primary); color:white">🌐 Tümü</button>
+                                <button class="btn btn-sm" id="f-Ankara" onclick="setWhFilter('Ankara')">Ankara</button>
+                                <button class="btn btn-sm" id="f-İstanbul" onclick="setWhFilter('İstanbul')">İstanbul</button>
                             </div>
-                            <input type="text" id="searchStock" onkeyup="updateStockUI()" placeholder="Ürün veya kategori ara..." style="max-width:250px;">
+                            <input type="text" id="pSearch" onkeyup="renderStock()" placeholder="Ara..." style="max-width:200px">
                         </div>
-
-                        <div class="scroll-container">
+                        <div class="scroll-list">
                             <table>
-                                <thead>
-                                    <tr>
-                                        <th>Ürün / Kategori</th>
-                                        <th>Depo</th>
-                                        <th>Mevcut Stok</th>
-                                        <th style="text-align:right">İşlemler</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>Ürün</th><th>Depo</th><th>Stok</th><th style="text-align:right">İşlemler</th></tr></thead>
                                 <tbody id="stockBody"></tbody>
                             </table>
                         </div>
@@ -212,45 +154,18 @@
 
                 <div id="fuar-page" class="page">
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <h3>🏟️ Fuar Yönetimi</h3>
-                            <button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button>
-                        </div>
-                        <div class="scroll-container" style="max-height: 600px;">
-                            <table>
-                                <thead><tr><th>Fuar</th><th>Ülke</th><th>Tarih</th><th>Maliyet</th><th>Sil</th></tr></thead>
-                                <tbody id="fairBody"></tbody>
-                            </table>
-                        </div>
+                        <h3>Fuar Listesi</h3>
+                        <table id="fairTable">
+                            <thead><tr><th>Fuar</th><th>Tarih</th><th>Maliyet</th><th>İşlem</th></tr></thead>
+                            <tbody id="fairBody"></tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div id="calendar-page" class="page"><div class="card"><div id="calendar"></div></div></div>
-                <div id="media-page" class="page"><div class="card"><h3>Medya CRM</h3><table id="mediaTable"><thead><tr><th>İsim</th><th>Kurum</th><th>Email</th><th>Sil</th></tr></thead><tbody id="mediaBody"></tbody></table></div></div>
-                <div id="content-page" class="page"><div class="card"><h3>İçerik Takvimi</h3><table id="contentTable"><thead><tr><th>Tarih</th><th>Platform</th><th>Başlık</th><th>Sil</th></tr></thead><tbody id="contentBody"></tbody></table></div></div>
-
-            </div>
-        </div>
-    </div>
-
-    <div id="fairModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Yeni Fuar Planla</h3>
-            <div class="form-grid">
-                <input type="text" id="fName" placeholder="Fuar Adı">
-                <input type="text" id="fCountry" placeholder="Ülke">
-                <input type="date" id="fDate">
-                <input type="number" id="fRent" placeholder="Kira/Maliyet $">
-            </div>
-            <div style="text-align:right; margin-top:20px;">
-                <button class="btn" onclick="closeModal('fairModal')">İptal</button>
-                <button class="btn btn-primary" onclick="saveFair()">Fuarı Kaydet</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAfvTWPkPVQ63T_fTHiYMRnerHkdgqbTr4",
             authDomain: "stokmasterbulut.firebaseapp.com",
@@ -264,94 +179,70 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
-        
-        let appData = { inventory:[], fairs:[], media:[], content:[] };
+        let appData = { inventory: [], fairs: [] };
         let whFilter = 'all';
-        let budgetGoal = localStorage.getItem('erpBudget') || 50000;
-        let calendar = null;
 
-        // --- AUTH LOGIC ---
+        // --- AUTH ---
+        function login() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e, p).catch(err => showToast("Giriş Başarısız: " + err.message, "error"));
+        }
+        function logout() { auth.signOut(); }
+
         auth.onAuthStateChanged(user => {
             if(user) {
-                document.getElementById('user-display').innerText = user.email;
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                initListeners();
+                document.getElementById('user-info').innerText = user.email;
+                initData();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('app-screen').classList.add('hidden');
             }
         });
 
-        function login() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e,p).catch(err => showToast(err.message, 'error'));
-        }
-        function logout() { auth.signOut(); }
-
-        // --- DATA LISTENERS ---
-        function initListeners() {
-            const paths = ['inventory', 'fairs', 'media', 'content'];
-            paths.forEach(p => {
-                db.ref(p).on('value', snap => {
-                    const val = snap.val();
-                    appData[p] = val ? Object.keys(val).map(key => ({...val[key], fid: key})) : [];
-                    renderView(p);
-                });
+        function initData() {
+            db.ref('inventory').on('value', s => {
+                const v = s.val();
+                appData.inventory = v ? Object.keys(v).map(k => ({...v[k], fid: k})) : [];
+                renderStock();
+            });
+            db.ref('fairs').on('value', s => {
+                const v = s.val();
+                appData.fairs = v ? Object.keys(v).map(k => ({...v[k], fid: k})) : [];
+                updateDashboard();
             });
         }
 
-        function renderView(p) {
-            if(p === 'inventory') updateStockUI();
-            if(p === 'fairs') { renderFairs(); updateDashboard(); if(calendar) calendar.refetchEvents(); }
-            if(p === 'media') renderMedia();
-            if(p === 'content') renderContent();
-        }
-
-        // --- STOK YÖNETİMİ (GELİŞMİŞ BUTONLAR) ---
+        // --- STOK İŞLEMLERİ ---
         function addProduct() {
             const n = document.getElementById('pName').value;
             const q = parseInt(document.getElementById('pQty').value);
-            if(!n || isNaN(q)) return showToast("Eksik alanları doldurun", "error");
-
-            db.ref('inventory').push({
-                name: n, cat: document.getElementById('pCat').value,
-                wh: document.getElementById('pWh').value, qty: q, id: Date.now()
-            });
+            if(!n || isNaN(q)) return showToast("Eksik veri", "error");
+            db.ref('inventory').push({ name: n, wh: document.getElementById('pWh').value, qty: q, id: Date.now() });
             document.getElementById('pName').value = '';
-            showToast("Ürün eklendi", "success");
         }
 
-        function setWhFilter(v) {
-            whFilter = v;
-            document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + v).classList.add('active');
-            updateStockUI();
-        }
-
-        function updateStockUI() {
-            const search = document.getElementById('searchStock').value.toLowerCase();
-            const b = document.getElementById('stockBody');
-            b.innerHTML = '';
+        function renderStock() {
+            const query = document.getElementById('pSearch').value.toLowerCase();
+            const body = document.getElementById('stockBody');
+            body.innerHTML = '';
 
             appData.inventory.forEach(i => {
-                const matchSearch = i.name.toLowerCase().includes(search) || i.cat.toLowerCase().includes(search);
-                const matchWh = whFilter === 'all' || i.wh === whFilter;
-
-                if(matchSearch && matchWh) {
-                    b.innerHTML += `
+                if((whFilter === 'all' || i.wh === whFilter) && i.name.toLowerCase().includes(query)) {
+                    body.innerHTML += `
                     <tr>
-                        <td><b>${i.name}</b><br><small style="color:var(--secondary)">${i.cat}</small></td>
+                        <td><b>${i.name}</b></td>
                         <td><span class="tag tag-${i.wh}">${i.wh}</span></td>
-                        <td><b style="font-size:1.1rem">${i.qty}</b></td>
+                        <td><b>${i.qty}</b></td>
                         <td style="text-align:right">
-                            <div class="action-group">
-                                <input type="number" id="q-${i.fid}" value="1" style="width:45px; padding:4px; height:28px;">
-                                <button class="btn-icon" style="background:var(--success)" onclick="modQty('${i.fid}', 1)">+</button>
-                                <button class="btn-icon" style="background:var(--danger)" onclick="modQty('${i.fid}', -1)">-</button>
-                                <button class="btn-icon" style="background:var(--info)" onclick="transferStock('${i.fid}')">⇄</button>
-                                <button class="btn-icon" style="background:var(--secondary)" onclick="delItem('inventory','${i.fid}')">🗑️</button>
+                            <div style="display:flex; gap:5px; justify-content:flex-end">
+                                <input type="number" id="v-${i.fid}" value="1" style="width:40px; padding:2px">
+                                <button class="btn-icon" style="background:var(--success)" onclick="updateQty('${i.fid}', 1)">+</button>
+                                <button class="btn-icon" style="background:var(--danger)" onclick="updateQty('${i.fid}', -1)">-</button>
+                                <button class="btn-icon" style="background:var(--info)" onclick="transfer('${i.fid}')">⇄</button>
+                                <button class="btn-icon" style="background:var(--secondary)" onclick="del('inventory','${i.fid}')">🗑️</button>
                             </div>
                         </td>
                     </tr>`;
@@ -359,129 +250,71 @@
             });
         }
 
-        function modQty(fid, factor) {
+        function updateQty(fid, factor) {
             const item = appData.inventory.find(x => x.fid === fid);
-            const val = parseInt(document.getElementById('q-' + fid).value);
-            if(isNaN(val)) return;
+            const val = parseInt(document.getElementById('v-' + fid).value);
             const newQty = item.qty + (val * factor);
             if(newQty < 0) return showToast("Stok yetersiz", "error");
             db.ref('inventory/' + fid).update({ qty: newQty });
         }
 
-        function transferStock(fid) {
+        function transfer(fid) {
             const item = appData.inventory.find(x => x.fid === fid);
-            const val = parseInt(document.getElementById('q-' + fid).value);
-            if(isNaN(val) || val > item.qty) return showToast("Geçersiz miktar", "error");
-
+            const val = parseInt(document.getElementById('v-' + fid).value);
+            if(val > item.qty) return showToast("Mevcut stoktan fazla transfer edilemez", "error");
+            
             const targetWh = item.wh === "Ankara" ? "İstanbul" : "Ankara";
             db.ref('inventory/' + fid).update({ qty: item.qty - val });
-
-            const existing = appData.inventory.find(x => x.name === item.name && x.wh === targetWh);
-            if(existing) db.ref('inventory/' + existing.fid).update({ qty: existing.qty + val });
-            else db.ref('inventory').push({ name: item.name, cat: item.cat, wh: targetWh, qty: val, id: Date.now() });
             
-            showToast(`${targetWh} deposuna transfer edildi`, "success");
+            const targetItem = appData.inventory.find(x => x.name === item.name && x.wh === targetWh);
+            if(targetItem) db.ref('inventory/' + targetItem.fid).update({ qty: targetItem.qty + val });
+            else db.ref('inventory').push({ name: item.name, wh: targetWh, qty: val, id: Date.now() });
+            
+            showToast(targetWh + " deposuna taşındı", "success");
         }
 
-        // --- DASHBOARD ANALİZ ---
+        function setWhFilter(v) {
+            whFilter = v;
+            document.querySelectorAll('.btn-sm').forEach(b => b.style.background = 'transparent');
+            document.getElementById('f-' + v).style.background = 'var(--primary)';
+            renderStock();
+        }
+
+        // --- DASHBOARD & UTILS ---
         function updateDashboard() {
-            let totalSpent = 0;
-            appData.fairs.forEach(f => totalSpent += parseFloat(f.rent || 0));
-
-            document.getElementById('bdg-spent').innerText = "$" + totalSpent.toLocaleString();
-            document.getElementById('bdg-total').innerText = "$" + parseFloat(budgetGoal).toLocaleString();
-            document.getElementById('bdg-bar').style.width = Math.min((totalSpent/budgetGoal)*100, 100) + "%";
-
-            document.getElementById('d-fair-count').innerText = appData.fairs.length;
-            document.getElementById('d-stock-count').innerText = appData.inventory.length;
-
-            // Kritik Stok (Örn: 10'dan az)
-            const dsl = document.getElementById('dash-stock-list');
-            dsl.innerHTML = '';
-            appData.inventory.filter(i => i.qty < 10).forEach(i => {
-                dsl.innerHTML += `<tr><td>${i.name}</td><td>${i.wh}</td><td style="color:var(--danger)"><b>${i.qty}</b></td></tr>`;
-            });
-
-            // Yaklaşan Fuarlar
-            const dul = document.getElementById('dash-upcoming-list');
-            dul.innerHTML = '';
-            const now = new Date();
-            appData.fairs.forEach(f => {
-                const fDate = new Date(f.date);
-                const diff = Math.ceil((fDate - now) / (1000 * 60 * 60 * 24));
-                if(diff >= 0 && diff < 30) {
-                    dul.innerHTML += `<div class="alert-item"><div><b>${f.name}</b><br><small>${f.country}</small></div><div>${diff} Gün Kaldı</div></div>`;
-                }
+            let spent = 0;
+            appData.fairs.forEach(f => spent += parseFloat(f.rent || 0));
+            document.getElementById('spent-label').innerText = "$" + spent.toLocaleString();
+            document.getElementById('goal-label').innerText = "$50,000";
+            document.getElementById('budget-bar').style.width = Math.min((spent/50000)*100, 100) + "%";
+            
+            const upcoming = document.getElementById('dash-upcoming');
+            upcoming.innerHTML = '';
+            appData.fairs.slice(0,2).forEach(f => {
+                upcoming.innerHTML += `<div class="alert-item"><b>${f.name}</b> <span>${f.date}</span></div>`;
             });
         }
 
-        // --- FUAR & DİĞER ---
-        function saveFair() {
-            const n = document.getElementById('fName').value;
-            if(!n) return;
-            db.ref('fairs').push({
-                name: n, country: document.getElementById('fCountry').value,
-                date: document.getElementById('fDate').value,
-                rent: document.getElementById('fRent').value || 0
-            });
-            closeModal('fairModal');
-        }
-
-        function renderFairs() {
-            const b = document.getElementById('fairBody');
-            b.innerHTML = '';
-            appData.fairs.forEach(f => {
-                b.innerHTML += `<tr><td><b>${f.name}</b></td><td>${f.country}</td><td>${f.date}</td><td class="money">$${f.rent}</td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('fairs','${f.fid}')">🗑️</button></td></tr>`;
-            });
-        }
-
-        function delItem(path, fid) {
-            if(confirm("Silmek istediğinize emin misiniz?")) db.ref(path + "/" + fid).remove();
-        }
-
-        // --- UI HELPERS ---
+        function del(p, fid) { if(confirm("Silmek istediğinize emin misiniz?")) db.ref(p).child(fid).remove(); }
+        
         function showPage(id, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             btn.classList.add('active');
-            if(id === 'calendar-page') initCalendar();
         }
 
-        function initCalendar() {
-            const el = document.getElementById('calendar');
-            if(!calendar) {
-                calendar = new FullCalendar.Calendar(el, {
-                    initialView: 'dayGridMonth',
-                    locale: 'tr',
-                    events: function(info, successCallback) {
-                        const evs = appData.fairs.map(f => ({ title: "🏟️ " + f.name, start: f.date, color: '#4f46e5' }));
-                        successCallback(evs);
-                    }
-                });
-                calendar.render();
-            }
-        }
-
-        function setBudget() {
-            const b = prompt("Yeni yıllık bütçe hedefi ($):", budgetGoal);
-            if(b) { budgetGoal = b; localStorage.setItem('erpBudget', b); updateDashboard(); }
-        }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function toggleTheme() {
             const b = document.body;
-            const current = b.getAttribute('data-theme');
-            b.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+            const theme = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            b.setAttribute('data-theme', theme);
         }
+
         function showToast(m, t) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${t}`;
-            toast.innerText = m;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            const d = document.createElement('div');
+            d.className = `toast ${t}`; d.innerText = m;
+            document.getElementById('toast-container').appendChild(d);
+            setTimeout(() => d.remove(), 3000);
         }
     </script>
 </body>
