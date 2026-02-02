@@ -231,6 +231,13 @@
                                 <h3 style="color:white !important; margin-bottom:20px;">🚨 Yaklaşan Fuarlar</h3>
                                 <div id="dash-upcoming-list" class="scroll-list" style="max-height:220px;"><p style="opacity:0.7">Yükleniyor...</p></div>
                             </div>
+                            <!-- YENİ: GRAFİK ALANI -->
+                            <div class="card" style="margin-top:20px; height:220px; position:relative;">
+                                <h4 style="margin:0 0 10px 0;">Stok Kategorileri</h4>
+                                <div style="height:170px;">
+                                    <canvas id="dashboardChart"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="dash-container" style="margin-top:20px;">
@@ -421,6 +428,11 @@
                     document.getElementById('user-display').innerText = u.email;
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('app-screen').classList.remove('hidden');
+                    
+                    // YENİ: Tema tercihini yükle
+                    const savedTheme = localStorage.getItem('theme') || 'light';
+                    document.body.setAttribute('data-theme', savedTheme);
+
                     initListeners();
                     initCalendar(); 
                     updateBudgetUI();
@@ -802,6 +814,48 @@
         document.getElementById('d-fair').innerText=document.getElementById('bdg-spent').innerText;
         document.getElementById('d-press').innerText=(data.press || []).length;
         updateBudgetUI();
+        
+        // YENİ: Chart Render
+        renderDashboardChart();
+    }
+
+    function renderDashboardChart() {
+        const ctx = document.getElementById('dashboardChart');
+        if (!ctx) return;
+
+        // Kategori verilerini hazırla
+        const categories = {};
+        (data.inventory || []).forEach(i => {
+            categories[i.cat] = (categories[i.cat] || 0) + parseInt(i.qty);
+        });
+
+        const labels = Object.keys(categories);
+        const values = Object.values(categories);
+
+        // Chart instance varsa önce yok et (yoksa üst üste biner)
+        if (window.dashboardChartInstance) {
+            window.dashboardChartInstance.destroy();
+        }
+
+        window.dashboardChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Stok Adedi',
+                    data: values,
+                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
     }
 
     function initCalendar() {
@@ -858,7 +912,14 @@
     window.showPage = function(p,b){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); document.getElementById(p).classList.add('active'); b.classList.add('active'); if(p==='calendar-page') setTimeout(()=>window.dispatchEvent(new Event('resize')), 100); }
     window.closeModal = function(id){ document.getElementById(id).style.display='none'; }
     window.openModal = function(id){ document.getElementById(id).style.display='flex'; }
-    window.toggleTheme = function(){ const b=document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')=='dark'?'light':'dark'); }
+    
+    // YENİ: toggleTheme Güncellemesi (Kaydetme Özellikli)
+    window.toggleTheme = function(){ 
+        const b=document.body; 
+        const newTheme = b.getAttribute('data-theme')=='dark'?'light':'dark';
+        b.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
 </script>
 
 </body>
