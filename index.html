@@ -376,13 +376,19 @@
 
     // --- STOK YÖNETİMİ ---
     window.updateStockUI = function() {
-        const t = document.getElementById('searchStock').value.toLowerCase(); 
-        const b = document.getElementById('stockBody'); 
+        const searchInput = document.getElementById('searchStock');
+        if (!searchInput) return;
+        const t = searchInput.value.toLowerCase();
+        const b = document.getElementById('stockBody');
         if(!b) return;
         b.innerHTML='';
         
         (data.inventory || []).forEach(i=>{
-            if((i.name.toLowerCase().includes(t)||i.cat.toLowerCase().includes(t))&&(whFilter=='all'||i.wh==whFilter)){
+            // Güvenli erişim (Safe access)
+            const name = i.name ? i.name.toLowerCase() : "";
+            const cat = i.cat ? i.cat.toLowerCase() : "";
+
+            if((name.includes(t)||cat.includes(t))&&(whFilter=='all'||i.wh==whFilter)){
                 b.innerHTML+=`
                 <tr>
                     <td><b>${i.name}</b><br><small>${i.cat}</small></td>
