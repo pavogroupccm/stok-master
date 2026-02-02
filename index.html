@@ -280,7 +280,7 @@
                     <div class="card">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <h3>Fuar Yönetimi</h3>
-                            <button class="btn btn-primary" onclick="openModal('fairModal')">+ Yeni Fuar</button>
+                            <button class="btn btn-primary" onclick="openNewFairModal()">+ Yeni Fuar</button>
                         </div>
                         <div class="table-wrapper">
                             <table>
@@ -626,6 +626,22 @@
     function updatePressUI(){ const b=document.getElementById('pressBody'); b.innerHTML=''; (data.press || []).forEach(p=>{ b.innerHTML+=`<tr><td>${p.date}</td><td><b>${p.title}</b></td><td><a href="${p.link}" target="_blank" style="color:var(--primary)">Link</a></td><td><button class="btn-icon" style="background:var(--danger)" onclick="delItem('press','${p.id}')">🗑️</button></td></tr>`; }); }
 
     // Fuar
+    window.openNewFairModal = function() {
+        document.getElementById('fEditId').value = '';
+        document.getElementById('fName').value = '';
+        document.getElementById('fCountry').value = '';
+        document.getElementById('fStartDate').value = '';
+        document.getElementById('fEndDate').value = '';
+        document.getElementById('fM2').value = '';
+        document.getElementById('fRent').value = '';
+        document.getElementById('fConst').value = '';
+        document.getElementById('fSupp').value = '';
+        document.getElementById('expenseList').innerHTML = '';
+        document.getElementById('fFilePreview').innerText = '';
+        tempFileBase64 = "";
+        openModal('fairModal');
+    }
+
     window.saveFair = function() {
         if(!db) return;
         const id=document.getElementById('fEditId').value||Date.now().toString();
