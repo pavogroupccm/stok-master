@@ -130,6 +130,24 @@
         .table-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .table-wrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .table-wrapper table thead th { position: sticky; top: 0; background: var(--card-bg); z-index: 1; box-shadow: inset 0 -1px 0 var(--border); }
+
+        /* YENİ DETAY MODAL STİLLERİ */
+        .view-header { border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; }
+        .view-header h2 { margin: 0; color: var(--text-main); font-size: 1.6rem; }
+        .view-header p { margin: 5px 0 0; color: var(--secondary); font-size: 0.95rem; display: flex; gap: 10px; align-items: center; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .info-box { background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+        .info-box label { display: block; font-size: 0.75rem; color: var(--secondary); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        .info-box span { font-weight: 600; font-size: 1rem; color: var(--text-main); }
+
+        .cost-summary { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+        [data-theme="dark"] .cost-summary { background: #1e293b; }
+        .cost-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.95rem; }
+        .cost-row:last-child { border-bottom: none; }
+        .cost-row.total { border-top: 2px solid var(--border); border-bottom: none; margin-top: 10px; padding-top: 15px; font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+        
+        .file-preview-box { margin-top: 20px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 15px; background: rgba(79, 70, 229, 0.05); }
     </style>
 </head>
 <body data-theme="light">
@@ -661,11 +679,73 @@
         };
         if(obj.name){ db.ref('fairs/'+id).update(obj); showToast('Kaydedildi','success'); closeModal('fairModal'); }
     }
-    window.viewFair = function(id){
-        const f=data.fairs.find(x=>x.id==id); let t=parseFloat(f.rent||0)+parseFloat(f.const||0); let h=''; if(f.expenses)f.expenses.forEach(e=>{t+=parseFloat(e.cost); h+=`<div class="detail-row"><span>${e.desc}</span><span>$ ${e.cost}</span></div>`});
-        const fl=f.file?`<div style="margin-top:15px;padding:12px;background:var(--input-bg);border-radius:8px"><a href="${f.file}" download="Dosya" style="text-decoration:none;color:var(--primary)">📎 Dosyayı İndir</a></div>`:'';
-        document.getElementById('viewContent').innerHTML=`<h2 style="color:var(--primary); margin-top:0">${f.name}</h2><p style="color:var(--text-light)">${f.country} | ${f.startDate} - ${f.endDate}</p><div style="background:var(--input-bg); padding:16px; border-radius:12px; margin-bottom:20px"><div class="detail-row"><span>Tedarikçi</span><span>${f.supplier}</span></div><div class="detail-row"><span>Kira</span><span>$ ${f.rent}</span></div>${h}<div class="detail-row total"><span>TOPLAM</span><span>$ ${t.toLocaleString()}</span></div></div>${fl}`; openModal('viewModal');
+    
+    // YENİ VIEWFAIR FONKSİYONU
+    window.viewFair = function(id) {
+        const f = data.fairs.find(x => x.id == id);
+        if (!f) return;
+
+        // Maliyet Hesaplama
+        let rent = parseFloat(f.rent || 0);
+        let constCost = parseFloat(f.const || 0);
+        let extraTotal = 0;
+        let expensesHtml = '';
+
+        if (f.expenses && f.expenses.length > 0) {
+            expensesHtml = '<div style="margin: 10px 0; font-size: 0.85rem; color: var(--secondary); font-weight:600;">Ekstra Giderler:</div>';
+            f.expenses.forEach(e => {
+                let val = parseFloat(e.cost || 0);
+                extraTotal += val;
+                expensesHtml += `<div class="cost-row" style="padding-left:10px; color:var(--secondary); border-bottom:1px solid #f1f5f9;"><span>- ${e.desc}</span><span>$ ${val.toLocaleString()}</span></div>`;
+            });
+        }
+
+        let totalCost = rent + constCost + extraTotal;
+
+        // Dosya Alanı
+        let fileHtml = '';
+        if (f.file) {
+            fileHtml = `
+                <div class="file-preview-box">
+                    <span style="font-size:1.5rem">📄</span>
+                    <div style="flex:1">
+                        <div style="font-weight:600; font-size:0.9rem">Fuar Dosyası</div>
+                        <a href="${f.file}" download="Fuar_Dosyasi" style="color:var(--primary); text-decoration:none; font-size:0.8rem">İndirmek için tıklayın</a>
+                    </div>
+                </div>`;
+        } else {
+            fileHtml = `<div class="file-preview-box" style="background:var(--input-bg); color:var(--secondary); justify-content:center;"><span style="font-size:1.2rem">🚫</span> <span style="font-size:0.9rem">Dosya yüklenmemiş.</span></div>`;
+        }
+
+        // HTML Oluşturma
+        const html = `
+            <div class="view-header">
+                <h2>${f.name}</h2>
+                <p>📍 ${f.country} &nbsp; | &nbsp; 📅 ${f.startDate || '-'} / ${f.endDate || '-'}</p>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-box"><label>Fuar Alanı</label><span>${f.m2 || '0'} m²</span></div>
+                <div class="info-box"><label>Tedarikçi Firma</label><span>${f.supplier || '-'}</span></div>
+                <div class="info-box"><label>Sorumlu</label><span>${currentUser ? currentUser.email : '-'}</span></div>
+                <div class="info-box"><label>Durum</label><span style="color:var(--success)">Planlandı</span></div>
+            </div>
+
+            <div class="cost-summary">
+                <h4 style="margin:0 0 15px 0; color:var(--text-main);">Maliyet Tablosu</h4>
+                <div class="cost-row"><span>Alan Kirası</span><span>$ ${rent.toLocaleString()}</span></div>
+                <div class="cost-row"><span>Stant & Dekorasyon</span><span>$ ${constCost.toLocaleString()}</span></div>
+                ${expensesHtml}
+                <div class="cost-row total"><span>GENEL TOPLAM</span><span>$ ${totalCost.toLocaleString()}</span></div>
+            </div>
+
+            ${fileHtml}
+        `;
+
+        document.getElementById('viewContent').innerHTML = html;
+        openModal('viewModal');
     }
+
     window.editFair = function(id){ const f=data.fairs.find(x=>x.id==id); document.getElementById('fEditId').value=f.id; document.getElementById('fName').value=f.name; document.getElementById('fCountry').value=f.country; document.getElementById('fStartDate').value=f.startDate; document.getElementById('fEndDate').value=f.endDate; document.getElementById('fM2').value=f.m2; document.getElementById('fRent').value=f.rent; document.getElementById('fConst').value=f.const; document.getElementById('fSupp').value=f.supplier; document.getElementById('expenseList').innerHTML=''; if(f.expenses)f.expenses.forEach(e=>addExpenseRow(e.desc,e.cost)); openModal('fairModal'); }
     function updateFairUI(){ 
         const b=document.getElementById('fairBody'); 
